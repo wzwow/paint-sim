@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v11.1</title>
+<title>Medium — paint v11.2</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="app-version" content="medium-v11">
 <meta name="theme-color" content="#161618">
@@ -140,7 +140,7 @@ body.m dialog{padding:18px}
 <div id="stage"><canvas id="c"></canvas><canvas id="cur" style="position:fixed;pointer-events:none"></canvas><div id="msg"></div></div>
 <div id="zoomv">100%</div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v11.1</span></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v11.2</span></div>
  <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tFit" data-tip="Fit to screen" aria-label="Fit to screen" data-ic="fit"></button><button class="ib dk" id="tExp" data-tip="Export PNG" aria-label="Export PNG" data-ic="download"></button></div>
 <!-- top-right: tools -->
 <div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button>
@@ -733,7 +733,7 @@ function fit(){resizeGL();const d=cv.width/Math.max(1,cv.getBoundingClientRect()
 function zoomAt(px,py,f){const s2=Math.min(Math.max(view.s*f,.05),32);view.ox=px-(px-view.ox)*s2/view.s;view.oy=py-(py-view.oy)*s2/view.s;view.s=s2;needRender=true;curDirty=true;}
 function genPaper(){run(P.paper,PAPER,{},{uType:surface.type,uScale:surface.scale});belowDirty=true;needRender=true;}
 // ---- strokes ----
-let last=null,keepLoad=false;
+let last=null,keepLoad=false,strokePen=false,PF=null;
 function dab(x,y,pres,stepPx,tl){touchPx(x*W,y*H,st.size*1.3+20);if(st.tool==='knife')knifeDab(x,y,pres,stepPx,tl);else brushDab(x,y,pres,stepPx,tl);}
 let lastT=0;
 function addPoint(x,y,pres,tl,tms){tl=tl||{t:st.btilt/80,phi:null,pen:false};if(tms==null)tms=performance.now();
@@ -742,6 +742,7 @@ function addPoint(x,y,pres,tl,tms){tl=tl||{t:st.btilt/80,phi:null,pen:false};if(
  const dx=(x-last.x)*W,dy=(y-last.y)*H,dist=Math.hypot(dx,dy);if(dist<.3)return;
  const dt=Math.max(tms-lastT,1);lastT=tms;dyn.speed=dyn.speed*.6+.4*(dist/dt);
  if(tl.mouse&&st.dyn>0){const spN=cl(dyn.speed/1.6);pres=cl(.55+dynE()*(.3-.55*spN),.08,1);}
+ if(last.pend&&strokePen&&dist<Math.max(3,st.size*.12)){last.p=pres;last.tl=tl;return;} // v11.2: pen — no orientation/dab until the nib has really moved (S Pen jitters at touch-down)
  const nd=[dx/dist,dy/dist];if(last.pend){dir=nd;last.pend=false;dab(last.x,last.y,last.p,0,last.tl);}
  {const da=wrapA(Math.atan2(nd[1],nd[0])-Math.atan2(dir[1],dir[0]));const w=Math.min(1,dist/8);dyn.angVel=(dyn.angVel||0)*(1-w)+w*cl(da/dist*1.6,-.08,.08);}dir=last.moved?[dir[0]*.6+nd[0]*.4,dir[1]*.6+nd[1]*.4]:nd;const dl=Math.hypot(dir[0],dir[1])||1;dir=[dir[0]/dl,dir[1]/dl];
  const Rp=st.size/800*(0.5+pres)*.9*512;
@@ -753,11 +754,22 @@ function endStroke(){if(last&&last.pend)dab(last.x,last.y,last.p,0,last.tl);
   const D=dynE(),spN=cl(dyn.speed/1.6);const len=st.size*(.5+2.4*spN)*Math.min(1,D*1.4)/W;let x=last.x,y=last.y,d=dir.slice();const n=Math.max(6,Math.ceil(len*W/1.5));dyn.flick=1;
   for(let i=1;i<=n;i++){const f=i/n;dyn.flickF=f;const rot=dyn.angVel*len*W/n*1.4*(1-.5*f);const c=Math.cos(rot),s_=Math.sin(rot);d=[d[0]*c-d[1]*s_,d[0]*s_+d[1]*c];dir=d.slice();x+=d[0]*len/n;y+=d[1]*len/n*W/H;const pp=Math.max(last.p*(1-.55*f),.2);dab(x,y,pp,len*W/n,last.tl);}dyn.flickF=0;}
  last=null;}
-function beginStroke(opts={}){pushUndo();last=null;resetTips();resetDyn();
+function beginStroke(opts={}){pushUndo();strokePen=false;PF=null;last=null;resetTips();resetDyn();
  if(opts.dir)dir=opts.dir;
  if(st.tool==='knife')knifeBegin();else if(!opts.keep)loadBristles(opts.load==null?1:opts.load);}
 function toUV(e){const r=cvRect(),d=cv.width/r.width;const px=(e.clientX-r.left)*d,py=(r.bottom-e.clientY)*d;return[(px-view.ox)/view.s/W,(py-view.oy)/view.s/H];}
 function devXY(e){const r=cvRect(),d=cv.width/r.width;return[(e.clientX-r.left)*d,(r.bottom-e.clientY)*d];}
+// v11.2: pen stroke-start filter. Android Chrome (S Pen) reports pressure 0/spikes and garbage tilt for the first events after contact:
+// sanitize, ease pressure in, ramp tilt from 0 with clamped per-sample change, smooth azimuth as a vector.
+
+function penSample(e){if(!PF)PF={n:0,p:null,t:0,vx:0,vy:0};const n=PF.n++;
+ let raw=+e.pressure;if(!isFinite(raw)||raw<=0)raw=PF.p!=null?PF.p:.5;raw=cl(raw,.05,1);
+ if(PF.p==null)PF.p=Math.min(raw,.5);else{const tg=n<8?Math.min(raw,PF.p+.06):raw;PF.p+=(tg-PF.p)*(n<8?.3:.6);}
+ const tl=tiltOf(e);if(!tl.pen||!isFinite(tl.t)||!isFinite(tl.phi))return{p:PF.p,tl:{t:PF.t,phi:PF.t>.02?Math.atan2(PF.vy,PF.vx):null,pen:PF.t>.02}};
+ const w=n<6?0:n<12?(n-5)/7:1,tg=tl.t*w,mx=n<12?.04:.15;PF.t+=cl(tg-PF.t,-mx,mx);
+ if(n>=6){const a=n<12?.25:.5;PF.vx+=(Math.cos(tl.phi)-PF.vx)*a;PF.vy+=(Math.sin(tl.phi)-PF.vy)*a;}
+ return{p:PF.p,tl:{t:PF.t,phi:Math.atan2(PF.vy,PF.vx),pen:true}};}
+function feed(ev){const[x,y]=toUV(ev);if(strokePen){if(ev.buttons===0&&PF&&PF.n>0)return;const s=penSample(ev);addPoint(x,y,s.p,s.tl,ev.timeStamp);}else addPoint(x,y,pr(ev),tiltOf(ev),ev.timeStamp);}
 function pr(e){return e.pointerType==='pen'?Math.max(e.pressure||.5,.05):null;}
 function tiltOf(e){if(st.pen&&e.pointerType==='pen'){const tX=e.tiltX||0,tY=e.tiltY||0;
   if(tX||tY){const a=Math.tan(tX*D2R),b=Math.tan(tY*D2R);const alt=Math.atan2(1,Math.hypot(a,b));return{t:cl((Math.PI/2-alt)/(80*D2R)),phi:-Math.atan2(b,a),pen:true};}
@@ -770,14 +782,15 @@ window.addEventListener('keydown',e=>{if(e.code==='Space'&&e.target===document.b
 window.addEventListener('keyup',e=>{if(e.code==='Space'){spaceDown=false;cv.style.cursor='crosshair';}});
 function pinch(){const p=[...touches.values()];if(p.length<2)return null;return{c:[(p[0][0]+p[1][0])/2,(p[0][1]+p[1][1])/2],d:Math.hypot(p[0][0]-p[1][0],p[0][1]-p[1][1])};}
 let penT=-1e9,pend=null;
-function startDraw(e,evs){try{cv.setPointerCapture(e.pointerId);}catch(_){}drawing=e.pointerId;beginStroke({keep:e.shiftKey});for(const ev of evs){const[x,y]=toUV(ev);addPoint(x,y,pr(ev),tiltOf(ev),ev.timeStamp);}hover=null;}
-function evCopy(e){return{clientX:e.clientX,clientY:e.clientY,pressure:e.pressure,tiltX:e.tiltX,tiltY:e.tiltY,altitudeAngle:e.altitudeAngle,azimuthAngle:e.azimuthAngle,pointerType:e.pointerType,timeStamp:e.timeStamp,twist:e.twist};}
+function startDraw(e,evs){try{cv.setPointerCapture(e.pointerId);}catch(_){}drawing=e.pointerId;beginStroke({keep:e.shiftKey});strokePen=e.pointerType==='pen';for(const ev of evs)feed(ev);hover=null;}
+function evCopy(e){return{buttons:e.buttons,clientX:e.clientX,clientY:e.clientY,pressure:e.pressure,tiltX:e.tiltX,tiltY:e.tiltY,altitudeAngle:e.altitudeAngle,azimuthAngle:e.azimuthAngle,pointerType:e.pointerType,timeStamp:e.timeStamp,twist:e.twist};}
 cv.addEventListener('pointerdown',e=>{if(e.pointerType==='pen')penT=performance.now();
  if(e.pointerType==='touch'){if(performance.now()-penT<1500||drawing!=null&&drawing!==e.pointerId&&!touches.has(drawing))return; // palm rejection while pen is in use
   touches.set(e.pointerId,devXY(e));
   if(touches.size>=2){pend=null;if(drawing!=null){drawing=null;endStroke();undo(true);}panning={pinch:pinch()};return;}
   pend={e:evCopy(e),id:e.pointerId,evs:[evCopy(e)],t:performance.now()};try{cv.setPointerCapture(e.pointerId);}catch(_){}return;}
  if(e.button===1||spaceDown){try{cv.setPointerCapture(e.pointerId);}catch(_){}panning={id:e.pointerId,p:devXY(e)};e.preventDefault();return;}
+ if(e.pointerType==='pen'&&e.buttons===0)return; // v11.2: hover/pre-contact pen event
  startDraw(e,[e]);});
 cv.addEventListener('contextmenu',e=>e.preventDefault());document.addEventListener('contextmenu',e=>{if(document.body.classList.contains('m'))e.preventDefault();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
@@ -786,7 +799,7 @@ cv.addEventListener('pointermove',e=>{if(e.pointerType==='pen')penT=performance.
  if(pend&&pend.id===e.pointerId&&!panning){pend.evs.push(evCopy(e));const d=Math.hypot(e.clientX-pend.e.clientX,e.clientY-pend.e.clientY);if(d>8||performance.now()-pend.t>90){const p0=pend;pend=null;startDraw(e,p0.evs);}return;}
  if(panning){if(panning.pinch){const q=pinch();if(q){zoomAt(q.c[0],q.c[1],q.d/Math.max(panning.pinch.d,1));view.ox+=q.c[0]-panning.pinch.c[0];view.oy+=q.c[1]-panning.pinch.c[1];panning.pinch=q;}}
   else if(panning.id===e.pointerId){const p=devXY(e);view.ox+=p[0]-panning.p[0];view.oy+=p[1]-panning.p[1];panning.p=p;needRender=true;curDirty=true;}return;}
- curDirty=true;if(drawing!==e.pointerId){hover={uv:toUV(e),tl:tiltOf(e),p:e.pointerType==='mouse'?.55:Math.max(e.pressure||.5,.3)};return;}let evs=e.getCoalescedEvents?e.getCoalescedEvents():[];if(!evs.length)evs=[e];for(const ev of evs){const[x,y]=toUV(ev);addPoint(x,y,pr(ev),tiltOf(ev),ev.timeStamp);}});
+ curDirty=true;if(drawing!==e.pointerId){hover={uv:toUV(e),tl:tiltOf(e),p:e.pointerType==='mouse'?.55:Math.max(e.pressure||.5,.3)};return;}let evs=e.getCoalescedEvents?e.getCoalescedEvents():[];if(!evs.length)evs=[e];if(e.pointerType==='pen'&&e.buttons===0)return;evs=evs.slice().sort((a,b)=>a.timeStamp-b.timeStamp);for(const ev of evs)feed(ev);});
 const up=e=>{if(pend&&pend.id===e.pointerId){const p0=pend;pend=null;touches.delete(e.pointerId);if(!panning){startDraw(e,p0.evs);drawing=null;endStroke();}return;}touches.delete(e.pointerId);if(panning&&(panning.id===e.pointerId||(panning.pinch&&touches.size<2))){panning=null;return;}if(drawing===e.pointerId){drawing=null;endStroke();}};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
 let hover=null,curDirty=true;const cur=document.getElementById('cur'),cg=cur.getContext('2d');
 let curKey='';function drawCursor(){const r=cvRect();
@@ -1020,6 +1033,7 @@ window.paintAPI={resetPeak:()=>{gpuPeak=gpuBytes;},pause:v=>paused=v,setMedium,s
  profile(y){const b=new Float32Array(W*4);gl.bindFramebuffer(gl.FRAMEBUFFER,OL.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);gl.readPixels(0,Math.round(y*H),W,1,gl.RGBA,gl.FLOAT,b);const o=[];for(let i=170;i<300;i+=2)o.push(b[4*i]+b[4*i+1]);return o;},
  profileV(x){const b=new Float32Array(H*4);gl.bindFramebuffer(gl.FRAMEBUFFER,OL.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);gl.readPixels(Math.round(x*W),0,1,H,gl.RGBA,gl.FLOAT,b);const o=[];for(let i=60;i<460;i+=6)o.push(b[4*i]+b[4*i+1]);return o;},
  probe(x,y){const o=[];for(const k of [0,1,2]){const b=new Float32Array(4);gl.bindFramebuffer(gl.FRAMEBUFFER,OL.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0+k);gl.readPixels(Math.round(x*W),Math.round(y*H),1,1,gl.RGBA,gl.FLOAT,b);o.push([...b].map(v=>+v.toFixed(3)));}return o;},
+ band(u,v,nx,ny,R){const o=[];const b=new Float32Array(4);gl.bindFramebuffer(gl.FRAMEBUFFER,OL.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);let n=0;for(let s=-R;s<=R;s++){const X=Math.round(u*W+nx*s),Y=Math.round(v*H+ny*s);if(X<0||Y<0||X>=W||Y>=H)continue;gl.readPixels(X,Y,1,1,gl.RGBA,gl.FLOAT,b);if(b[0]+b[1]>.02)n++;}return n;},
  info:()=>({W,H,gpuMB:+(gpuBytes/1e6).toFixed(1),gpuPeakMB:+(gpuPeak/1e6).toFixed(1),undoMB:+(undoBytes()/1e6).toFixed(1),awake:awake.size,live:liveTiles.size,hasWater,passCount,maxU:MAXU,simRect,tool:st.tool,shape:st.shape,IF:IF===gl.RGBA32F?'RGBA32F':'RGBA16F',undo:SNAP.length,redo:REDO.length})};
 
 </script></body></html>
