@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v11.2</title>
+<title>Medium — paint v11.3</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="app-version" content="medium-v11">
 <meta name="theme-color" content="#161618">
@@ -140,7 +140,7 @@ body.m dialog{padding:18px}
 <div id="stage"><canvas id="c"></canvas><canvas id="cur" style="position:fixed;pointer-events:none"></canvas><div id="msg"></div></div>
 <div id="zoomv">100%</div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v11.2</span></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v11.3</span></div>
  <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tFit" data-tip="Fit to screen" aria-label="Fit to screen" data-ic="fit"></button><button class="ib dk" id="tExp" data-tip="Export PNG" aria-label="Export PNG" data-ic="download"></button></div>
 <!-- top-right: tools -->
 <div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button>
@@ -749,8 +749,14 @@ function addPoint(x,y,pres,tl,tms){tl=tl||{t:st.btilt/80,phi:null,pen:false};if(
  const sp=st.tool==='knife'?Math.max(.9,Math.min(2.5,(3.4-2.2*tl.t)*.7)):Math.min(Math.max(Rp*.08,1),3);const n=Math.max(1,Math.ceil(dist/sp));
  for(let i=1;i<=n;i++){const f=i/n;const tt={t:last.tl.t+(tl.t-last.tl.t)*f,phi:tl.phi,pen:tl.pen};dab(last.x+(x-last.x)*f,last.y+(y-last.y)*f,last.p+(pres-last.p)*f,dist/n,tt);}
  last={x,y,p:pres,moved:true,tl};}
-function endStroke(){if(last&&last.pend)dab(last.x,last.y,last.p,0,last.tl);
- if(last&&!last.pend&&st.tool==='brush'&&st.flick&&st.dyn>0){ // lift-off: pressure falls to zero while the brush keeps moving, bristles spring back
+function penFlush(){const q=(PF&&PF.q)||[];PF&&(PF.q=[]);if(!q.length)return;
+ const ref=Math.max(PF.lp!=null?PF.lp:q[0].p,.15),tl=PF.ltl||q[0].tl;
+ // drop trailing samples once the raw pressure collapses (lift-off ramp / zero-pressure tail)
+ let n=q.length;while(n>0&&(q[n-1].raw<Math.max(.12,ref*.45)||(n>1&&q[n-1].raw<q[n-2].raw*.7)))n--;
+ // remaining tail: taper pressure gently from ref towards .6*ref, never below .2; tilt frozen
+ for(let i=0;i<n;i++){const f=(i+1)/Math.max(n,1);addPoint(q[i].x,q[i].y,Math.max(.3,Math.min(q[i].p,ref*(1-.25*f))),tl,q[i].ts);}}
+function endStroke(){if(strokePen)penFlush();if(last&&last.pend)dab(last.x,last.y,last.p,0,last.tl);
+ if(last&&!last.pend&&st.tool==='brush'&&st.flick&&st.dyn>0&&!strokePen){ // v11.3: not for pen — the pen has real lift data // lift-off: pressure falls to zero while the brush keeps moving, bristles spring back
   const D=dynE(),spN=cl(dyn.speed/1.6);const len=st.size*(.5+2.4*spN)*Math.min(1,D*1.4)/W;let x=last.x,y=last.y,d=dir.slice();const n=Math.max(6,Math.ceil(len*W/1.5));dyn.flick=1;
   for(let i=1;i<=n;i++){const f=i/n;dyn.flickF=f;const rot=dyn.angVel*len*W/n*1.4*(1-.5*f);const c=Math.cos(rot),s_=Math.sin(rot);d=[d[0]*c-d[1]*s_,d[0]*s_+d[1]*c];dir=d.slice();x+=d[0]*len/n;y+=d[1]*len/n*W/H;const pp=Math.max(last.p*(1-.55*f),.2);dab(x,y,pp,len*W/n,last.tl);}dyn.flickF=0;}
  last=null;}
@@ -769,7 +775,11 @@ function penSample(e){if(!PF)PF={n:0,p:null,t:0,vx:0,vy:0};const n=PF.n++;
  const w=n<6?0:n<12?(n-5)/7:1,tg=tl.t*w,mx=n<12?.04:.15;PF.t+=cl(tg-PF.t,-mx,mx);
  if(n>=6){const a=n<12?.25:.5;PF.vx+=(Math.cos(tl.phi)-PF.vx)*a;PF.vy+=(Math.sin(tl.phi)-PF.vy)*a;}
  return{p:PF.p,tl:{t:PF.t,phi:Math.atan2(PF.vy,PF.vx),pen:true}};}
-function feed(ev){const[x,y]=toUV(ev);if(strokePen){if(ev.buttons===0&&PF&&PF.n>0)return;const s=penSample(ev);addPoint(x,y,s.p,s.tl,ev.timeStamp);}else addPoint(x,y,pr(ev),tiltOf(ev),ev.timeStamp);}
+// v11.3: pen lift-off. The S Pen ramps pressure to ~0 (and tilt drifts) over the last samples before pointerup. Keep a short delay queue so
+// that at lift-off the trailing low/falling-pressure samples can be dropped and the rest drawn as a clean taper with tilt frozen.
+const PQ=8;
+function feed(ev){const[x,y]=toUV(ev);if(strokePen){if(ev.buttons===0&&PF&&PF.n>0)return;let raw=+ev.pressure;if(!isFinite(raw))raw=0;const s=penSample(ev);
+  PF.q=PF.q||[];PF.q.push({x,y,p:s.p,raw,tl:s.tl,ts:ev.timeStamp});if(PF.q.length>PQ){const o=PF.q.shift();addPoint(o.x,o.y,o.p,o.tl,o.ts);PF.lp=o.p;PF.ltl=o.tl;}}else addPoint(x,y,pr(ev),tiltOf(ev),ev.timeStamp);}
 function pr(e){return e.pointerType==='pen'?Math.max(e.pressure||.5,.05):null;}
 function tiltOf(e){if(st.pen&&e.pointerType==='pen'){const tX=e.tiltX||0,tY=e.tiltY||0;
   if(tX||tY){const a=Math.tan(tX*D2R),b=Math.tan(tY*D2R);const alt=Math.atan2(1,Math.hypot(a,b));return{t:cl((Math.PI/2-alt)/(80*D2R)),phi:-Math.atan2(b,a),pen:true};}
@@ -1033,7 +1043,7 @@ window.paintAPI={resetPeak:()=>{gpuPeak=gpuBytes;},pause:v=>paused=v,setMedium,s
  profile(y){const b=new Float32Array(W*4);gl.bindFramebuffer(gl.FRAMEBUFFER,OL.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);gl.readPixels(0,Math.round(y*H),W,1,gl.RGBA,gl.FLOAT,b);const o=[];for(let i=170;i<300;i+=2)o.push(b[4*i]+b[4*i+1]);return o;},
  profileV(x){const b=new Float32Array(H*4);gl.bindFramebuffer(gl.FRAMEBUFFER,OL.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);gl.readPixels(Math.round(x*W),0,1,H,gl.RGBA,gl.FLOAT,b);const o=[];for(let i=60;i<460;i+=6)o.push(b[4*i]+b[4*i+1]);return o;},
  probe(x,y){const o=[];for(const k of [0,1,2]){const b=new Float32Array(4);gl.bindFramebuffer(gl.FRAMEBUFFER,OL.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0+k);gl.readPixels(Math.round(x*W),Math.round(y*H),1,1,gl.RGBA,gl.FLOAT,b);o.push([...b].map(v=>+v.toFixed(3)));}return o;},
- band(u,v,nx,ny,R){const o=[];const b=new Float32Array(4);gl.bindFramebuffer(gl.FRAMEBUFFER,OL.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);let n=0;for(let s=-R;s<=R;s++){const X=Math.round(u*W+nx*s),Y=Math.round(v*H+ny*s);if(X<0||Y<0||X>=W||Y>=H)continue;gl.readPixels(X,Y,1,1,gl.RGBA,gl.FLOAT,b);if(b[0]+b[1]>.02)n++;}return n;},
+ band(u,v,nx,ny,R,wc,thr){const b=new Float32Array(4);const T=wc?WT:OL,atts=wc?[1,2]:[0];let n=0;for(let s=-R;s<=R;s++){const X=Math.round(u*W+nx*s),Y=Math.round(v*H+ny*s);if(X<0||Y<0||X>=W||Y>=H)continue;let t=0;for(const a of atts){gl.bindFramebuffer(gl.FRAMEBUFFER,T.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0+a);gl.readPixels(X,Y,1,1,gl.RGBA,gl.FLOAT,b);t+=wc?b[0]+b[1]+b[2]+b[3]:b[0]+b[1];}if(t>(thr||.02))n++;}return n;},
  info:()=>({W,H,gpuMB:+(gpuBytes/1e6).toFixed(1),gpuPeakMB:+(gpuPeak/1e6).toFixed(1),undoMB:+(undoBytes()/1e6).toFixed(1),awake:awake.size,live:liveTiles.size,hasWater,passCount,maxU:MAXU,simRect,tool:st.tool,shape:st.shape,IF:IF===gl.RGBA32F?'RGBA32F':'RGBA16F',undo:SNAP.length,redo:REDO.length})};
 
 </script></body></html>
