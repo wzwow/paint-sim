@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint prototype v9</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Medium — paint prototype v10</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="app-version" content="medium-v10">
 <style>
 :root{--bg:#efe8dc;--ink:#3b342c;--mute:#8a7f71;--line:#d9cfbf}
 *{box-sizing:border-box}
@@ -43,10 +44,35 @@ dialog .r{display:flex;gap:8px;align-items:center;margin:8px 0}dialog input[type
 .chk{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink);margin-top:8px;cursor:pointer}
 .sub{display:flex;flex-direction:column;gap:10px}
 .hint{font-size:11px;color:var(--mute);line-height:1.5;margin-top:auto}
+/* ---- v10 mobile ---- */
+#tb,#drawer,#pop{display:none}
+body.m{position:fixed;inset:0;overscroll-behavior:none;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body.m #app{display:block}body.m #panel,body.m #side{display:none}
+body.m #stage{position:fixed;left:0;right:0;top:0;bottom:calc(60px + env(safe-area-inset-bottom))}
+body.m #zoomv{bottom:6px;right:8px}
+body.m #tb{display:flex;position:fixed;left:0;right:0;bottom:0;height:calc(60px + env(safe-area-inset-bottom));padding:6px 6px env(safe-area-inset-bottom);gap:4px;align-items:center;background:#f4eee4;border-top:1px solid var(--line);z-index:5}
+#tb button{min-width:44px;height:46px;border:1px solid var(--line);border-radius:10px;background:#fbf8f2;color:var(--ink);font:inherit;font-size:12px;padding:0 6px;flex:0 0 auto}
+#tb #tCol{width:44px;border-radius:50%;box-shadow:inset 0 0 0 2px #fff}
+#tb input{flex:1 1 auto;min-width:50px;height:44px}
+body.m #drawer{display:flex;flex-direction:column;position:fixed;left:0;right:0;bottom:calc(60px + env(safe-area-inset-bottom));max-height:72vh;background:#f7f2ea;border-top:1px solid var(--line);border-radius:14px 14px 0 0;box-shadow:0 -6px 20px #0002;z-index:6;transform:translateY(110%);transition:transform .22s;visibility:hidden}
+body.m #drawer.open{transform:none;visibility:visible}
+#dHead{display:flex;justify-content:space-between;align-items:center;padding:6px 14px;font-weight:600}
+#dHead button{width:44px;height:44px;border:0;background:none;font-size:22px;color:var(--ink)}
+#dBody{overflow:auto;-webkit-overflow-scrolling:touch;padding:0 14px 18px;touch-action:pan-y;overscroll-behavior:contain}
+#dBody details{border-top:1px solid var(--line);padding:4px 0}
+#dBody summary{font-weight:600;padding:12px 2px;min-height:44px;box-sizing:border-box;list-style-position:inside}
+#dBody details>div{margin:8px 0 14px}
+body.m #dBody button,body.m #dBody select{min-height:44px}body.m #dBody input[type=range]{height:36px}
+body.m #dBody .sw{grid-template-columns:repeat(5,1fr)}body.m #dBody .chk{min-height:36px}
+body.m #pop.open{display:block;position:fixed;left:8px;right:8px;bottom:calc(68px + env(safe-area-inset-bottom));background:#f7f2ea;border:1px solid var(--line);border-radius:14px;padding:12px;z-index:7;box-shadow:0 -6px 20px #0002}
+#pop .g{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+#pop .g button{aspect-ratio:1;min-height:44px;border-radius:50%;border:2px solid transparent;box-shadow:inset 0 0 0 1px #0002}
+#pop .g button.on{border-color:var(--ink)}
+#pop label{display:flex;align-items:center;gap:10px;margin-top:10px;min-height:44px}
 </style></head>
 <body><div id="app">
 <div id="panel">
- <h1>Medium <span>· paint prototype v9</span></h1>
+ <h1>Medium <span>· paint prototype v10</span></h1>
  <div><div class="lab"><span>Medium</span><span id="mv">Watercolour</span></div>
   <input id="medium" type="range" min="0" max="1" step="0.01" value="0">
   <div class="ends"><span>Watercolour</span><span>Oil</span></div></div>
@@ -94,6 +120,9 @@ dialog .r{display:flex;gap:8px;align-items:center;margin:8px 0}dialog input[type
   <input type="file" id="openFile" accept=".mpaint" style="display:none"></div>
 </div>
 </div>
+<div id="tb"><button id="tTool">Brush</button><button id="tMed">Water</button><button id="tCol" aria-label="Colour"></button><input id="tSize" type="range" min="4" max="120" step="1" aria-label="Size"><button id="tUndo" aria-label="Undo">↶</button><button id="tSet">☰</button></div>
+<div id="pop"><div class="g" id="popG"></div><label><input id="popC" type="color" value="#2a6f97"> Custom colour</label></div>
+<div id="drawer"><div id="dHead"><span>Settings</span><button id="dClose" aria-label="Close">×</button></div><div id="dBody"></div></div>
 <dialog id="dlgNew"><b>New canvas</b><div class="r"><select id="preset"><option value="1024x768">1024 × 768</option><option value="1536x1024">1536 × 1024</option><option value="2048x1536">2048 × 1536</option><option value="2048x2048">Square 2048</option><option value="1754x2480">A4 portrait 150 dpi (1754 × 2480)</option><option value="2480x3508">A4 portrait 300 dpi (2480 × 3508)</option><option value="3508x4961">A3 portrait 300 dpi (3508 × 4961)</option><option value="4096x4096">Square 4096</option><option value="custom">Custom…</option></select></div>
  <div class="r"><input type="number" id="nw" value="1024" min="256" max="8192"> × <input type="number" id="nh" value="768" min="256" max="8192"></div>
  <div id="nest" class="hint"></div><div class="row2" style="margin-top:12px"><button id="nOk">Create</button><button id="nCancel">Cancel</button></div></dialog>
@@ -362,7 +391,7 @@ const ZERO3=target(3,1,1),SURF1=target(2,1,1);
 let WT,OL,V,PAPER,OUT,BELOW=null,TMP=null,SCR=null,hasWater=false;
 const MAXTEX=gl.getParameter(gl.MAX_TEXTURE_SIZE);const TS=128;let NTX=1,NTY=1;
 function simBytes(w,h){return(w*h>1.6e6||IF!==gl.RGBA32F)?8:16;}
-const UNDO_BUDGET=96e6;
+const UNDO_BUDGET=matchMedia('(pointer:coarse)').matches?48e6:96e6;
 function memEstimate(w,h,oilOnly){const sb=simBytes(w,h);return w*h*((oilOnly?3:7)*sb+8+16)+Math.min(w*h,1024*1024)*3*sb+UNDO_BUDGET;}
 function allocAll(w,h){
  for(const t of [OL&&OL.r,PAPER,OUT,BELOW,TMP,SCR])if(t)delTarget(t);if(hasWater){delTarget(WT.r);delTarget(V.r);}BELOW=TMP=SCR=null;hasWater=false;
@@ -399,7 +428,7 @@ function simPass(pr,T,txs,uni,rects,act,relaxOnly){if(T.r===ZERO3||!rects.length
  rects.forEach((r,i)=>blitT(SCR,r[0],lay[i],T.r,r[0],r[1],r[2],r[3],n));passCount+=rects.length;}
 // activity detection: per-tile max change of a pass (sampled on a 2px checker grid), read back as a tiny NTX×NTY texture
 let ACT=null;
-function actCheck(T,rects,lay,out){if(!ACT||ACT.w!==NTX||ACT.h!==NTY){if(ACT)delTarget(ACT);ACT=target(1,NTX,NTY,gl.RGBA32F,gl.FLOAT);}
+function actCheck(T,rects,lay,out){if(!extF)return;if(!ACT||ACT.w!==NTX||ACT.h!==NTY){if(ACT)delTarget(ACT);ACT=target(1,NTX,NTY,gl.RGBA32F,gl.FLOAT);}
  const rv=new Float32Array(64).fill(-1);rects.forEach((r,i)=>{rv[(r[1]/TS)|0]=lay[i];});
  run(P.act,ACT,{uOld0:T.r.t[0],uOld1:T.r.t[1],uNew0:SCR.t[0],uNew1:SCR.t[1]},{uRowV:rv});
  const b=new Float32Array(NTX*NTY*4);gl.bindFramebuffer(gl.FRAMEBUFFER,ACT.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);gl.readPixels(0,0,NTX,NTY,gl.RGBA,gl.FLOAT,b);
@@ -629,26 +658,36 @@ function beginStroke(opts={}){pushUndo();last=null;resetTips();resetDyn();
  if(st.tool==='knife')knifeBegin();else if(!opts.keep)loadBristles(opts.load==null?1:opts.load);}
 function toUV(e){const r=cv.getBoundingClientRect(),d=cv.width/r.width;const px=(e.clientX-r.left)*d,py=(r.bottom-e.clientY)*d;return[(px-view.ox)/view.s/W,(py-view.oy)/view.s/H];}
 function devXY(e){const r=cv.getBoundingClientRect(),d=cv.width/r.width;return[(e.clientX-r.left)*d,(r.bottom-e.clientY)*d];}
-function pr(e){return e.pointerType==='mouse'?null:Math.max(e.pressure||.5,.05);}
+function pr(e){return e.pointerType==='pen'?Math.max(e.pressure||.5,.05):null;}
 function tiltOf(e){if(st.pen&&e.pointerType==='pen'){const tX=e.tiltX||0,tY=e.tiltY||0;
   if(tX||tY){const a=Math.tan(tX*D2R),b=Math.tan(tY*D2R);const alt=Math.atan2(1,Math.hypot(a,b));return{t:cl((Math.PI/2-alt)/(80*D2R)),phi:-Math.atan2(b,a),pen:true};}
   if(e.altitudeAngle!=null&&e.altitudeAngle<1.55)return{t:cl((Math.PI/2-e.altitudeAngle)/(80*D2R)),phi:-(e.azimuthAngle||0),pen:true};}
- return{t:st.btilt/80,phi:null,pen:false,mouse:e.pointerType==='mouse'};}
+ return{t:st.btilt/80,phi:null,pen:false,mouse:e.pointerType!=='pen'};}
 let drawing=null;
 let panning=null,spaceDown=false;const touches=new Map();
 cv.addEventListener('wheel',e=>{e.preventDefault();const[x,y]=devXY(e);zoomAt(x,y,Math.exp(-e.deltaY*.0015));},{passive:false});
 window.addEventListener('keydown',e=>{if(e.code==='Space'&&e.target===document.body){spaceDown=true;cv.style.cursor='grab';e.preventDefault();}});
 window.addEventListener('keyup',e=>{if(e.code==='Space'){spaceDown=false;cv.style.cursor='crosshair';}});
 function pinch(){const p=[...touches.values()];if(p.length<2)return null;return{c:[(p[0][0]+p[1][0])/2,(p[0][1]+p[1][1])/2],d:Math.hypot(p[0][0]-p[1][0],p[0][1]-p[1][1])};}
-cv.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'){touches.set(e.pointerId,devXY(e));if(touches.size===2){if(drawing!=null){drawing=null;endStroke();}panning={pinch:pinch()};return;}}
+let penT=-1e9,pend=null;
+function startDraw(e,evs){try{cv.setPointerCapture(e.pointerId);}catch(_){}drawing=e.pointerId;beginStroke({keep:e.shiftKey});for(const ev of evs){const[x,y]=toUV(ev);addPoint(x,y,pr(ev),tiltOf(ev),ev.timeStamp);}hover=null;}
+function evCopy(e){return{clientX:e.clientX,clientY:e.clientY,pressure:e.pressure,tiltX:e.tiltX,tiltY:e.tiltY,altitudeAngle:e.altitudeAngle,azimuthAngle:e.azimuthAngle,pointerType:e.pointerType,timeStamp:e.timeStamp,twist:e.twist};}
+cv.addEventListener('pointerdown',e=>{if(e.pointerType==='pen')penT=performance.now();
+ if(e.pointerType==='touch'){if(performance.now()-penT<1500||drawing!=null&&drawing!==e.pointerId&&!touches.has(drawing))return; // palm rejection while pen is in use
+  touches.set(e.pointerId,devXY(e));
+  if(touches.size>=2){pend=null;if(drawing!=null){drawing=null;endStroke();undo();}panning={pinch:pinch()};return;}
+  pend={e:evCopy(e),id:e.pointerId,evs:[evCopy(e)],t:performance.now()};try{cv.setPointerCapture(e.pointerId);}catch(_){}return;}
  if(e.button===1||spaceDown){try{cv.setPointerCapture(e.pointerId);}catch(_){}panning={id:e.pointerId,p:devXY(e)};e.preventDefault();return;}
- try{cv.setPointerCapture(e.pointerId);}catch(_){}drawing=e.pointerId;beginStroke({keep:e.shiftKey});const[x,y]=toUV(e);addPoint(x,y,pr(e),tiltOf(e),e.timeStamp);hover=null;});
+ startDraw(e,[e]);});
+cv.addEventListener('contextmenu',e=>e.preventDefault());document.addEventListener('contextmenu',e=>{if(document.body.classList.contains('m'))e.preventDefault();});
+document.addEventListener('gesturestart',e=>e.preventDefault());
 cv.addEventListener('pointerleave',()=>{hover=null;curDirty=true;});
-cv.addEventListener('pointermove',e=>{if(e.pointerType==='touch'&&touches.has(e.pointerId))touches.set(e.pointerId,devXY(e));
+cv.addEventListener('pointermove',e=>{if(e.pointerType==='pen')penT=performance.now();if(e.pointerType==='touch'&&!touches.has(e.pointerId))return;if(e.pointerType==='touch')touches.set(e.pointerId,devXY(e));
+ if(pend&&pend.id===e.pointerId&&!panning){pend.evs.push(evCopy(e));const d=Math.hypot(e.clientX-pend.e.clientX,e.clientY-pend.e.clientY);if(d>8||performance.now()-pend.t>90){const p0=pend;pend=null;startDraw(e,p0.evs);}return;}
  if(panning){if(panning.pinch){const q=pinch();if(q){zoomAt(q.c[0],q.c[1],q.d/Math.max(panning.pinch.d,1));view.ox+=q.c[0]-panning.pinch.c[0];view.oy+=q.c[1]-panning.pinch.c[1];panning.pinch=q;}}
   else if(panning.id===e.pointerId){const p=devXY(e);view.ox+=p[0]-panning.p[0];view.oy+=p[1]-panning.p[1];panning.p=p;needRender=true;curDirty=true;}return;}
  curDirty=true;if(drawing!==e.pointerId){hover={uv:toUV(e),tl:tiltOf(e),p:e.pointerType==='mouse'?.55:Math.max(e.pressure||.5,.3)};return;}let evs=e.getCoalescedEvents?e.getCoalescedEvents():[];if(!evs.length)evs=[e];for(const ev of evs){const[x,y]=toUV(ev);addPoint(x,y,pr(ev),tiltOf(ev),ev.timeStamp);}});
-const up=e=>{touches.delete(e.pointerId);if(panning&&(panning.id===e.pointerId||(panning.pinch&&touches.size<2))){panning=null;return;}if(drawing===e.pointerId){drawing=null;endStroke();}};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+const up=e=>{if(pend&&pend.id===e.pointerId){const p0=pend;pend=null;touches.delete(e.pointerId);if(!panning){startDraw(e,p0.evs);drawing=null;endStroke();}return;}touches.delete(e.pointerId);if(panning&&(panning.id===e.pointerId||(panning.pinch&&touches.size<2))){panning=null;return;}if(drawing===e.pointerId){drawing=null;endStroke();}};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
 let hover=null,curDirty=true;const cur=document.getElementById('cur'),cg=cur.getContext('2d');
 function drawCursor(){const r=cv.getBoundingClientRect();
  if(cur.width!==cv.width||cur.height!==cv.height){cur.width=cv.width;cur.height=cv.height;}
@@ -721,7 +760,9 @@ function newCanvas(w,h,keepLayers){w=Math.round(w);h=Math.round(h);const prev=[W
  try{allocAll(w,h);}catch(err){try{allocAll(prev[0],prev[1]);}catch(_){}resetDoc();clearAll();genPaper();fit();uiLayers();return{ok:false,msg:'Your GPU could not allocate '+w+'×'+h+' ('+err.message+'). Kept '+W+'×'+H+'.'};}
  resetDoc();clearAll();genPaper();simRect=null;fit();uiLayers();return{ok:true,W,H,IF:SIMIF===gl.RGBA32F?'32F':'16F'};}
 // export
-function readTarget(t,i){const b=new Float32Array(t.w*t.h*4);gl.bindFramebuffer(gl.FRAMEBUFFER,t.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0+i);gl.readPixels(0,0,t.w,t.h,gl.RGBA,gl.FLOAT,b);return b;}
+function readTarget(t,i){const b=new Float32Array(t.w*t.h*4);gl.bindFramebuffer(gl.FRAMEBUFFER,t.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0+i);
+ if(extF){gl.readPixels(0,0,t.w,t.h,gl.RGBA,gl.FLOAT,b);return b;}
+ const h=new Uint16Array(t.w*t.h*4);gl.readPixels(0,0,t.w,t.h,gl.RGBA,gl.HALF_FLOAT,h);for(let j=0;j<h.length;j++)b[j]=fromHalf(h[j]);return b;}
 function pixelsToCanvas(px,w,h){const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');const im=g.createImageData(w,h);
  for(let y=0;y<h;y++)im.data.set(px.subarray((h-1-y)*w*4,(h-y)*w*4),y*w*4);g.putImageData(im,0,0);return c;}
 function renderOut(src,mode,k){const w=W*k,h=H*k;if(w>MAXTEX||h>MAXTEX)throw new Error('export too large');const t=target(1,w,h,gl.RGBA8,gl.UNSIGNED_BYTE);
@@ -760,7 +801,31 @@ async function openProjectBytes(bytes){const raw=new Uint8Array(await new Respon
 $('bSaveP').onclick=async()=>download('painting.mpaint',new Blob([await saveProjectBytes()]));
 $('bOpenP').onclick=()=>$('openFile').click();$('openFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{await openProjectBytes(await f.arrayBuffer());}catch(err){alert('Could not open project: '+err.message);}e.target.value='';};
 // init document
-allocAll(1024,768);resetDoc();clearAll();setSurface({});fit();uiLayers();
+const MQ=matchMedia('(max-width:900px),(pointer:coarse)');
+function setMobile(on){document.body.classList.toggle('m',on);mobileLayout(on);requestAnimationFrame(()=>fit());}
+let initW=1024,initH=768;if(MQ.matches){document.body.classList.add('m');const r=$('stage').getBoundingClientRect();const a=Math.max(r.width,1)/Math.max(r.height,1);if(a<1){initH=1024;initW=Math.round(1024*a/8)*8;}else{initW=1024;initH=Math.round(1024/a/8)*8;}initW=Math.max(256,initW);initH=Math.max(256,initH);}
+allocAll(initW,initH);resetDoc();clearAll();setSurface({});fit();uiLayers();
+// ---- v10 mobile layout: toolbar + drawer (moves the existing controls, so all handlers keep working) ----
+const moved=[];
+function blk(id){const el=$(id);return el.closest('#panel > *, #side > *')||el;}
+const GROUPS=[['Brush',['tool','brushOpts','knifeOpts','dynOpts','btilt','size'],true],['Paint',['medium','wload','sw','bClear','light','relief']],['Canvas & surface',['bNew','surf']],['Layers',['layers']],['Export',['expMode']]];
+function mobileLayout(on){const body=$('dBody');
+ if(on&&!moved.length){for(const[t,ids,open]of GROUPS){const d=document.createElement('details');if(open)d.open=true;const sm=document.createElement('summary');sm.textContent=t;d.appendChild(sm);
+   for(const id of ids){const b=blk(id);if(moved.some(m=>m.el===b))continue;moved.push({el:b,par:b.parentNode,next:b.nextSibling});const w=document.createElement('div');w.appendChild(b);d.appendChild(w);}body.appendChild(d);}}
+ else if(!on&&moved.length){for(const m of moved.slice().reverse())m.par.insertBefore(m.el,m.next);moved.length=0;body.innerHTML='';$('drawer').classList.remove('open');$('pop').classList.remove('open');}}
+PIG.forEach(([n,c],i)=>{const b=document.createElement('button');b.style.background=c||'radial-gradient(circle at 35% 35%,#fff,#cfe3ee)';b.title=n;b.onclick=()=>{selectPig(i);$('pop').classList.remove('open');syncTB();};$('popG').appendChild(b);});
+$('popC').oninput=e=>{$('col').value=e.target.value;$('col').dispatchEvent(new Event('input'));syncTB();};
+$('tTool').onclick=()=>{setTool(st.tool==='brush'?'knife':'brush');syncTB();};
+$('tMed').onclick=()=>{setMedium(st.m<.5?1:0);$('medium').dispatchEvent(new Event('input'));syncTB();};
+$('tCol').onclick=()=>{$('drawer').classList.remove('open');$('pop').classList.toggle('open');};
+$('tSize').oninput=e=>{$('size').value=e.target.value;$('size').dispatchEvent(new Event('input'));};
+$('tUndo').onclick=()=>{undo();};
+$('tSet').onclick=()=>{$('pop').classList.remove('open');$('drawer').classList.toggle('open');};$('dClose').onclick=()=>$('drawer').classList.remove('open');
+cv.addEventListener('pointerdown',()=>{$('pop').classList.remove('open');$('drawer').classList.remove('open');});
+function syncTB(){$('tTool').textContent=st.tool==='brush'?'Brush':'Knife';$('tMed').textContent=st.m<.5?'Water':'Oil';$('tCol').style.background=$('pn').textContent==='Clear water'?'radial-gradient(circle at 35% 35%,#fff,#cfe3ee)':$('col').value;
+ if(document.activeElement!==$('tSize'))$('tSize').value=$('size').value;[...$('popG').children].forEach((b,j)=>b.classList.toggle('on',sw.children[j]&&sw.children[j].classList.contains('on')));}
+setInterval(syncTB,400);syncTB();
+if(MQ.matches)setMobile(true);MQ.addEventListener&&MQ.addEventListener('change',e=>setMobile(e.matches));
 // test hook
 window.paintAPI={resetPeak:()=>{gpuPeak=gpuBytes;},pause:v=>paused=v,setMedium,setSize,selectPig,setHex:h=>{st.ks=hexKS(h);},clear:clearAll,undo,setLight,setRelief,
  step:n=>{for(let i=0;i<n;i++)step();render();},dryAll:()=>{st.dryAll=1;step();render();},
