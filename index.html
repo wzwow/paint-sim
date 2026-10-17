@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v0.12</title>
+<title>Medium — paint v0.13</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="app-version" content="medium-v0.12">
+<meta name="app-version" content="medium-v0.13">
 <meta name="theme-color" content="#161618">
 <style>
 :root{--bg:#161618;--glass:rgba(30,30,33,.97);--card:#232327;--card2:#2b2b30;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);--ink:#ececef;--mute:#9a9aa3;--dim:#6c6c75;--acc:#6ea8ff;--accS:rgba(110,168,255,.16);--r:14px;--sh:0 8px 30px rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.04) inset}
@@ -142,7 +142,7 @@ body.m dialog{padding:18px}
 <div id="stage"><canvas id="c"></canvas><canvas id="cur" style="position:fixed;pointer-events:none"></canvas><div id="msg"></div></div>
 <div id="zoomv">100%</div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.12</span></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.13</span></div>
  <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tFit" data-tip="Fit to screen" aria-label="Fit to screen" data-ic="fit"></button><button class="ib dk" id="tExp" data-tip="Export PNG" aria-label="Export PNG" data-ic="download"></button></div>
 <!-- top-right: tools -->
 <div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button>
@@ -357,7 +357,7 @@ for(int i=0;i<4;i++){vec2 off=i==0?vec2(tx.x,0):i==1?vec2(-tx.x,0):i==2?vec2(0,t
  vec4 sn=texture(uS,vUv+off);float pin=.2+.15*vnoise((FC.xy+off/tx)*.15);if(wn<.003&&w<pin){qi*=sn.y>.05?sn.y*smoothstep(.45,.75,vnoise((FC.xy+off/tx)*.3+3.)):0.;}
  q[i]=qi;}
 float sum=q.x+q.y+q.z+q.w;q*=min(1.,w*.9/max(sum,1e-9));o=q;}`,
-water:`uniform sampler2D uS,uF,uD,uV,uP;uniform float uEvap,uEdgeK,uAll,uGran,uLift,uBloom,uDampDec;${O3}
+water:`uniform sampler2D uS,uF,uD,uV,uP;uniform float uRim,uEvap,uEdgeK,uAll,uGran,uLift,uBloom,uDampDec;${O3}
 void main(){vec2 ex=vec2(tx.x,0),ey=vec2(0,tx.y);vec4 s=texture(uS,vUv),f=texture(uF,vUv),d=texture(uD,vUv),q=texture(uV,vUv);
 float w=s.x;float outq=q.x+q.y+q.z+q.w;
 float wR=texture(uS,vUv+ex).x,wL=texture(uS,vUv-ex).x,wU=texture(uS,vUv+ey).x,wD=texture(uS,vUv-ey).x;
@@ -369,6 +369,12 @@ float mt=mK+mR+mL+mU+mD;float gr=mt>1e-6?(s.w*mK+texture(uS,vUv+ex).w*mR+texture
 vec4 fn=f-f*(outq/max(w,1e-6))+fR*(iR/max(wR,1e-6))+fL*(iL/max(wL,1e-6))+fU*(iU/max(wU,1e-6))+fD*(iD/max(wD,1e-6));
 // pigment diffusion inside water (symmetric => conserved)
 float mc=step(.003,w);fn+=.06*((fR-f)*min(mc,step(.003,wR))+(fL-f)*min(mc,step(.003,wL))+(fU-f)*min(mc,step(.003,wU))+(fD-f)*min(mc,step(.003,wD)));
+// v0.13 edge rims ("coffee-ring"): water evaporates fastest at a wash's edge, so capillary flow carries suspended pigment from thicker
+// towards thinner water; when the wash dries the pigment is left as a dark line at the edge. Modelled as a pairwise drift of suspended
+// pigment down the (relative) water-depth gradient. Antisymmetric, computed from the previous step's values => pigment is conserved.
+{vec4 fo=vec4(0);for(int i=0;i<4;i++){vec2 off=i==0?ex:i==1?-ex:i==2?ey:-ey;float wN=texture(uS,vUv+off).x;vec4 fN=texture(uF,vUv+off);
+  float ok=step(.0008,w)*step(.0008,wN);fo+=ok*uRim*(clamp((wN-w)/max(wN,1e-5),0.,1.)*fN-clamp((w-wN)/max(w,1e-5),0.,1.)*f);}
+ fn+=fo;}
 fn=max(fn,0.);w=max(wn,0.);
 // evaporation, much faster at the wet boundary (Curtis 97 edge darkening)
 float ring=0.;for(int i=0;i<8;i++){float an=float(i)*.785+.39;vec2 dd=vec2(cos(an),sin(an))*tx;ring+=smoothstep(.0,.04,texture(uS,vUv+dd*2.5).x)+smoothstep(0.,.04,texture(uS,vUv+dd*6.).x);}
@@ -547,7 +553,7 @@ const cl=(x,a=0,b=1)=>Math.min(Math.max(x,a),b);
 function params(){const m=st.m,body=sm(.08,.55,m);const p={
  water:Math.pow(1-m,1.5),body,V0:body*(.8+24*m*m),tau:.03+3*Math.pow(m,2.5),dryRate:body>0?.003*Math.pow(1-m,2.2):0,
  A:.05,Pk:.03+.06*m,drag:.12+.2*m,lat:.08+.2*m,Hs:.25+1.6*m,
- evap:.00002+.00248*m, /* v0.12: watercolour stays workable ~10x longer (was ~0.5 s for a typical stroke) */edgeK:5,gran:1.2*Math.pow(1-m,2),lift:.0012*(1-m),bloom:Math.pow(1-m,2),G:.12*Math.pow(1-m,1.5)+.01};
+ evap:.00002+.00248*m, /* v0.12: watercolour stays workable ~10x longer (was ~0.5 s for a typical stroke) */rim:.4*Math.pow(1-m,1.5),edgeK:5,gran:1.2*Math.pow(1-m,2),lift:.0012*(1-m),bloom:Math.pow(1-m,2),G:.12*Math.pow(1-m,1.5)+.01};
  // v12 media. Body media (gouache/acrylic) run purely on the body-paint (OL) model; ink runs on the watercolour model.
  // Per-pixel finish comes from the yield stress tau stored with the paint (layerLive maps tau -> gloss), so matte gouache,
  // satin acrylic and glossy oil keep their finish after other media are chosen.
@@ -714,13 +720,16 @@ let kTrav=0;function knifeDab(x,y,pres,stepPx,tl){const p=params();const g=knife
   simPass(P.wcBury,WT,{uS:WT.r.t[0],uF:WT.r.t[1],uD:WT.r.t[2],uO0:OL.r.t[0]},{},[rect]);}
  if(p.water>.02){ensureWater();simPass(P.knifeW,WT,{uS:WT.r.t[0],uF:WT.r.t[1],uD:WT.r.t[2]},kv,[rect]);}}
 let stepN=0;const ACT_EPS=1e-5;
-function step(){if(st.tilt||st.dryAll)simFull();if(!awake.size)return;const p=params();const rc=spansOf(awake);const act=(++stepN%16===0&&!st.tilt)?{}:null;const ro=st.dryAll?0:1;
+function step(){if(st.tilt||st.dryAll)simFull();if(!awake.size)return;const p=params();
+ /* v0.13: after 45 s idle the sim used to stop dead, freezing any still-wet watercolour (pigment left floating, never dried, no edge rims).
+    Now wet water keeps drying with evaporation ramping up (body paint still stops at 45 s as before), so washes always finish drying. */
+ const idle=performance.now()-lastAct,fin=hasWater&&drawing==null&&!st.dryAll&&idle>45000,evB=fin?Math.min(1+(idle-45000)/1500,24):1;const rc=spansOf(awake);const act=(++stepN%16===0&&!st.tilt)?{}:null;const ro=st.dryAll?0:1;
  if(hasWater){simPass(P.flux,V,{uS:WT.r.t[0],uV:V.r.t[0],uP:PAPER.t[0]},{uTilt:st.tilt,uG:p.G,uEta:.03},rc,null,ro);
- simPass(P.water,WT,{uS:WT.r.t[0],uF:WT.r.t[1],uD:WT.r.t[2],uV:V.r.t[0],uP:PAPER.t[0]},{uEvap:p.evap,uEdgeK:p.edgeK,uAll:st.dryAll,uGran:p.gran,uLift:p.lift,uBloom:p.bloom,uDampDec:.0009},rc,act,ro);
+ simPass(P.water,WT,{uS:WT.r.t[0],uF:WT.r.t[1],uD:WT.r.t[2],uV:V.r.t[0],uP:PAPER.t[0]},{uRim:p.rim,uEvap:p.evap*evB,uEdgeK:p.edgeK,uAll:st.dryAll,uGran:p.gran,uLift:p.lift,uBloom:p.bloom,uDampDec:.0009},rc,act,ro);
  if(p.water>.02)simPass(P.capil,WT,{uS:WT.r.t[0],uF:WT.r.t[1],uD:WT.r.t[2],uP:PAPER.t[0]},{uCap:.16},rc,null,ro);}
- simPass(P.relax,OL,{uO0:OL.r.t[0],uO1:OL.r.t[1],uO2:OL.r.t[2]},{uMu:.2,uAll:st.dryAll,uTilt:st.tilt},rc,act,ro);st.dryAll=0;needRender=true;
+ if(!fin)simPass(P.relax,OL,{uO0:OL.r.t[0],uO1:OL.r.t[1],uO2:OL.r.t[2]},{uMu:.2,uAll:st.dryAll,uTilt:st.tilt},rc,act,ro);st.dryAll=0;needRender=true;
  if(act){window.__act=act;const now=performance.now();for(const k of [...awake]){const v=act[k];if(v!=null&&v<ACT_EPS&&now-(touchT.get(k)||0)>1000&&drawing==null){awake.delete(k);}}if(!awake.size)simRect=null;}
- if(performance.now()-lastAct>45000&&drawing==null){awake=new Set();simRect=null;shrinkScr();}}
+ if(idle>(hasWater?150000:45000)&&drawing==null){awake=new Set();simRect=null;shrinkScr();}}
 const view={s:1,ox:0,oy:0};
 function hexLin(h){const n=parseInt(h.slice(1),16);return[n>>16&255,n>>8&255,n&255].map(v=>Math.pow(v/255,2.2));}
 function belowSrc(){return layers.slice(0,ai).some(l=>l.vis&&l.tex)?BELOW:SURF1;}
@@ -1082,6 +1091,7 @@ window.paintAPI={resetPeak:()=>{gpuPeak=gpuBytes;},pause:v=>paused=v,setMedium,s
  probe(x,y){const o=[];for(const k of [0,1,2]){const b=new Float32Array(4);gl.bindFramebuffer(gl.FRAMEBUFFER,OL.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0+k);gl.readPixels(Math.round(x*W),Math.round(y*H),1,1,gl.RGBA,gl.FLOAT,b);o.push([...b].map(v=>+v.toFixed(3)));}return o;},
  band(u,v,nx,ny,R,wc,thr){const b=new Float32Array(4);const T=wc?WT:OL,atts=wc?[1,2]:[0];let n=0;for(let s=-R;s<=R;s++){const X=Math.round(u*W+nx*s),Y=Math.round(v*H+ny*s);if(X<0||Y<0||X>=W||Y>=H)continue;let t=0;for(const a of atts){gl.bindFramebuffer(gl.FRAMEBUFFER,T.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0+a);gl.readPixels(X,Y,1,1,gl.RGBA,gl.FLOAT,b);t+=wc?b[0]+b[1]+b[2]+b[3]:b[0]+b[1];}if(t>(thr||.02))n++;}return n;},
  regionMax(x,y,w,h){const out=[0,0,0];const b=new Float32Array(w*h*4);gl.bindFramebuffer(gl.FRAMEBUFFER,OL.r.fb);for(let a=0;a<3;a++){gl.readBuffer(gl.COLOR_ATTACHMENT0+a);gl.readPixels(x,y,w,h,gl.RGBA,gl.FLOAT,b);let m=0;for(let i=0;i<b.length;i++){const v=Math.abs(b[i]);if(!(v<1e9)){m=Infinity;break;}if(v>m)m=v;}out[a]=m;}return out;},
+ ageIdle:ms=>{lastAct-=ms;},
  wet(x,y){const b=new Float32Array(4);if(!hasWater)return 0;gl.bindFramebuffer(gl.FRAMEBUFFER,WT.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);gl.readPixels(Math.round(x*W),Math.round(y*H),1,1,gl.RGBA,gl.FLOAT,b);return b[0];},
  info:()=>({W,H,gpuMB:+(gpuBytes/1e6).toFixed(1),gpuPeakMB:+(gpuPeak/1e6).toFixed(1),undoMB:+(undoBytes()/1e6).toFixed(1),awake:awake.size,live:liveTiles.size,hasWater,passCount,maxU:MAXU,simRect,tool:st.tool,shape:st.shape,IF:IF===gl.RGBA32F?'RGBA32F':'RGBA16F',undo:SNAP.length,redo:REDO.length})};
 
