@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v0.14</title>
+<title>Medium — paint v0.15</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="app-version" content="medium-v0.14">
+<meta name="app-version" content="medium-v0.15">
 <meta name="theme-color" content="#161618">
 <style>
 :root{--bg:#161618;--glass:rgba(30,30,33,.97);--card:#232327;--card2:#2b2b30;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);--ink:#ececef;--mute:#9a9aa3;--dim:#6c6c75;--acc:#6ea8ff;--accS:rgba(110,168,255,.16);--r:14px;--sh:0 8px 30px rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.04) inset}
@@ -142,7 +142,7 @@ body.m dialog{padding:18px}
 <div id="stage"><canvas id="c"></canvas><canvas id="cur" style="position:fixed;pointer-events:none"></canvas><div id="msg"></div></div>
 <div id="zoomv">100%</div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.14</span></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.15</span></div>
  <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tFit" data-tip="Fit to screen" aria-label="Fit to screen" data-ic="fit"></button><button class="ib dk" id="tExp" data-tip="Export PNG" aria-label="Export PNG" data-ic="download"></button></div>
 <!-- top-right: tools -->
 <div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button>
@@ -227,14 +227,40 @@ const extF=gl.getExtension('EXT_color_buffer_float'),extL=gl.getExtension('OES_t
 let IF,TY,W=1024,H=768;
 /* v0.14 diagnostics: ?forceHalf=1 runs the sim on RGBA16F (the path most phones take: Mali/Adreno usually lack OES_texture_float_linear);
    ?mediump=1 compiles the shaders with mediump float (only has an effect on GPUs that really implement mediump, i.e. phones). */
-const QS=new URLSearchParams(location.search),FORCE_HALF=QS.get('forceHalf')==='1',MEDIUMP=QS.get('mediump')==='1';
-if(extF&&extL&&!FORCE_HALF){IF=gl.RGBA32F;TY=gl.FLOAT}else if(extF||extH){IF=gl.RGBA16F;TY=gl.HALF_FLOAT}
+const QS=new URLSearchParams(location.search),FORCE_HALF=QS.get('forceHalf')==='1',MEDIUMP=QS.get('mediump')==='1',DIAG=QS.get('diag')==='1';
+/* v0.15: phones usually HAVE EXT_color_buffer_float but lack OES_texture_float_linear. v0.14 then fell back to a half-float simulation
+   (quantised water/pigment/deposits). Now such GPUs keep the full RGBA32F simulation: float textures use NEAREST filtering and the
+   shaders do bilinear filtering themselves (texL, below). Half-float is only used when the GPU cannot render to RGBA32F at all
+   (or for very large canvases, or with ?forceHalf=1). */
+const NOLIN=!!(extF&&!extL&&!FORCE_HALF);
+if(extF&&!FORCE_HALF){IF=gl.RGBA32F;TY=gl.FLOAT}else if(extF||extH){IF=gl.RGBA16F;TY=gl.HALF_FLOAT}
 else{fail('<b>Sorry, your graphics driver can’t render to floating-point textures</b>, which this simulation needs.');throw new Error('no float');}
 
 const VS=`#version 300 es
 in vec2 p;out vec2 vUv;void main(){vUv=p*.5+.5;gl_Position=vec4(p,0,1);}`;
 const HEAD=`#version 300 es
 precision highp float;precision highp int;precision highp sampler2D;in vec2 vUv;uniform vec2 tx;uniform vec2 uFO;uniform float uQ,uStep;
+// v0.15 texture reads. (1) A read that lands within 1/500 texel of a texel centre (all the neighbour reads of the simulation) is done
+// with an exact texelFetch, so sub-texel coordinate error from the GPU's varying interpolation / filtering precision cannot leak a
+// little of the neighbour into every step (a systematic drift that would differ between the scratch bands of different tile rows).
+// (2) NOLIN (RGBA32F without OES_texture_float_linear => NEAREST textures): other reads are filtered in the shader.
+vec4 texL(sampler2D s,vec2 uv){ivec2 sz=textureSize(s,0),m=sz-1;vec2 p=uv*vec2(sz)-.5,fl=floor(p),f=p-fl;
+ if(all(lessThan(min(f,1.-f),vec2(.002))))return texelFetch(s,clamp(ivec2(floor(p+.5)),ivec2(0),m),0);
+#ifdef NOLIN
+ ivec2 i=ivec2(fl);vec4 a=texelFetch(s,clamp(i,ivec2(0),m),0),b=texelFetch(s,clamp(i+ivec2(1,0),ivec2(0),m),0),c=texelFetch(s,clamp(i+ivec2(0,1),ivec2(0),m),0),d=texelFetch(s,clamp(i+ivec2(1,1),ivec2(0),m),0);
+ return mix(mix(a,b,f.x),mix(c,d,f.x),f.y);
+#else
+ return texture(s,uv);
+#endif
+}
+#define texture texL
+// v0.15: integer hash (pcg3d) of GLOBAL canvas pixel + step counter + channel: white noise with no lattice/beat pattern
+// (the old fract(p*123.34..) hash, used for stochastic rounding, had ~6 px and ~29 px quasi-periods).
+uvec3 pcg3d(uvec3 v){v=v*1664525u+1013904223u;v.x+=v.y*v.z;v.y+=v.z*v.x;v.z+=v.x*v.y;v^=v>>16u;v.x+=v.y*v.z;v.y+=v.z*v.x;v.z+=v.x*v.y;return v;}
+float ihashS(vec2 p,float k,float sd){uvec3 h=pcg3d(uvec3(uvec2(ivec2(floor(p))+ivec2(8192)),uint(sd)*16u+uint(k)));return float(h.x>>8u)*(1./16777216.);}
+float ihash(vec2 p,float k){return ihashS(p,k,uStep);}
+// 1 inside the canvas, 0 for a neighbour sample that falls outside (canvas border = closed wall, no mirrored inflow)
+float inb(vec2 u){return step(0.,u.x)*step(u.x,1.)*step(0.,u.y)*step(u.y,1.);}
 #define FC (gl_FragCoord+vec4(uFO,0.,0.))
 
 float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
@@ -244,7 +270,7 @@ float vnoise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h
 // drying and whole tiles reported "no change" and went to sleep while wet. srnd() applies stochastic rounding to a changed value: it adds
 // uniform noise of one ulp before the hardware rounds to fp16, so the stored value is unbiased (E[stored]=exact). Unchanged values stay exact.
 float ulp16(float x){return exp2(floor(log2(max(abs(x),6.1035e-5)))-10.);}
-float qh(vec2 p,float k){return hash(p*.7311+vec2(k*7.13+uStep*.6180,k*3.71+uStep*.3819));}
+float qh(vec2 p,float k){return ihash(p,k);}
 float srnd(float a,float b,float k){return(uQ>.5&&b!=a&&b>0.)?b+(qh(FC.xy,k)-.5)*ulp16(b):b;}
 vec4 srnd4(vec4 a,vec4 b,float k){return vec4(srnd(a.x,b.x,k),srnd(a.y,b.y,k+1.),srnd(a.z,b.z,k+2.),srnd(a.w,b.w,k+3.));}
 // NaN/Inf scrub + range cap before a value is stored (fp16 overflows to Inf above 65504; one Inf turns into NaN that spreads every step).
@@ -369,13 +395,13 @@ for(int i=0;i<4;i++){vec2 off=i==0?vec2(tx.x,0):i==1?vec2(-tx.x,0):i==2?vec2(0,t
  float wn=texture(uS,vUv+off).x;float dl=h0-hd(vUv+off);float cond=.7+.6*vnoise((FC.xy+off/tx*.5)*.2);
  float qi=max(0.,q[i]*.8+uG*dl*cond);
  vec4 sn=texture(uS,vUv+off);float pin=.2+.15*vnoise((FC.xy+off/tx)*.15);if(wn<.003&&w<pin){qi*=sn.y>.05?sn.y*smoothstep(.45,.75,vnoise((FC.xy+off/tx)*.3+3.)):0.;}
- q[i]=qi;}
+ q[i]=qi*inb(vUv+off);}
 float sum=q.x+q.y+q.z+q.w;q*=min(1.,w*.9/max(sum,1e-9));o=q;}`,
 water:`uniform sampler2D uS,uF,uD,uV,uP;uniform float uRim,uEvap,uEdgeK,uAll,uGran,uLift,uBloom,uDampDec;${O3}
 void main(){vec2 ex=vec2(tx.x,0),ey=vec2(0,tx.y);vec4 s=texture(uS,vUv),f=texture(uF,vUv),d=texture(uD,vUv),q=texture(uV,vUv);
 float w=s.x;float outq=q.x+q.y+q.z+q.w;
 float wR=texture(uS,vUv+ex).x,wL=texture(uS,vUv-ex).x,wU=texture(uS,vUv+ey).x,wD=texture(uS,vUv-ey).x;
-float iR=texture(uV,vUv+ex).y,iL=texture(uV,vUv-ex).x,iU=texture(uV,vUv+ey).w,iD=texture(uV,vUv-ey).z;
+float iR=texture(uV,vUv+ex).y*inb(vUv+ex),iL=texture(uV,vUv-ex).x*inb(vUv-ex),iU=texture(uV,vUv+ey).w*inb(vUv+ey),iD=texture(uV,vUv-ey).z*inb(vUv-ey);
 vec4 fR=texture(uF,vUv+ex),fL=texture(uF,vUv-ex),fU=texture(uF,vUv+ey),fD=texture(uF,vUv-ey);
 float wn=w-outq+iR+iL+iU+iD;
 float mK=dot(f,vec4(1))*max(1.-outq/max(w,1e-6),0.),mR=dot(fR,vec4(1))*iR/max(wR,1e-6),mL=dot(fL,vec4(1))*iL/max(wL,1e-6),mU=dot(fU,vec4(1))*iU/max(wU,1e-6),mD=dot(fD,vec4(1))*iD/max(wD,1e-6);
@@ -468,6 +494,8 @@ if(uMode<.5){vec3 L=normalize(uL);float dif=max(dot(n,L),0.)/L.z;float avg=0.;fo
  float sp=pow(nh,28.)*smoothstep(.02,.6,hw)*.32+pow(nh,10.)*smoothstep(.02,.6,hd)*.08+pow(nh,140.)*smoothstep(.03,.15,A.z)*.3;
  float lit=C.a;c=R*mix(1.,clamp(mix(1.,dif,.8),.25,1.5)*ao,lit);c+=sp*min(uRelief,1.)*(1.-.5*max(max(c.r,c.g),c.b));}
 c=pow(clamp(c,0.,1.),vec3(1./2.2));
+/* v0.15: triangular dither (+-1 LSB) before the 8-bit output: smooth dried washes no longer show 8-bit banding/contours */
+{vec2 dp=uScreen>.5?gl_FragCoord.xy:FC.xy;c+=(ihashS(dp,1.,0.)+ihashS(dp,2.,0.)-1.)*(1./255.);}
 if(uScreen>.5){vec2 ck=floor(FC.xy/10.);vec3 bgc=mix(vec3(.86),vec3(.95),mod(ck.x+ck.y,2.));o=vec4(mix(bgc,c,C.a),1);}else o=vec4(c,C.a);}`
 };
 FS.act=`uniform sampler2D uOld0,uOld1,uNew0,uNew1;uniform vec4 uRowV[16];uniform float uWat;out vec4 o;
@@ -486,14 +514,14 @@ o0=vec4((1.-ab)*Cs.rgb+(1.-as)*Cb.rgb+as*ab*B(cb,cs),as+ab*(1.-as));
 o1=vec4(Ab.x+As.x*uOp,max(Ab.y*(1.-as),As.y*uOp),max(Ab.z*(1.-as),As.z*uOp),Ab.w+As.w*uOp);}`;}
 function sh(t,src){const s=gl.createShader(t);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s));return s;}
 const vs=sh(gl.VERTEX_SHADER,VS);
-function prog(src){const p=gl.createProgram();gl.attachShader(p,vs);gl.attachShader(p,sh(gl.FRAGMENT_SHADER,MEDIUMP?(HEAD+src).replace('precision highp float;','precision mediump float;'):HEAD+src));gl.bindAttribLocation(p,0,'p');gl.linkProgram(p);
+function prog(src){const p=gl.createProgram();gl.attachShader(p,vs);{let fs=HEAD+src;if(NOLIN)fs=fs.replace('\n','\n#define NOLIN 1\n');if(MEDIUMP)fs=fs.replace('precision highp float;','precision mediump float;');gl.attachShader(p,sh(gl.FRAGMENT_SHADER,fs));}gl.bindAttribLocation(p,0,'p');gl.linkProgram(p);
  if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(p));const u={};const n=gl.getProgramParameter(p,gl.ACTIVE_UNIFORMS);
  for(let i=0;i<n;i++){const nm=gl.getActiveUniform(p,i).name.replace('[0]','');u[nm]=gl.getUniformLocation(p,nm);}return{p,u};}
 const P={};for(const k in FS)P[k]=prog(FS[k]);
 const vb=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,vb);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
 const TEXB=new Map();let gpuBytes=0,gpuPeak=0;
 function tex(w,h,fmt,ty){const t=gl.createTexture();{const bp=fmt===gl.RGBA32F?16:fmt===gl.RGBA16F?8:4;TEXB.set(t,w*h*bp);gpuBytes+=w*h*bp;gpuPeak=Math.max(gpuPeak,gpuBytes);}gl.bindTexture(gl.TEXTURE_2D,t);gl.texImage2D(gl.TEXTURE_2D,0,fmt,w,h,0,gl.RGBA,ty,null);
- gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+ {const f=(fmt===gl.RGBA32F&&!extL)?gl.NEAREST:gl.LINEAR;gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,f);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,f);}
  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);return t;}
 let SIMIF=IF,SIMTY=TY;const ALLT=new Set();
 function target(n,w=W,h=H,fmt=SIMIF,ty=SIMTY){const ts=[];for(let i=0;i<n;i++)ts.push(tex(w,h,fmt,ty));const fb=gl.createFramebuffer();gl.bindFramebuffer(gl.FRAMEBUFFER,fb);
@@ -554,7 +582,7 @@ function actCheck(T,rects,lay,out,wat){if(!extF)return;if(!ACT||ACT.w!==NTX||ACT
 function run(pr,dst,txs,uni,rect,vo){gl.useProgram(pr.p);gl.bindFramebuffer(gl.FRAMEBUFFER,dst?dst.fb:null);
  let w=dst?dst.w:cv.width,h=dst?dst.h:cv.height;if(vo){gl.viewport(vo[0],vo[1],W,H);w=W;h=H;}else gl.viewport(0,0,w,h);if(pr.u.uSz)gl.uniform2f(pr.u.uSz,W,H);if(pr.u.uFO)gl.uniform2f(pr.u.uFO,vo?-vo[0]:0,vo?-vo[1]:0);
  if(rect){gl.enable(gl.SCISSOR_TEST);gl.scissor(rect[0],rect[1],rect[2],rect[3]);}
- let unit=0;if(pr.u.tx)gl.uniform2f(pr.u.tx,1/w,1/h);if(pr.u.uQ)gl.uniform1f(pr.u.uQ,SIMIF===gl.RGBA16F?1:0);if(pr.u.uStep)gl.uniform1f(pr.u.uStep,stepN%997);
+ let unit=0;if(pr.u.tx)gl.uniform2f(pr.u.tx,1/w,1/h);if(pr.u.uQ)gl.uniform1f(pr.u.uQ,SIMIF===gl.RGBA16F?1:0);if(pr.u.uStep)gl.uniform1f(pr.u.uStep,stepN%16777216);
  for(const k in txs){if(!pr.u[k])continue;gl.activeTexture(gl.TEXTURE0+unit);gl.bindTexture(gl.TEXTURE_2D,txs[k]);gl.uniform1i(pr.u[k],unit++);}
  for(const k in uni){const l=pr.u[k];if(!l)continue;const v=uni[k];if(v instanceof Float32Array)gl.uniform4fv(l,v);else if(typeof v==='number')gl.uniform1f(l,v);else if(v.length===2)gl.uniform2fv(l,v);else if(v.length===3)gl.uniform3fv(l,v);else gl.uniform4fv(l,v);}
  gl.drawArrays(gl.TRIANGLES,0,3);if(rect)gl.disable(gl.SCISSOR_TEST);}
@@ -741,11 +769,14 @@ let kTrav=0;function knifeDab(x,y,pres,stepPx,tl){const p=params();const g=knife
   simPass(P.knifeO,OL,{uO0:OL.r.t[0],uO1:OL.r.t[1],uO2:OL.r.t[2],uK0:KN.r.t[0],uK2:KN.r.t[2]},kv,[rect]);
   simPass(P.wcBury,WT,{uS:WT.r.t[0],uF:WT.r.t[1],uD:WT.r.t[2],uO0:OL.r.t[0]},{},[rect]);}
  if(p.water>.02){ensureWater();simPass(P.knifeW,WT,{uS:WT.r.t[0],uF:WT.r.t[1],uD:WT.r.t[2]},kv,[rect]);}}
-let stepN=0;const ACT_EPS=1e-5,WET_EPS=2e-4;
+let stepN=0;const ACT_EPS=1e-5,WET_EPS=2e-4,FULL_FRAC=matchMedia('(pointer:coarse)').matches?.4:.6;
 function step(){if(st.tilt||st.dryAll)simFull();if(!awake.size)return;const p=params();
  /* v0.13: after 45 s idle the sim used to stop dead, freezing any still-wet watercolour (pigment left floating, never dried, no edge rims).
     Now wet water keeps drying with evaporation ramping up (body paint still stops at 45 s as before), so washes always finish drying. */
- const idle=performance.now()-lastAct,fin=hasWater&&drawing==null&&!st.dryAll&&idle>45000,evB=fin?Math.min(1+(idle-45000)/1500,24):1;const rc=spansOf(awake);const act=(++stepN%16===0&&!st.tilt)?{c:{},w:{}}:null;const ro=st.dryAll?0:1;
+ const idle=performance.now()-lastAct,fin=hasWater&&drawing==null&&!st.dryAll&&idle>45000,evB=fin?Math.min(1+(idle-45000)/1500,24):1;let rc=spansOf(awake);
+ /* v0.15: when most tiles are awake, simulate the whole canvas as ONE rect (one scratch band, no per-tile-row viewport offsets):
+    every pixel then takes exactly the same code path, so no tile-row / tile-column seam is possible whatever the GPU does. */
+ if(awake.size>=FULL_FRAC*NTX*NTY)rc=[[0,0,W,H]];const act=(++stepN%16===0&&!st.tilt)?{c:{},w:{}}:null;const ro=st.dryAll?0:1;
  if(hasWater){simPass(P.flux,V,{uS:WT.r.t[0],uV:V.r.t[0],uP:PAPER.t[0]},{uTilt:st.tilt,uG:p.G,uEta:.03},rc,null,ro);
  simPass(P.water,WT,{uS:WT.r.t[0],uF:WT.r.t[1],uD:WT.r.t[2],uV:V.r.t[0],uP:PAPER.t[0]},{uRim:p.rim,uEvap:p.evap*evB,uEdgeK:p.edgeK,uAll:st.dryAll,uGran:p.gran,uLift:p.lift,uBloom:p.bloom,uDampDec:.0009},rc,act,ro);
  if(p.water>.02)simPass(P.capil,WT,{uS:WT.r.t[0],uF:WT.r.t[1],uD:WT.r.t[2],uP:PAPER.t[0]},{uCap:.16},rc,null,ro);}
@@ -1105,6 +1136,29 @@ function setMobile(on){document.body.classList.toggle('m',on);closeCP();setPanel
 setMobile(MQ.matches);MQ.addEventListener&&MQ.addEventListener('change',e=>setMobile(e.matches));
 $('dSet').addEventListener('click',()=>{if(!document.body.classList.contains('m'))requestAnimationFrame(()=>{const s=view.s;fit();});});
 // test hook
+
+// ---- v0.15 diagnostics overlay (?diag=1): read-only GPU/sim info + Copy. Does not touch the simulation or input handling. ----
+function diagInfo(){const dbg=gl.getExtension('WEBGL_debug_renderer_info');const pf=(sh,t)=>{const f=gl.getShaderPrecisionFormat(sh,t);return f?`range ±2^${f.rangeMax}, precision 2^-${f.precision}`:'n/a';};
+ const exts=['EXT_color_buffer_float','EXT_color_buffer_half_float','OES_texture_float_linear','OES_texture_half_float_linear','EXT_float_blend','WEBGL_debug_renderer_info','EXT_texture_norm16','KHR_parallel_shader_compile'];
+ const sup=gl.getSupportedExtensions()||[];const F=gl.FRAGMENT_SHADER;
+ return['Medium '+(document.getElementById('ver')||{}).textContent+'  '+location.href,
+  'UA: '+navigator.userAgent,
+  'Renderer: '+(dbg?gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER)),
+  'Vendor: '+(dbg?gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL):gl.getParameter(gl.VENDOR)),
+  'GL: '+gl.getParameter(gl.VERSION)+' / '+gl.getParameter(gl.SHADING_LANGUAGE_VERSION),
+  ...exts.map(e=>(gl.getExtension(e)?'[x] ':'[ ] ')+e+(sup.includes(e)&&!gl.getExtension(e)?' (listed but unavailable)':'')),
+  'Sim format: '+(SIMIF===gl.RGBA32F?'RGBA32F (float)':'RGBA16F (half-float)')+(NOLIN?' + shader bilinear (no float linear filtering)':'')+(FORCE_HALF?' [forceHalf]':'')+(MEDIUMP?' [mediump]':''),
+  'Activity check (tile sleeping): '+(extF?'on':'off (no EXT_color_buffer_float)'),
+  'Frag highp float: '+pf(F,gl.HIGH_FLOAT),'Frag mediump float: '+pf(F,gl.MEDIUM_FLOAT),'Frag highp int: '+pf(F,gl.HIGH_INT),'Frag mediump int: '+pf(F,gl.MEDIUM_INT),'Vert highp float: '+pf(gl.VERTEX_SHADER,gl.HIGH_FLOAT),
+  'Canvas (sim): '+W+' × '+H+'   tiles '+TS+' px ('+NTX+' × '+NTY+')   awake '+awake.size,
+  'Display: '+cv.width+' × '+cv.height+' px, DPR '+(devicePixelRatio||1)+', CSS '+innerWidth+' × '+innerHeight,
+  'MAX_TEXTURE_SIZE '+MAXTEX+', MAX_DRAW_BUFFERS '+gl.getParameter(gl.MAX_DRAW_BUFFERS)+', GPU mem est '+(gpuBytes/1e6).toFixed(0)+' MB'].join('\n');}
+if(DIAG){const d=document.createElement('div');d.id='diag';d.style.cssText='position:fixed;left:8px;top:64px;z-index:50;max-width:min(560px,calc(100vw - 16px));max-height:60vh;overflow:auto;background:rgba(20,20,24,.92);color:#e8e8ea;font:11px/1.35 ui-monospace,Menlo,monospace;padding:8px 10px;border-radius:10px;box-shadow:0 4px 18px rgba(0,0,0,.4)';
+ const pre=document.createElement('pre');pre.style.cssText='margin:0 0 6px;white-space:pre-wrap;word-break:break-word';const bc='background:#3a3f4b;color:#fff;border:0;border-radius:6px;padding:6px 12px;margin-right:6px;font:12px system-ui';
+ const cp=document.createElement('button');cp.textContent='Copy';cp.style.cssText=bc;const rf=document.createElement('button');rf.textContent='Refresh';rf.style.cssText=bc;const cl=document.createElement('button');cl.textContent='Close';cl.style.cssText=bc;
+ const upd=()=>{pre.textContent=diagInfo();};cp.onclick=async()=>{upd();try{await navigator.clipboard.writeText(pre.textContent);cp.textContent='Copied';}catch(e){const r=document.createRange();r.selectNodeContents(pre);const s=getSelection();s.removeAllRanges();s.addRange(r);cp.textContent='Selected - copy manually';}setTimeout(()=>cp.textContent='Copy',1500);};
+ rf.onclick=upd;cl.onclick=()=>d.remove();['pointerdown','pointermove','pointerup','touchstart','wheel'].forEach(t=>d.addEventListener(t,e=>e.stopPropagation()));
+ d.append(pre,cp,rf,cl);document.body.appendChild(d);setTimeout(upd,300);}
 window.paintAPI={resetPeak:()=>{gpuPeak=gpuBytes;},pause:v=>paused=v,setMedium,setMed,medium:()=>st.med,setSize,selectPig,setHex:h=>{st.ks=hexKS(h);},clear:clearAll,undo,redo,setLight,setRelief,
  step:n=>{for(let i=0;i<n;i++)step();render();},dryAll:()=>{st.dryAll=1;step();render();},
  L:L_,layers:()=>layers.map((l,i)=>({name:l.name,vis:l.vis,op:l.op,blend:l.blend,has:!!l.tex,active:i===ai})),setSurface,newCanvas,exportData,saveProjectBytes,openProjectBytes,fit,render:()=>render(),view,
@@ -1121,9 +1175,9 @@ window.paintAPI={resetPeak:()=>{gpuPeak=gpuBytes;},pause:v=>paused=v,setMedium,s
  probe(x,y){const o=[];for(const k of [0,1,2]){const b=new Float32Array(4);gl.bindFramebuffer(gl.FRAMEBUFFER,OL.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0+k);gl.readPixels(Math.round(x*W),Math.round(y*H),1,1,gl.RGBA,gl.FLOAT,b);o.push([...b].map(v=>+v.toFixed(3)));}return o;},
  band(u,v,nx,ny,R,wc,thr){const b=new Float32Array(4);const T=wc?WT:OL,atts=wc?[1,2]:[0];let n=0;for(let s=-R;s<=R;s++){const X=Math.round(u*W+nx*s),Y=Math.round(v*H+ny*s);if(X<0||Y<0||X>=W||Y>=H)continue;let t=0;for(const a of atts){gl.bindFramebuffer(gl.FRAMEBUFFER,T.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0+a);gl.readPixels(X,Y,1,1,gl.RGBA,gl.FLOAT,b);t+=wc?b[0]+b[1]+b[2]+b[3]:b[0]+b[1];}if(t>(thr||.02))n++;}return n;},
  regionMax(x,y,w,h){const out=[0,0,0];const b=new Float32Array(w*h*4);gl.bindFramebuffer(gl.FRAMEBUFFER,OL.r.fb);for(let a=0;a<3;a++){gl.readBuffer(gl.COLOR_ATTACHMENT0+a);gl.readPixels(x,y,w,h,gl.RGBA,gl.FLOAT,b);let m=0;for(let i=0;i<b.length;i++){const v=Math.abs(b[i]);if(!(v<1e9)){m=Infinity;break;}if(v>m)m=v;}out[a]=m;}return out;},
- ageIdle:ms=>{lastAct-=ms;},
+ ageIdle:ms=>{lastAct-=ms;},diag:()=>diagInfo(),
  wtStats(){if(!hasWater)return null;const b=new Float32Array(W*H*4);const r={};gl.bindFramebuffer(gl.FRAMEBUFFER,WT.r.fb);for(const a of [0,1,2]){gl.readBuffer(gl.COLOR_ATTACHMENT0+a);gl.readPixels(0,0,W,H,gl.RGBA,gl.FLOAT,b);let mx=0,bad=0,sum=0;for(let i=0;i<b.length;i++){const v=b[i];if(!isFinite(v)){bad++;continue;}if(Math.abs(v)>mx)mx=Math.abs(v);sum+=v;}r['a'+a]={mx:+mx.toPrecision(3),bad,sum:+sum.toPrecision(4)};}return r;},
  wet(x,y){const b=new Float32Array(4);if(!hasWater)return 0;gl.bindFramebuffer(gl.FRAMEBUFFER,WT.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);gl.readPixels(Math.round(x*W),Math.round(y*H),1,1,gl.RGBA,gl.FLOAT,b);return b[0];},
- info:()=>({W,H,gpuMB:+(gpuBytes/1e6).toFixed(1),gpuPeakMB:+(gpuPeak/1e6).toFixed(1),undoMB:+(undoBytes()/1e6).toFixed(1),awake:awake.size,live:liveTiles.size,hasWater,passCount,maxU:MAXU,simRect,tool:st.tool,shape:st.shape,IF:IF===gl.RGBA32F?'RGBA32F':'RGBA16F',sim:SIMIF===gl.RGBA32F?'RGBA32F':'RGBA16F',undo:SNAP.length,redo:REDO.length})};
+ info:()=>({W,H,gpuMB:+(gpuBytes/1e6).toFixed(1),gpuPeakMB:+(gpuPeak/1e6).toFixed(1),undoMB:+(undoBytes()/1e6).toFixed(1),awake:awake.size,live:liveTiles.size,hasWater,passCount,maxU:MAXU,simRect,tool:st.tool,shape:st.shape,IF:IF===gl.RGBA32F?'RGBA32F':'RGBA16F',sim:SIMIF===gl.RGBA32F?'RGBA32F':'RGBA16F',nolin:NOLIN,undo:SNAP.length,redo:REDO.length})};
 
 </script></body></html>
