@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v0.17</title>
+<title>Medium — paint v0.18</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="app-version" content="medium-v0.17">
+<meta name="app-version" content="medium-v0.18">
 <meta name="theme-color" content="#161618">
 <style>
 :root{--bg:#161618;--glass:rgba(30,30,33,.97);--card:#232327;--card2:#2b2b30;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);--ink:#ececef;--mute:#9a9aa3;--dim:#6c6c75;--acc:#6ea8ff;--accS:rgba(110,168,255,.16);--r:14px;--sh:0 8px 30px rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.04) inset}
@@ -142,7 +142,7 @@ body.m dialog{padding:18px}
 <div id="stage"><canvas id="c"></canvas><canvas id="cur" style="position:fixed;pointer-events:none"></canvas><div id="msg"></div></div>
 <div id="zoomv">100%</div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.17</span></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.18</span></div>
  <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tFit" data-tip="Fit to screen" aria-label="Fit to screen" data-ic="fit"></button><button class="ib dk" id="tExp" data-tip="Export PNG" aria-label="Export PNG" data-ic="download"></button></div>
 <!-- top-right: tools -->
 <div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button>
@@ -201,6 +201,8 @@ body.m dialog{padding:18px}
 <details class="g"><summary><span data-ic="canvas"></span>Canvas &amp; surface</summary><div class="gb">
  <div><div class="lab"><span>Canvas</span><span id="csz"></span></div><div class="row2"><button id="bNew">New canvas…</button><button id="bFit">Fit to screen</button></div>
   <div class="hint" id="memv" style="margin-top:8px"></div></div>
+ <div><div class="lab"><span>Quality</span><span id="qv"></span></div><select id="quality" aria-describedby="qhint"><option value="auto">Auto (adapts to this GPU)</option><option value="high">High (full simulation speed)</option><option value="low">Low (weak / integrated GPUs)</option></select>
+  <div class="hint" id="qhint" style="margin-top:6px">Auto measures frame time and slows the paint simulation instead of the brush when the GPU can't keep up. Low also uses half-float simulation for new canvases.</div></div>
  <div><div class="lab"><span>Surface</span></div><select id="surf"><option value="0">Cold-press watercolour paper</option><option value="1">Hot-press paper</option><option value="2">Rough paper</option><option value="3">Linen canvas</option><option value="4">Cotton canvas weave</option><option value="5">Panel (smooth)</option></select>
   <div class="lab" style="margin-top:12px"><span>Texture scale</span><span id="tsv"></span></div><input id="tscale" type="range" min="0.5" max="3" step="0.05" value="1">
   <label class="pick"><input id="ground" type="color" value="#f7f1e4"> Ground colour</label><label class="chk"><input type="checkbox" id="showSurf" checked> Show surface (off = transparent)</label></div>
@@ -220,7 +222,7 @@ body.m dialog{padding:18px}
 "use strict";
 const PIG=[["Clear water",null],["Ultramarine","#1f3a93"],["Cadmium yellow","#f6c81a"],["Cadmium red","#d0281c"],["Alizarin","#9b1b30"],["Sap green","#4a6b1f"],["Burnt sienna","#8a3f1c"],["Payne's grey","#2e3a46"],["Titanium white","#fbfaf6"]];
 const cv=document.getElementById('c');
-const gl=cv.getContext('webgl2',{preserveDrawingBuffer:true,antialias:false,premultipliedAlpha:false});
+const gl=cv.getContext('webgl2',{preserveDrawingBuffer:true,antialias:false,premultipliedAlpha:false,powerPreference:'high-performance'});
 function fail(t){cv.style.display='none';const m=document.getElementById('msg');m.style.display='block';m.innerHTML=t;}
 if(!gl){fail('<b>Sorry, this prototype needs WebGL2.</b><br>Please open it in an up-to-date Chrome or Edge, with hardware acceleration enabled.');throw new Error('no webgl2');}
 const extF=gl.getExtension('EXT_color_buffer_float'),extL=gl.getExtension('OES_texture_float_linear'),extH=gl.getExtension('EXT_color_buffer_half_float');
@@ -439,7 +441,13 @@ float ph=texture(uP,vUv).r;
 w=max(w-uEvap*(1.+uEdgeK*edge),0.);
 // desorption (lifting) then adsorption, granulation in paper valleys
 float inflow=iR+iL+iU+iD;vec4 lift=d*(uLift*smoothstep(.02,.1,w)+.25*s.y*clamp(inflow*12.,0.,1.)*uBloom)*(.2+.8*gr);d-=lift;fn+=lift;
-float rate=.0015+.22*(1.-smoothstep(0.,.05,w));rate*=mix(1.8,1.,gr)*clamp(1.+uGran*(.3+1.4*gr)*(.5-ph)*2.,.2,4.);
+/* v0.18 granulation: settle by LOCAL paper relief (height below the mean of a 3 px ring = a valley of the tooth), not absolute height.
+   v0.17 used (.5-ph) with a .2..4 clamp: for strongly granulating pigments (Ultramarine 1, Burnt sienna .85) every broad paper high
+   (the low octaves of the paper noise, blobs ~5-15 px) kept only 1/5 of the deposition rate, its pigment stayed suspended and was carried
+   off into the surrounding water while the wash dried => pale frosty 'salt' speckles. Now peaks keep >= 70% of the rate and valleys get up
+   to 1.8x, at the scale of the paper tooth only => darker grain in the valleys, no pale holes. */
+float phm=0.;for(int i=0;i<6;i++){float an=float(i)*1.0472+.4;phm+=texture(uP,vUv+vec2(cos(an),sin(an))*tx*3.).r;}phm/=6.;float val=clamp((phm-ph)*5.,-1.,1.);
+float rate=.0015+.22*(1.-smoothstep(0.,.05,w));rate*=mix(1.8,1.,gr)*clamp(1.+uGran*(.2+.6*gr)*val,.7,1.8);
 rate=mix(rate,1.,1.-smoothstep(.0008,.004,w));if(uAll>.5){rate=1.;w=0.;}rate=clamp(rate,0.,1.);
 d+=fn*rate;fn*=1.-rate;float damp=w>.003?min(1.,s.y+.03+w*.6):max(s.y-uDampDec,0.);if(uAll>.5)damp=0.;
 vec4 d0=texture(uD,vUv);o0=vec4(safe1(srnd(s.x,w,0.),4.),srnd(s.y,damp,1.),edge,gr);o1=safe4(srnd4(f,fn,4.),64.);o2=safe4(srnd4(d0,d,8.),256.);}`,
@@ -507,12 +515,16 @@ c=pow(clamp(c,0.,1.),vec3(1./2.2));
 {vec2 dp=uScreen>.5?gl_FragCoord.xy:FC.xy;c+=(ihashS(dp,1.,0.)+ihashS(dp,2.,0.)-1.)*(1./255.);}
 if(uScreen>.5){vec2 ck=floor(FC.xy/10.);vec3 bgc=mix(vec3(.86),vec3(.95),mod(ck.x+ck.y,2.));o=vec4(mix(bgc,c,C.a),1);}else o=vec4(c,C.a);}`
 };
-FS.act=`uniform sampler2D uOld0,uOld1,uNew0,uNew1;uniform vec4 uRowV[16];uniform float uWat;out vec4 o;
-void main(){ivec2 t=ivec2(gl_FragCoord.xy);float ro=uRowV[t.y>>2][t.y&3];if(ro<0.){o=vec4(-1);return;}
- float m=0.,wm=0.;for(int j=0;j<64;j++)for(int i=0;i<64;i++){ivec2 px=t*128+ivec2(i,j)*2+ivec2(i&1^1,j&1);if(px.x>=int(uSz.x)||px.y>=int(uSz.y))continue;
+FS.act=`uniform sampler2D uOld0,uOld1,uNew0,uNew1,uTR;uniform vec4 uRowV[16];uniform float uWat,uEps,uWEps;out vec4 o;
+/* v0.18: only pixels this pass really simulated (tile-local rect in uTR) are compared; also returns the bounding box of active pixels
+   (change > uEps or water > uWEps) packed as x0*128+x1, y0*128+y1 (exact in float32), so the scheduler can shrink the sim rect to it. */
+void main(){ivec2 t=ivec2(gl_FragCoord.xy);float ro=uRowV[t.y>>2][t.y&3];vec4 tr=texelFetch(uTR,t,0);if(ro<0.||tr.z<=tr.x||tr.w<=tr.y){o=vec4(-1);return;}
+ ivec4 R=ivec4(tr);float m=0.,wm=0.;ivec4 bb=ivec4(999,999,-1,-1);for(int j=0;j<64;j++)for(int i=0;i<64;i++){ivec2 lp=ivec2(i,j)*2+ivec2(i&1^1,j&1);ivec2 px=t*128+lp;
+  if(px.x>=int(uSz.x)||px.y>=int(uSz.y)||lp.x<R.x||lp.y<R.y||lp.x>=R.z||lp.y>=R.w)continue;
   ivec2 sp=ivec2(px.x,px.y-t.y*128+int(ro));vec4 a=abs(texelFetch(uOld0,px,0)-texelFetch(uNew0,sp,0)),b=abs(texelFetch(uOld1,px,0)-texelFetch(uNew1,sp,0));
-  m=max(m,max(max(max(a.x,a.y),max(a.z,a.w)),max(max(b.x,b.y),max(b.z,b.w))));if(uWat>.5)wm=max(wm,texelFetch(uNew0,sp,0).x);}
- o=vec4(m,wm,0,0);}`;
+  float c=max(max(max(a.x,a.y),max(a.z,a.w)),max(max(b.x,b.y),max(b.z,b.w)));m=max(m,c);float w=uWat>.5?texelFetch(uNew0,sp,0).x:0.;wm=max(wm,w);
+  if(c>uEps||w>uWEps){bb.xy=min(bb.xy,lp);bb.zw=max(bb.zw,lp);}}
+ o=vec4(m,wm,bb.z<0?-1.:float(bb.x*128+bb.z),bb.z<0?-1.:float(bb.y*128+bb.w));}`;
 {const ll=FS.layerLive,bi=ll.indexOf('void main(){');const body=ll.slice(bi+12,ll.lastIndexOf('}'));
  FS.liveBlend=`uniform sampler2D uS,uF,uD,uO0,uO1,uO2,uBC,uBA,uAC,uAA;uniform float uOp,uMode;layout(location=0) out vec4 o0;layout(location=1) out vec4 o1;
 vec3 B(vec3 b,vec3 s){if(uMode<.5)return s;if(uMode<1.5)return b*s;if(uMode<2.5)return b+s-b*s;return mix(2.*b*s,1.-2.*(1.-b)*(1.-s),step(.5,b));}
@@ -545,12 +557,15 @@ const ZERO3=target(3,1,1),SURF1=target(2,1,1);
 // sim state: single persistent buffers (no full-size ping-pong); passes render into a shared scratch atlas and are blitted back.
 let WT,OL,V,PAPER,OUT,BELOW=null,TMP=null,SCR=null,hasWater=false;
 const MAXTEX=gl.getParameter(gl.MAX_TEXTURE_SIZE);const TS=128;let NTX=1,NTY=1;
-function simBytes(w,h){return(w*h>1.6e6||IF!==gl.RGBA32F)?8:16;}
+/* v0.18 quality: auto (default; budget from frame time / GPU timer, renderer hint for the start value) | high (no budget: 120 steps/s like v0.17)
+   | low (small fixed budget + RGBA16F sim for new canvases). Persisted in localStorage. */
+let QUAL=(()=>{try{const q=localStorage.getItem('quality');return q==='high'||q==='low'?q:'auto';}catch(_){return'auto';}})();
+function simBytes(w,h){return(w*h>1.6e6||IF!==gl.RGBA32F||QUAL==='low')?8:16;}
 const UNDO_BUDGET=matchMedia('(pointer:coarse)').matches?48e6:96e6;
 function memEstimate(w,h,oilOnly){const sb=simBytes(w,h);return w*h*((oilOnly?3:7)*sb+8+16)+Math.min(w*h,1024*1024)*3*sb+UNDO_BUDGET;}
 function allocAll(w,h){
  for(const t of [OL&&OL.r,PAPER,OUT,BELOW,TMP,SCR])if(t)delTarget(t);if(hasWater){delTarget(WT.r);delTarget(V.r);}BELOW=TMP=SCR=null;hasWater=false;
- W=w;H=h;const big=w*h>1.6e6||IF!==gl.RGBA32F;SIMIF=big?gl.RGBA16F:gl.RGBA32F;SIMTY=big?gl.HALF_FLOAT:gl.FLOAT;NTX=Math.ceil(w/TS);NTY=Math.ceil(h/TS);
+ W=w;H=h;const big=w*h>1.6e6||IF!==gl.RGBA32F||QUAL==='low';SIMIF=big?gl.RGBA16F:gl.RGBA32F;SIMTY=big?gl.HALF_FLOAT:gl.FLOAT;NTX=Math.ceil(w/TS);NTY=Math.ceil(h/TS);
  while(gl.getError()!==gl.NO_ERROR){}
  WT={r:ZERO3};V={r:ZERO3};OL={r:target(3)};PAPER=target(1);OUT=target(2);
  const e=gl.getError();if(e===gl.OUT_OF_MEMORY||gl.isContextLost())throw new Error('out of GPU memory');}
@@ -573,21 +588,41 @@ function spansOf(set){const rows=new Map();for(const k of set){const y=(k/NTX)|0
 const touchT=new Map();let awake=new Set(),liveTiles=new Set(),compTiles=new Set();
 // one simulation pass over a list of rects: render into scratch rows, then blit back (Jacobi-correct across rects)
 let passCount=0;
-function simPass(pr,T,txs,uni,rects,act,relaxOnly){if(T.r===ZERO3||!rects.length)return;const n=T.r.t.length;
+function simPass(pr,T,txs,uni,rects,act,relaxOnly,nBlit){if(T.r===ZERO3||!rects.length)return;const n=T.r.t.length,nb=nBlit||n;
  const ks=new Set();for(const r of rects)tilesOf(r,ks);if(relaxOnly){for(const k of ks)liveTiles.add(k);}else guard(ks);for(const k of ks)compTiles.add(k);
- const lay=[],rowLay=new Map();let sy=0;for(const r of rects){const key=r[1]+'/'+r[3];if(rowLay.has(key)){lay.push(rowLay.get(key));continue;} /* v12: rects of one tile row never overlap in x, so they always share scratch rows (scratch height <= H; before, disjoint spans in a row stacked past the H-clamped scratch -> garbage blocks) */lay.push(sy);rowLay.set(key,sy);sy+=r[3];}ensureScr(sy);
+ /* scratch layout. v0.18: rects that each stay inside one tile row (the scheduler's tight rects) share that row's scratch band at their own
+    y offset (bands are packed by row height, so the scratch never exceeds H); other rects (dabs, whole canvas) keep the v12 scheme. */
+ const lay=[];let sy=0;if(rects.every(r=>((r[1]/TS)|0)===(((r[1]+r[3]-1)/TS)|0))){const band=new Map();for(const r of rects){const y=(r[1]/TS)|0;if(!band.has(y)){band.set(y,sy);sy+=Math.min(TS,H-y*TS);}lay.push(band.get(y)+r[1]-y*TS);}}
+ else{const rowLay=new Map();for(const r of rects){const key=r[1]+'/'+r[3];if(rowLay.has(key)){lay.push(rowLay.get(key));continue;} /* v12: rects of one tile row never overlap in x, so they always share scratch rows (scratch height <= H; before, disjoint spans in a row stacked past the H-clamped scratch -> garbage blocks) */lay.push(sy);rowLay.set(key,sy);sy+=r[3];}}ensureScr(sy);
  if(n<3){gl.bindFramebuffer(gl.FRAMEBUFFER,SCR.fb);gl.drawBuffers([0,1,2].map(i=>i<n?gl.COLOR_ATTACHMENT0+i:gl.NONE));}
  rects.forEach((r,i)=>{run(pr,SCR,txs,uni,[r[0],lay[i],r[2],r[3]],[0,lay[i]-r[1]]);});
  if(n<3){gl.bindFramebuffer(gl.FRAMEBUFFER,SCR.fb);gl.drawBuffers([0,1,2].map(i=>gl.COLOR_ATTACHMENT0+i));}
  if(act)actCheck(T,rects,lay,act,T===WT);
- rects.forEach((r,i)=>blitT(SCR,r[0],lay[i],T.r,r[0],r[1],r[2],r[3],n));passCount+=rects.length;}
+ let a=0;rects.forEach((r,i)=>{blitT(SCR,r[0],lay[i],T.r,r[0],r[1],r[2],r[3],nb);a+=r[2]*r[3];});passCount+=rects.length;a*=1+nb;
+ if(inDab){PERF.brushPx+=a;for(const r of rects)srAdd([r[0]-MARG,r[1]-MARG,r[0]+r[2]+MARG,r[1]+r[3]+MARG],true);lastAct=performance.now();needRender=true;}else PERF.stepPx+=a;}
 // activity detection: per-tile max change of a pass (sampled on a 2px checker grid), read back as a tiny NTX×NTY texture
-let ACT=null;
-function actCheck(T,rects,lay,out,wat){if(!extF)return;if(!ACT||ACT.w!==NTX||ACT.h!==NTY){if(ACT)delTarget(ACT);ACT=target(1,NTX,NTY,gl.RGBA32F,gl.FLOAT);}
- const rv=new Float32Array(64).fill(-1);rects.forEach((r,i)=>{rv[(r[1]/TS)|0]=lay[i];});
- run(P.act,ACT,{uOld0:T.r.t[0],uOld1:T.r.t[1],uNew0:SCR.t[0],uNew1:SCR.t[1]},{uRowV:rv,uWat:wat?1:0});
- const b=new Float32Array(NTX*NTY*4);gl.bindFramebuffer(gl.FRAMEBUFFER,ACT.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);gl.readPixels(0,0,NTX,NTY,gl.RGBA,gl.FLOAT,b);
- for(let k=0;k<NTX*NTY;k++)if(b[4*k]>=0||b[4*k]!==b[4*k]){const v=b[4*k]>=0?b[4*k]:1;out.c[k]=Math.max(out.c[k]||0,v);if(wat)out.w[k]=Math.max(out.w[k]||0,b[4*k+1]>=0?b[4*k+1]:1);}}
+let ACT=null,TRM=null,actPBO=[],actPend=null,inFrame=false,frameNo=0;const PERFC={syncReads:0,asyncReads:0,forced:0};
+function actCheck(T,rects,lay,out,wat){if(!extF)return;if(!ACT||ACT.w!==NTX||ACT.h!==NTY){if(ACT)delTarget(ACT);if(TRM)delTarget(TRM);ACT=target(1,NTX,NTY,gl.RGBA32F,gl.FLOAT);TRM=target(1,NTX,NTY,gl.RGBA32F,gl.FLOAT);}
+ const rv=new Float32Array(64).fill(-1),tr=new Float32Array(NTX*NTY*4);
+ rects.forEach((r,i)=>{const y0=(r[1]/TS)|0,y1=((r[1]+r[3]-1)/TS)|0;for(let y=y0;y<=y1;y++)rv[y]=lay[i]+(y*TS-r[1]);
+  for(const k of tilesOf(r,new Set())){const t=tileRect(k),o=4*k,a=[Math.max(r[0],t[0])-t[0],Math.max(r[1],t[1])-t[1],Math.min(r[0]+r[2],t[0]+t[2])-t[0],Math.min(r[1]+r[3],t[1]+t[3])-t[1]];
+   if(tr[o+2]>tr[o]){tr[o]=Math.min(tr[o],a[0]);tr[o+1]=Math.min(tr[o+1],a[1]);tr[o+2]=Math.max(tr[o+2],a[2]);tr[o+3]=Math.max(tr[o+3],a[3]);}else tr.set(a,o);}});
+ gl.bindTexture(gl.TEXTURE_2D,TRM.t[0]);gl.texSubImage2D(gl.TEXTURE_2D,0,0,0,NTX,NTY,gl.RGBA,gl.FLOAT,tr);
+ run(P.act,ACT,{uOld0:T.r.t[0],uOld1:T.r.t[1],uNew0:SCR.t[0],uNew1:SCR.t[1],uTR:TRM.t[0]},{uRowV:rv,uWat:wat?1:0,uEps:ACT_EPS,uWEps:WET_EPS});
+ gl.bindFramebuffer(gl.FRAMEBUFFER,ACT.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);const nb=NTX*NTY*16;
+ /* v0.18: inside the animation loop the readback is asynchronous (pixel-pack buffer + fence, picked up 1-3 frames later): a synchronous
+    readPixels made the CPU wait for ALL queued GPU work every 16 sim steps (a periodic stall). Direct API calls (tests) stay synchronous. */
+ if(inFrame){const i=out.bufs.length;if(!actPBO[i]||actPBO[i].n!==nb){if(actPBO[i])gl.deleteBuffer(actPBO[i].b);const b=gl.createBuffer();gl.bindBuffer(gl.PIXEL_PACK_BUFFER,b);gl.bufferData(gl.PIXEL_PACK_BUFFER,nb,gl.STREAM_READ);actPBO[i]={b,n:nb};}
+  gl.bindBuffer(gl.PIXEL_PACK_BUFFER,actPBO[i].b);gl.readPixels(0,0,NTX,NTY,gl.RGBA,gl.FLOAT,0);gl.bindBuffer(gl.PIXEL_PACK_BUFFER,null);out.bufs.push({i,wat});return;}
+ const b=new Float32Array(NTX*NTY*4);gl.readPixels(0,0,NTX,NTY,gl.RGBA,gl.FLOAT,b);PERFC.syncReads++;actParse(b,wat,out);}
+function actParse(b,wat,out){for(let k=0;k<NTX*NTY;k++){const v0=b[4*k];if(!(v0>=0||v0!==v0))continue;const nan=v0!==v0||b[4*k+1]!==b[4*k+1];const v=nan?1:v0;out.c[k]=Math.max(out.c[k]||0,v);
+  if(wat)out.w[k]=Math.max(out.w[k]||0,b[4*k+1]>=0?b[4*k+1]:1);const tx=k%NTX,ty=(k/NTX)|0;let bb=null;
+  if(nan)bb=[tx*TS,ty*TS,tx*TS+TS-1,ty*TS+TS-1];else if(b[4*k+2]>=0){const X=b[4*k+2],Y=b[4*k+3];bb=[tx*TS+Math.floor(X/128),ty*TS+Math.floor(Y/128),tx*TS+X%128,ty*TS+Y%128];}
+  if(bb){const o=out.bb[k];out.bb[k]=o?[Math.min(o[0],bb[0]),Math.min(o[1],bb[1]),Math.max(o[2],bb[2]),Math.max(o[3],bb[3])]:bb;}}}
+function actPoll(force){if(!actPend)return;const st_=gl.getSyncParameter(actPend.act.sync,gl.SYNC_STATUS);
+ if(st_!==gl.SIGNALED&&!force&&frameNo-actPend.frame<5)return;if(st_!==gl.SIGNALED)PERFC.forced++;
+ const a=actPend.act;actPend=null;gl.deleteSync(a.sync);for(const e of a.bufs){const b=new Float32Array(NTX*NTY*4);gl.bindBuffer(gl.PIXEL_PACK_BUFFER,actPBO[e.i].b);gl.getBufferSubData(gl.PIXEL_PACK_BUFFER,0,b);gl.bindBuffer(gl.PIXEL_PACK_BUFFER,null);PERFC.asyncReads++;actParse(b,e.wat,a);}
+ if(a.nt===NTX*NTY)applyAct(a);}
 function run(pr,dst,txs,uni,rect,vo){gl.useProgram(pr.p);gl.bindFramebuffer(gl.FRAMEBUFFER,dst?dst.fb:null);
  let w=dst?dst.w:cv.width,h=dst?dst.h:cv.height;if(vo){gl.viewport(vo[0],vo[1],W,H);w=W;h=H;}else gl.viewport(0,0,w,h);if(pr.u.uSz)gl.uniform2f(pr.u.uSz,W,H);if(pr.u.uFO)gl.uniform2f(pr.u.uFO,vo?-vo[0]:0,vo?-vo[1]:0);
  if(rect){gl.enable(gl.SCISSOR_TEST);gl.scissor(rect[0],rect[1],rect[2],rect[3]);}
@@ -663,14 +698,14 @@ function undo(noRedo){const s=SNAP.pop();if(!s)return false;
 function redo(){const r=REDO.pop();if(!r)return false;SNAP.push(inverseOf(r));trimUndo(1);return applySnap(r);}
 function applySnap(s){
  if(s.full){layers=s.meta;ai=s.ai;clearAll();const b=baseOf(layers[ai]);if(b!==EMPTY)run(P.loadBase,OL.r,{uBA:b.t[1]},{});
-  for(const[k,v]of s.saved){restoreTile(k,v);awake.add(k);}liveTiles=s.prevLive;}
- else{layers=s.meta;ai=s.ai;for(const k of s.tiles){const v=s.saved.get(k);if(v)restoreTile(k,v);else{pristineTile(k);liveTiles.delete(k);}awake.add(k);}if(hasWater)clr(V.r);}
+  for(const[k,v]of s.saved){restoreTile(k,v);wakeFull(k);}liveTiles=s.prevLive;}
+ else{layers=s.meta;ai=s.ai;for(const k of s.tiles){const v=s.saved.get(k);if(v)restoreTile(k,v);else{pristineTile(k);liveTiles.delete(k);}wakeFull(k);}if(hasWater)clr(V.r);}
  for(const v of s.saved.values())freeSlot(v.sl);s.meta=[];last=null;belowDirty=true;lastAct=performance.now();needRender=true;gcTex();uiLayers&&uiLayers();return true;}
 function baseOf(l){return l&&l.tex?l.tex:EMPTY;}
 function bakeActive(){const t=target(2);ALLT.add(t);const b=baseOf(layers[ai]);
  run(P.layerLive,t,{uS:WT.r.t[0],uF:WT.r.t[1],uD:WT.r.t[2],uO0:OL.r.t[0],uO1:OL.r.t[1],uO2:OL.r.t[2],uBC:b.t[0],uBA:b.t[1]},{});layers[ai].tex=t;}
 function loadActive(){clearAll();const b=baseOf(layers[ai]);if(b!==EMPTY){run(P.loadBase,OL.r,{uBA:b.t[1]},{});}if(hasWater)clr(V.r);
- awake=new Set();simRect=null;belowDirty=true;needRender=true;}
+ awake=new Set();SR.clear();simRect=null;belowDirty=true;needRender=true;}
 function layerOp(fn,full){pushUndo(full);fn();gcTex();belowDirty=true;needRender=true;uiLayers&&uiLayers();}
 const L_={
  add(){layerOp(()=>{bakeActive();layers.splice(ai+1,0,newMeta());ai++;loadActive();},true);},
@@ -686,11 +721,35 @@ const L_={
  opacity(v,push){if(push)pushUndo();layers[ai]=Object.assign({},layers[ai],{op:+v});belowDirty=true;needRender=true;uiLayers&&uiLayers();},
  blend(m){if(!(m in MODES))return;layerOp(()=>{layers[ai]=Object.assign({},layers[ai],{blend:m});});}};
 // ---- sim region (only simulate where something is happening) ----
-let simRect=null,lastAct=0;
-function touchPx(x,y,r){const m=96;const R=[Math.max(0,Math.floor(x-r-m)),Math.max(0,Math.floor(y-r-m)),Math.min(W,Math.ceil(x+r+m)),Math.min(H,Math.ceil(y+r+m))];
- {const ks=tilesOf([R[0],R[1],R[2]-R[0],R[3]-R[1]],new Set());const now=performance.now();for(const k of ks){awake.add(k);touchT.set(k,now);}}
- simRect=simRect?[Math.min(simRect[0],R[0]),Math.min(simRect[1],R[1]),Math.max(simRect[2],R[2]),Math.max(simRect[3],R[3])]:R;lastAct=performance.now();needRender=true;}
-function simFull(){simRect=[0,0,W,H];for(let k=0;k<NTX*NTY;k++)awake.add(k);lastAct=performance.now();needRender=true;}
+let simRect=null,lastAct=0,inDab=false;
+/* v0.18 tight sim region: every awake tile carries a sub-rect SR[k] (canvas px [x0,y0,x1,y1), inside the tile; missing = whole tile).
+   Dabs add their own pass rects + MARG; every 8 steps the activity check shrinks each tile's rect to the bounding box of pixels that changed
+   or still hold water, + MARG; a box that comes within MARG of a tile border spills into the neighbour (the halo now only exists where
+   water/paint actually reaches the border). Before: whole 128 px tiles + 96 px dab margin + all 8 neighbours of every wet tile, and the
+   whole canvas once 60% of the tiles were awake. */
+const SR=new Map(),MARG=24;
+function tileRect4(k){const r=tileRect(k);return[r[0],r[1],r[0]+r[2],r[1]+r[3]];}
+function srOf(k){return SR.get(k)||tileRect4(k);}
+function wakeFull(k){awake.add(k);SR.delete(k);}
+function srAdd(R,touch){const x0=Math.max(0,Math.floor(R[0])),y0=Math.max(0,Math.floor(R[1])),x1=Math.min(W,Math.ceil(R[2])),y1=Math.min(H,Math.ceil(R[3]));if(x1<=x0||y1<=y0)return;
+ const now=touch?performance.now():0;for(const k of tilesOf([x0,y0,x1-x0,y1-y0],new Set())){const t=tileRect4(k),c=[Math.max(t[0],x0),Math.max(t[1],y0),Math.min(t[2],x1),Math.min(t[3],y1)];
+  if(!awake.has(k)){awake.add(k);SR.set(k,c);}else{const o=SR.get(k);if(o)SR.set(k,[Math.min(o[0],c[0]),Math.min(o[1],c[1]),Math.max(o[2],c[2]),Math.max(o[3],c[3])]);}
+  if(touch)touchT.set(k,now);}}
+function touchPx(x,y,r){srAdd([x-r,y-r,x+r,y+r],true);simRect=[0,0,W,H];lastAct=performance.now();needRender=true;}
+function simFull(){simRect=[0,0,W,H];SR.clear();for(let k=0;k<NTX*NTY;k++)awake.add(k);lastAct=performance.now();needRender=true;}
+// rects to simulate: per tile row, horizontally adjacent sub-rects that meet at the shared border are merged when that wastes little area
+function simRects(){const rows=new Map();for(const k of awake){const y=(k/NTX)|0;let a=rows.get(y);if(!a)rows.set(y,a=[]);a.push(k);}
+ const out=[];let area=0;for(const ks of rows.values()){ks.sort((a,b)=>a-b);let cur=null;
+  for(const k of ks){const q=srOf(k),qa=(q[2]-q[0])*(q[3]-q[1]);
+   if(cur&&k===cur.k+1&&cur.r[2]===q[0]){const u=[cur.r[0],Math.min(cur.r[1],q[1]),q[2],Math.max(cur.r[3],q[3])];if((u[2]-u[0])*(u[3]-u[1])<=(cur.a+qa)*1.3+1024){cur.r=u;cur.a+=qa;cur.k=k;continue;}}
+   if(cur)out.push(cur.r);cur={k,r:q.slice(),a:qa};}
+  if(cur)out.push(cur.r);}
+ const rc=out.map(r=>{area+=(r[2]-r[0])*(r[3]-r[1]);return[r[0],r[1],r[2]-r[0],r[3]-r[1]];});rc.area=area;return rc;}
+function applyAct(act){window.__act=act;const now=performance.now(),spill=[];
+ for(const k of [...awake]){const v=act.c[k];if(v==null)continue;const bb=act.bb[k];const hold=drawing!=null||now-(touchT.get(k)||0)<=1000;
+  if(!bb){if(!hold){awake.delete(k);SR.delete(k);}continue;}
+  const e=[bb[0]-MARG,bb[1]-MARG,bb[2]+1+MARG,bb[3]+1+MARG];if(!hold){const t=tileRect4(k);SR.set(k,[Math.max(t[0],e[0]),Math.max(t[1],e[1]),Math.min(t[2],e[2]),Math.min(t[3],e[3])]);}spill.push(e);}
+ for(const e of spill)srAdd(e,false);if(!awake.size)simRect=null;}
 function syncPairs(){}
 // ---- bristles ----
 let seed=0,dir=[1,0],BRS=[];
@@ -778,28 +837,30 @@ let kTrav=0;function knifeDab(x,y,pres,stepPx,tl){const p=params();const g=knife
   simPass(P.knifeO,OL,{uO0:OL.r.t[0],uO1:OL.r.t[1],uO2:OL.r.t[2],uK0:KN.r.t[0],uK2:KN.r.t[2]},kv,[rect]);
   simPass(P.wcBury,WT,{uS:WT.r.t[0],uF:WT.r.t[1],uD:WT.r.t[2],uO0:OL.r.t[0]},{},[rect]);}
  if(p.water>.02){ensureWater();simPass(P.knifeW,WT,{uS:WT.r.t[0],uF:WT.r.t[1],uD:WT.r.t[2]},kv,[rect]);}}
-let stepN=0;const ACT_EPS=1e-5,WET_EPS=2e-4,FULL_FRAC=matchMedia('(pointer:coarse)').matches?.4:.6;
-function step(){if(st.tilt||st.dryAll)simFull();if(!awake.size)return;const p=params();
+/* v0.18 adaptive sim budget. The sim used to run 2 steps every animation frame whatever it cost (=240 steps/s on a 120 Hz screen) over
+   whole tiles/the whole canvas, so a large wet area on a weak (integrated) GPU stretched every frame and the brush lagged. Now: 120 steps/s
+   of sim time owed from the real frame dt; a pixel budget per frame (sim px = shaded + blitted px of all passes); brush dabs are charged
+   first (they render in the input handler, every event), the sim takes what is left and catches up later. The budget adapts to the GPU:
+   from EXT_disjoint_timer_query_webgl2 (ns per sim px) when available, otherwise from frame-time overrun. */
+const PERF={budget:matchMedia('(pointer:coarse)').matches?1.5e6:4e6,bmin:2e5,bmax:matchMedia('(pointer:coarse)').matches?8e6:32e6,tokens:0,owed:0,nominal:1000/60,dtE:1000/60,lastT:0,
+ nsPx:0,stepPx:0,brushPx:0,lastArea:0,steps:0,stepsS:0,simPxF:0,simPxS:0,starve:0,slowMs:0,hinted:false,gpuMs:0,frames:0,limited:false,dts:[]};
+let stepN=0;const ACT_EPS=1e-5,WET_EPS=2e-4,FINE=!matchMedia('(pointer:coarse)').matches,FULL_FRAC=FINE?.85:.4,SIMFULL=/[?&]simfull=1/.test(location.search);
+function step(){if(st.tilt||st.dryAll)simFull();if(!inFrame)actPoll(true);else actPoll(false);if(!awake.size)return 0;const p=params();PERF.stepPx=0;
  /* v0.13: after 45 s idle the sim used to stop dead, freezing any still-wet watercolour (pigment left floating, never dried, no edge rims).
     Now wet water keeps drying with evaporation ramping up (body paint still stops at 45 s as before), so washes always finish drying. */
- const idle=performance.now()-lastAct,fin=hasWater&&drawing==null&&!st.dryAll&&idle>45000,evB=fin?Math.min(1+(idle-45000)/1500,24):1;let rc=spansOf(awake);
- /* v0.15: when most tiles are awake, simulate the whole canvas as ONE rect (one scratch band, no per-tile-row viewport offsets):
-    every pixel then takes exactly the same code path, so no tile-row / tile-column seam is possible whatever the GPU does. */
- if(awake.size>=FULL_FRAC*NTX*NTY)rc=[[0,0,W,H]];const act=(++stepN%16===0&&!st.tilt)?{c:{},w:{}}:null;const ro=st.dryAll?0:1;
+ const idle=performance.now()-lastAct,fin=hasWater&&drawing==null&&!st.dryAll&&idle>45000,evB=fin?Math.min(1+(idle-45000)/1500,24):1;let rc=simRects();
+ /* v0.15: when most of the canvas is active, simulate it as ONE rect (one scratch band, every pixel takes the same code path).
+    v0.18: decided on the real active AREA (tight rects), at 85% on desktop (40% on touch devices as before); ?simfull=1 forces it (tests). */
+ if(SIMFULL||rc.area>=FULL_FRAC*W*H)rc=[[0,0,W,H]];PERF.lastArea=rc.area!=null?rc.area:W*H;
+ const act=(++stepN%8===0&&!st.tilt&&!actPend)?{c:{},w:{},bb:{},bufs:[],nt:NTX*NTY}:null;const ro=st.dryAll?0:1;
  if(hasWater){simPass(P.flux,V,{uS:WT.r.t[0],uV:V.r.t[0],uP:PAPER.t[0]},{uTilt:st.tilt,uG:p.G,uEta:.03},rc,null,ro);
  simPass(P.water,WT,{uS:WT.r.t[0],uF:WT.r.t[1],uD:WT.r.t[2],uV:V.r.t[0],uP:PAPER.t[0]},{uRim:p.rim,uEvap:p.evap*evB,uEdgeK:p.edgeK,uAll:st.dryAll,uGran:p.gran,uLift:p.lift,uBloom:p.bloom,uDampDec:.0009},rc,act,ro);
- if(p.water>.02)simPass(P.capil,WT,{uS:WT.r.t[0],uF:WT.r.t[1],uD:WT.r.t[2],uP:PAPER.t[0]},{uCap:.16},rc,null,ro);}
+ if(p.water>.02)simPass(P.capil,WT,{uS:WT.r.t[0],uF:WT.r.t[1],uD:WT.r.t[2],uP:PAPER.t[0]},{uCap:.16},rc,null,ro,2);} // capil never changes attachment 2
  if(!fin)simPass(P.relax,OL,{uO0:OL.r.t[0],uO1:OL.r.t[1],uO2:OL.r.t[2]},{uMu:.2,uAll:st.dryAll,uTilt:st.tilt},rc,act,ro);st.dryAll=0;needRender=true;
- if(act){window.__act=act;const now=performance.now();
-  /* v0.14 tile scheduling: (1) a tile that still holds water never sleeps (before, a wet tile whose changes rounded to < ACT_EPS, e.g. in fp16,
-     froze wet while its neighbours dried => hard rectangular blocks); (2) the 8 neighbours of a wet tile are kept awake as a halo, so flow,
-     capillary spread and edge rims across a tile border are always computed on both sides (an asleep neighbour's frozen outflow used to be
-     injected into the awake side every step, and the awake side's outflow vanished => straight seams and stripes at tile borders). */
-  const wet=new Set();for(const k of awake){if((act.w[k]||0)>WET_EPS)wet.add(k);}
-  const halo=new Set();for(const k of wet){const x=k%NTX,y=(k/NTX)|0;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const X=x+dx,Y=y+dy;if(X>=0&&Y>=0&&X<NTX&&Y<NTY)halo.add(Y*NTX+X);}}
-  for(const k of halo)awake.add(k);
-  for(const k of [...awake]){const v=act.c[k];if(v!=null&&v<ACT_EPS&&!halo.has(k)&&now-(touchT.get(k)||0)>1000&&drawing==null){awake.delete(k);}}if(!awake.size)simRect=null;}
- if(idle>(hasWater?150000:45000)&&drawing==null){awake=new Set();simRect=null;shrinkScr();}}
+ /* v0.14 rules kept: a tile that still holds water never sleeps (its bbox includes wet pixels); flow across a tile border is always computed
+    on both sides (the bbox + MARG spills into the neighbour). */
+ if(act){if(act.bufs.length){act.sync=gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE,0);gl.flush();actPend={act,frame:frameNo};}else applyAct(act);}
+ if(idle>(hasWater?150000:45000)&&drawing==null){awake=new Set();SR.clear();simRect=null;shrinkScr();}return PERF.stepPx;}
 const view={s:1,ox:0,oy:0};
 function hexLin(h){const n=parseInt(h.slice(1),16);return[n>>16&255,n>>8&255,n&255].map(v=>Math.pow(v/255,2.2));}
 function belowSrc(){return layers.slice(0,ai).some(l=>l.vis&&l.tex)?BELOW:SURF1;}
@@ -819,8 +880,15 @@ function composite(){if(ensureBelow())compFull=true;
  if(compFull){compositeRects(null);compFull=false;compTiles.clear();}else if(compTiles.size){compositeRects(spansOf(compTiles));compTiles.clear();}
  return OUT;}
 function litU(){const a=st.light*Math.PI/180;return{uL:[Math.cos(a)*.75,Math.sin(a)*.75,.62],uRelief:st.relief,uPR:PR[surface.type]};}
-function render(){const src=composite();
- run(P.final,null,{uAC:src.t[0],uAA:src.t[1],uP:PAPER.t[0]},Object.assign(litU(),{uScreen:1,uMode:0,uView:[view.ox,view.oy,view.s,0],uBg:[.085,.085,.095]}));
+/* v0.18: the screen pass (paper lighting at full display resolution, 8 Mpx on a 4K screen) is redrawn only where the composite changed when
+   nothing else did (the drawing buffer is preserved); any view / lighting / layer / canvas change still redraws everything. */
+let finKey='';function render(){const full=compFull||belowDirty,dirty=full?null:new Set(compTiles);const src=composite();
+ const L=litU(),key=[view.s,view.ox,view.oy,cv.width,cv.height,W,H,JSON.stringify(L),surface.type,ai,layers.length].join();let sc=null;
+ if(full||key!==finKey||!dirty){finKey=key;}else if(!dirty.size){return lastZoomUpd();}else{let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(const k of dirty){const r=tileRect(k);x0=Math.min(x0,r[0]);y0=Math.min(y0,r[1]);x1=Math.max(x1,r[0]+r[2]);y1=Math.max(y1,r[1]+r[3]);}
+  const pad=Math.ceil(view.s)+2,X0=Math.floor(view.ox+x0*view.s)-pad,Y0=Math.floor(view.oy+y0*view.s)-pad,X1=Math.ceil(view.ox+x1*view.s)+pad,Y1=Math.ceil(view.oy+y1*view.s)+pad;
+  sc=[Math.max(0,X0),Math.max(0,Y0),Math.min(cv.width,X1)-Math.max(0,X0),Math.min(cv.height,Y1)-Math.max(0,Y0)];if(sc[2]<=0||sc[3]<=0)return lastZoomUpd();}
+ run(P.final,null,{uAC:src.t[0],uAA:src.t[1],uP:PAPER.t[0]},Object.assign(L,{uScreen:1,uMode:0,uView:[view.ox,view.oy,view.s,0],uBg:[.085,.085,.095]}),sc);lastZoomUpd();}
+function lastZoomUpd(){
  const zt=Math.round(view.s/(devicePixelRatio||1)*100)+'%';if(zt!==lastZoomT){lastZoomT=zt;const z=$('zoomv');if(z)z.textContent=zt;}}
 let lastZoomT='';
 // v11.1: cache the canvas rect (was read per frame and per pointer event); invalidated on resize
@@ -831,7 +899,7 @@ function zoomAt(px,py,f){const s2=Math.min(Math.max(view.s*f,.05),32);view.ox=px
 function genPaper(){run(P.paper,PAPER,{},{uType:surface.type,uScale:surface.scale});belowDirty=true;needRender=true;}
 // ---- strokes ----
 let last=null,keepLoad=false,strokePen=false,PF=null;
-function dab(x,y,pres,stepPx,tl){touchPx(x*W,y*H,st.size*1.3+20);if(st.tool==='knife')knifeDab(x,y,pres,stepPx,tl);else brushDab(x,y,pres,stepPx,tl);}
+function dab(x,y,pres,stepPx,tl){touchPx(x*W,y*H,8);inDab=true;try{if(st.tool==='knife')knifeDab(x,y,pres,stepPx,tl);else brushDab(x,y,pres,stepPx,tl);}finally{inDab=false;}}
 let lastT=0;
 function addPoint(x,y,pres,tl,tms){tl=tl||{t:st.btilt/80,phi:null,pen:false};if(tms==null)tms=performance.now();
  if(pres==null)pres=.55; // mouse: simulated below from speed
@@ -923,7 +991,47 @@ let curKey='';function drawCursor(){const r=cvRect();
   cx+=td[0]*(pj*(stretch-1)+t*.35);cy+=td[1]*(pj*(stretch-1)+t*.35);const[a,c]=P2(C[0]+cx*Rp,C[1]+cy*Rp);cg.beginPath();cg.arc(a,c,Math.max(1,Rp*b.rb*sx*.6),0,6.283);cg.fill();}
  if(t>.02){const[a,c]=P2(C[0],C[1]);cg.beginPath();cg.moveTo(a,c);cg.lineTo(a-td[0]*Rp*2.2*t*sx,c+td[1]*Rp*2.2*t*sy);cg.stroke();}}
 let memT=0,memTxt='';function memUI(){const el=$('memv');if(!el)return;const tx='GPU ≈ '+fmtMB(gpuBytes)+' · undo '+SNAP.length+' steps ('+fmtMB(undoBytes())+')';if(tx!==memTxt){memTxt=tx;el.textContent=tx;}}
-let paused=false;function frame(){if(performance.now()-memT>500){memT=performance.now();memUI();}if(resizeGL())needRender=true;if(!paused){step();step();if(needRender){render();needRender=false;}}if(curDirty||drawing!=null){drawCursor();curDirty=drawing!=null;}requestAnimationFrame(frame);}requestAnimationFrame(frame);
+/* v0.18: integrated-GPU detection (hybrid laptops often run Chrome on the iGPU even with powerPreference:'high-performance') */
+const GPUINFO=(()=>{const d=gl.getExtension('WEBGL_debug_renderer_info');const r=String(d?gl.getParameter(d.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER));
+ const dgpu=/NVIDIA|GeForce|RTX|GTX|Quadro|Radeon\s*(RX|Pro|R9|VII)|FirePro|Arc\(TM\)\s*A\d|Arc A\d/i.test(r),soft=/SwiftShader|llvmpipe|Software|Basic Render/i.test(r);
+ return{name:r,igpu:!dgpu&&!soft&&/Intel|AMD|Radeon|Vega|ATI/i.test(r),dgpu,soft};})();
+function igpuToast(){try{if(localStorage.getItem('igpuHint'))return;localStorage.setItem('igpuHint','1');}catch(_){}const t=document.createElement('div');t.id='igpuHint';t.setAttribute('role','status');
+ t.style.cssText='position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:60;max-width:min(520px,calc(100vw - 24px));background:rgba(28,28,34,.95);color:#f2f2f4;font:13px/1.4 system-ui;padding:10px 34px 10px 14px;border-radius:10px;box-shadow:0 4px 18px rgba(0,0,0,.45)';
+ t.textContent='Painting is slow and Chrome is using the integrated GPU ('+GPUINFO.name.replace(/^ANGLE \(|\)$/g,'').slice(0,80)+'). If this computer has a dedicated GPU, set Chrome to "High performance" (Windows: Settings > System > Display > Graphics > Chrome; NVIDIA: Control Panel > Manage 3D settings) and restart Chrome - or choose Quality: Low under Canvas & surface. Details: add ?diag=1 to the address.';
+ const x=document.createElement('button');x.textContent='×';x.setAttribute('aria-label','Dismiss');x.style.cssText='position:absolute;right:6px;top:4px;background:none;border:0;color:#ccc;font:18px system-ui;cursor:pointer';x.onclick=()=>t.remove();t.appendChild(x);
+ document.body.appendChild(t);setTimeout(()=>t.remove(),20000);}
+const TQ=gl.getExtension('EXT_disjoint_timer_query_webgl2'),tqPend=[];
+PERF.auto0=!FINE?1.5e6:GPUINFO.dgpu?16e6:GPUINFO.igpu?3e6:4e6;PERF.budget=PERF.auto0;
+function setQuality(q){QUAL=q==='high'||q==='low'?q:'auto';try{localStorage.setItem('quality',QUAL);}catch(_){}const el=document.getElementById('quality');if(el)el.value=QUAL;
+ if(QUAL==='auto')PERF.budget=PERF.auto0;PERF.tokens=0;qualUI();}
+function qualLevel(){if(QUAL==='high')return'high';if(QUAL==='low')return'low';const sp=PERF.stepsS/SIM_HZ;return !PERF.busy||sp>.95?'full':sp>.6?'reduced':'low';}
+function qualUI(){const el=document.getElementById('qv');if(!el)return;const fps=1000/Math.max(PERF.dtE,1);el.textContent=(QUAL==='auto'?'auto: '+qualLevel():QUAL)+' · '+fps.toFixed(0)+' fps';}const SIM_HZ=120;
+function tqPoll(){while(tqPend.length){const e=tqPend[0];if(!gl.getQueryParameter(e.q,gl.QUERY_RESULT_AVAILABLE))break;const dj=gl.getParameter(TQ.GPU_DISJOINT_EXT),ns=gl.getQueryParameter(e.q,gl.QUERY_RESULT);
+ gl.deleteQuery(e.q);tqPend.shift();if(!dj&&e.px>5e4){const r=ns/e.px;PERF.nsPx=PERF.nsPx?PERF.nsPx*.85+r*.15:r;PERF.gpuMs=PERF.gpuMs*.85+ns/1e6*.15;}}}
+function simFrame(dt){const F=PERF;F.owed=Math.min(F.owed+dt*SIM_HZ/1000,4);if(!awake.size&&!st.tilt&&!st.dryAll){F.owed=0;F.tokens=0;F.brushPx=0;return 0;}
+ // budget: GPU timer (target 35% of the refresh interval) else frame-time feedback
+ if(QUAL==='high')F.budget=Infinity;else if(QUAL==='low')F.budget=Math.min(FINE?1.5e6:.6e6,TQ&&F.nsPx>0?Math.max(F.bmin,.25*F.nominal*1e6/F.nsPx):Infinity);
+ else if(!isFinite(F.budget))F.budget=F.auto0;
+ if(QUAL!=='auto'){}else if(TQ&&F.nsPx>0)F.budget=Math.min(F.bmax,Math.max(F.bmin,.35*F.nominal*1e6/F.nsPx));
+ else if(F.frames>30){if(F.dtE>F.nominal*1.35&&F.limited)F.budget=Math.max(F.bmin,F.budget*.93);else if(F.dtE<F.nominal*1.15&&F.limited)F.budget=Math.min(F.bmax,F.budget*1.03);}
+ const B=F.budget*(drawing!=null&&QUAL!=='high'?.75:1);F.tokens=isFinite(B)?Math.min(F.tokens+B-F.brushPx,Math.max(B,F.lastCost||0)):Infinity;F.brushPx=0;
+ let n=0,px=0;const q=TQ&&tqPend.length<4?gl.createQuery():null;if(q)gl.beginQuery(TQ.TIME_ELAPSED_EXT,q);
+ const maxN=Math.min(4,Math.max(1,Math.ceil(SIM_HZ*F.nominal/1000-.05))); // 2 at 60 Hz, 1 at 120+ Hz: no 3-step catch-up hitches
+ while(F.owed>=1&&n<maxN){const est=F.lastCost||((F.lastArea||TS*TS*4)*(hasWater?13:4));if(F.tokens<est&&!(n===0&&F.starve>=3))break;
+  const c=step();F.lastCost=c||est;F.tokens-=c;px+=c;F.owed-=1;n++;if(!awake.size)break;}
+ if(q){gl.endQuery(TQ.TIME_ELAPSED_EXT);if(px)tqPend.push({q,px});else gl.deleteQuery(q);}
+ F.limited=F.owed>=1;F.starve=n?0:F.starve+1;F.steps+=n;F.simPxF+=px;return n;}
+let paused=false,lastFrameT=0;
+function frame(){const now=performance.now();if(now-memT>500){memT=now;memUI();perfTick(now);}if(resizeGL())needRender=true;
+ const dt=Math.min(Math.max(lastFrameT?now-lastFrameT:1000/60,1),100);lastFrameT=now;frameNo++;const F=PERF;F.frames++;
+ F.dts.push(dt);if(F.dts.length>120)F.dts.shift();if(F.frames%30===0&&F.dts.length>=30){const q=F.dts.slice().sort((a,b)=>a-b);F.nominal=Math.max(6.5,q[Math.floor(q.length*.1)]);}F.dtE=F.dtE*.9+dt*.1; // refresh interval = 10th percentile of recent frame times
+ if(TQ)tqPoll();
+ if(!paused){inFrame=true;try{simFrame(dt);}finally{inFrame=false;}if(needRender){render();needRender=false;}}
+ if(curDirty||drawing!=null){drawCursor();curDirty=drawing!=null;}requestAnimationFrame(frame);}
+let perfLast=0;function perfTick(now){const F=PERF,el=Math.max(now-(perfLast||now-500),1);perfLast=now;F.stepsS=F.steps*1000/el;F.simPxS=F.simPxF/Math.max(1,F.steps);F.steps=0;F.simPxF=0;
+ const busy=awake.size>0||drawing!=null;F.busy=busy;qualUI();if(busy&&(F.dtE>F.nominal*1.5||F.budget<=F.bmin*1.01))F.slowMs+=el;else F.slowMs=Math.max(0,F.slowMs-el*.5);
+ if(F.slowMs>3000&&!F.hinted&&GPUINFO.igpu){F.hinted=true;igpuToast();}}
+requestAnimationFrame(frame);
 // ---- UI ----
 const $=id=>document.getElementById(id);
 const sw=$('sw');PIG.forEach(([n,c],i)=>{const b=document.createElement('button');b.style.background=c||'radial-gradient(circle at 35% 35%,#fff,#cfe3ee)';b.title=n;b.onclick=()=>selectPig(i);sw.appendChild(b);});
@@ -962,6 +1070,7 @@ $('bTilt').onclick=()=>{st.tilt=st.tilt?0:1;$('bTilt').classList.toggle('on',!!s
 $('bSave').onclick=()=>doExport('lit',false);
 // ---- side panel: canvas, surface, layers, export, projects ----
 function setSurface(o){Object.assign(surface,o);$('surf').value=surface.type;$('tscale').value=surface.scale;$('tsv').textContent=(+surface.scale).toFixed(2)+'×';$('ground').value=surface.ground;$('showSurf').checked=surface.show;genPaper();}
+$('quality').value=QUAL;$('quality').onchange=e=>setQuality(e.target.value);
 $('surf').onchange=e=>setSurface({type:+e.target.value});$('tscale').oninput=e=>setSurface({scale:+e.target.value});
 $('ground').oninput=e=>{surface.ground=e.target.value;belowDirty=true;needRender=true;};$('showSurf').onchange=e=>{surface.show=e.target.checked;belowDirty=true;needRender=true;};
 let renI=-1;
@@ -992,11 +1101,12 @@ let opPushed=false;$('lop').addEventListener('pointerdown',()=>{opPushed=false;}
 $('bFit').onclick=fit;
 // new canvas
 function fmtMB(b){return b>1e9?(b/1e9).toFixed(2)+' GB':Math.round(b/1e6)+' MB';}
-function updEst(){const w=+$('nw').value,h=+$('nh').value;const e=memEstimate(w,h);$('nest').innerHTML='Estimated GPU memory: <b>'+fmtMB(e)+'</b> with watercolour + full undo (oil only ≈ '+fmtMB(memEstimate(w,h,1))+')'+(w>MAXTEX||h>MAXTEX?'<br><b>Too large for this GPU (max '+MAXTEX+' px).</b>':e>1.6e9?'<br><b>Probably too large; may fail on many GPUs.</b>':'');}
+function updEst(){const w=+$('nw').value,h=+$('nh').value;const e=memEstimate(w,h);$('nest').innerHTML='Estimated GPU memory: <b>'+fmtMB(e)+'</b> with watercolour + full undo (oil only ≈ '+fmtMB(memEstimate(w,h,1))+')'+(w>MAXTEX||h>MAXTEX?'<br><b>Too large for this GPU (max '+MAXTEX+' px).</b>':e>1.6e9?'<br><b>Probably too large; may fail on many GPUs.</b>':'')+(w*h>2*scrPx()?'<br>Larger than your screen ('+Math.round(screen.width*(devicePixelRatio||1))+' × '+Math.round(screen.height*(devicePixelRatio||1))+' px): big wet washes will simulate more slowly'+(GPUINFO.igpu?', especially on this integrated GPU':'')+'.':'');}
+function scrPx(){const d=devicePixelRatio||1;return screen.width*screen.height*d*d;}
 $('preset').onchange=e=>{if(e.target.value!=='custom'){const[w,h]=e.target.value.split('x');$('nw').value=w;$('nh').value=h;}updEst();};$('nw').oninput=$('nh').oninput=updEst;
 $('bNew').onclick=()=>{updEst();$('dlgNew').showModal();};$('nCancel').onclick=()=>$('dlgNew').close();
 $('nOk').onclick=()=>{const r=newCanvas(+$('nw').value,+$('nh').value);$('dlgNew').close();if(!r.ok)alert(r.msg);};
-function resetDoc(){pages.forEach(pg=>{delTarget(pg.w);delTarget(pg.o);});pages=[];freeSlots=[];SNAP=[];awake=new Set();liveTiles=new Set();compTiles=new Set();compFull=true;belowDirty=true;
+function resetDoc(){pages.forEach(pg=>{delTarget(pg.w);delTarget(pg.o);});pages=[];freeSlots=[];SNAP=[];awake=new Set();SR.clear();liveTiles=new Set();compTiles=new Set();compFull=true;belowDirty=true;
  layers=[newMeta('Background paint')];ai=0;gcTex();}
 function newCanvas(w,h,keepLayers){w=Math.round(w);h=Math.round(h);const prev=[W,H];
  if(w<64||h<64||w>MAXTEX||h>MAXTEX)return{ok:false,msg:'Size not supported (max '+MAXTEX+' px per side).'};
@@ -1041,12 +1151,13 @@ async function openProjectBytes(bytes){const raw=new Uint8Array(await new Respon
  const wt=[take(),take(),take()],ol=[take(),take(),take()];const nz=h=>{for(let j=0;j<h.length;j++)if(h[j]&0x7fff)return true;return false;};
  if(wt.some(nz)){ensureWater();wt.forEach((h,i)=>upload(WT.r,i,h));}ol.forEach((h,i)=>upload(OL.r,i,h));
  liveTiles=new Set();for(let k=0;k<NTX*NTY;k++){const r=tileRect(k);let live=false;for(const h of [...(hasWater?wt:[]),...ol]){for(let y=r[1];y<r[1]+r[3]&&!live;y++){const o=(y*W+r[0])*4;for(let j=o;j<o+r[2]*4;j++)if(h[j]&0x7fff){live=true;break;}}if(live)break;}if(live)liveTiles.add(k);}
- awake=new Set(liveTiles);lastAct=performance.now();belowDirty=true;uiLayers();needRender=true;return hdr;}
+ awake=new Set(liveTiles);SR.clear();lastAct=performance.now();belowDirty=true;uiLayers();needRender=true;return hdr;}
 $('bSaveP').onclick=async()=>download('painting.mpaint',new Blob([await saveProjectBytes()]));
 $('bOpenP').onclick=()=>$('openFile').click();$('openFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{await openProjectBytes(await f.arrayBuffer());}catch(err){alert('Could not open project: '+err.message);}e.target.value='';};
 // init document
 const MQ=matchMedia('(max-width:900px),(pointer:coarse)');
 let initW=1024,initH=768;if(MQ.matches){document.body.classList.add('m');const r=$('stage').getBoundingClientRect();const a=Math.max(r.width,1)/Math.max(r.height,1);if(a<1){initH=1024;initW=Math.round(1024*a/8)*8;}else{initW=1024;initH=Math.round(1024/a/8)*8;}initW=Math.max(256,initW);initH=Math.max(256,initH);}
+{const d=devicePixelRatio||1,sw=screen.width*d,sh=screen.height*d,f=Math.min(1,sw/initW,sh/initH);if(f<1&&sw>0&&sh>0){initW=Math.max(256,Math.floor(initW*f/8)*8);initH=Math.max(256,Math.floor(initH*f/8)*8);}} // v0.18: default canvas capped to the screen
 allocAll(initW,initH);resetDoc();clearAll();setSurface({});fit();uiLayers();
 // ---- v11 UI: floating toolbars, colour picker, settings panel/drawer (controls keep their v10 ids + handlers) ----
 const ICONS={
@@ -1181,6 +1292,10 @@ function diagInfo(){const dbg=gl.getExtension('WEBGL_debug_renderer_info');const
   'Frag highp float: '+pf(F,gl.HIGH_FLOAT),'Frag mediump float: '+pf(F,gl.MEDIUM_FLOAT),'Frag highp int: '+pf(F,gl.HIGH_INT),'Frag mediump int: '+pf(F,gl.MEDIUM_INT),'Vert highp float: '+pf(gl.VERTEX_SHADER,gl.HIGH_FLOAT),
   'Canvas (sim): '+W+' × '+H+'   tiles '+TS+' px ('+NTX+' × '+NTY+')   awake '+awake.size,
   'Display: '+cv.width+' × '+cv.height+' px, DPR '+(devicePixelRatio||1)+', CSS '+innerWidth+' × '+innerHeight,
+  'GPU type: '+(GPUINFO.igpu?'INTEGRATED - if this computer also has a dedicated GPU (NVIDIA/AMD RX), set Chrome to "High performance" in Windows Settings > System > Display > Graphics, then restart Chrome':GPUINFO.dgpu?'dedicated':GPUINFO.soft?'software renderer (slow)':'unknown'),
+  'Quality: '+QUAL+' (active: '+qualLevel()+'), measured '+(1000/Math.max(PERF.dtE,1)).toFixed(1)+' fps',
+  'Perf: sim budget '+(isFinite(PERF.budget)?(PERF.budget/1e6).toFixed(2)+' Mpx/frame':'unlimited')+(PERF.budget<=PERF.bmin*1.01?' (at minimum: GPU is struggling)':'')+', '+PERF.stepsS.toFixed(0)+' steps/s (target '+SIM_HZ+'), '+(PERF.simPxS/1e6).toFixed(2)+' Mpx/step, sim area '+(PERF.lastArea/1e6).toFixed(2)+' Mpx, frame '+PERF.dtE.toFixed(1)+' ms (refresh '+PERF.nominal.toFixed(1)+' ms)',
+  'GPU timer: '+(TQ?(PERF.nsPx?'sim '+PERF.gpuMs.toFixed(2)+' ms/frame, '+(PERF.nsPx).toFixed(2)+' ns/px':'waiting for samples'):'not available (budget from frame time)')+'   readbacks async '+PERFC.asyncReads+' / sync '+PERFC.syncReads+' / forced '+PERFC.forced,
   'MAX_TEXTURE_SIZE '+MAXTEX+', MAX_DRAW_BUFFERS '+gl.getParameter(gl.MAX_DRAW_BUFFERS)+', GPU mem est '+(gpuBytes/1e6).toFixed(0)+' MB'].join('\n');}
 if(DIAG){const d=document.createElement('div');d.id='diag';d.style.cssText='position:fixed;left:8px;top:64px;z-index:50;max-width:min(560px,calc(100vw - 16px));max-height:60vh;overflow:auto;background:rgba(20,20,24,.92);color:#e8e8ea;font:11px/1.35 ui-monospace,Menlo,monospace;padding:8px 10px;border-radius:10px;box-shadow:0 4px 18px rgba(0,0,0,.4)';
  const pre=document.createElement('pre');pre.style.cssText='margin:0 0 6px;white-space:pre-wrap;word-break:break-word';const bc='background:#3a3f4b;color:#fff;border:0;border-radius:6px;padding:6px 12px;margin-right:6px;font:12px system-ui';
@@ -1204,7 +1319,7 @@ window.paintAPI={resetPeak:()=>{gpuPeak=gpuBytes;},pause:v=>paused=v,setMedium,s
  probe(x,y){const o=[];for(const k of [0,1,2]){const b=new Float32Array(4);gl.bindFramebuffer(gl.FRAMEBUFFER,OL.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0+k);gl.readPixels(Math.round(x*W),Math.round(y*H),1,1,gl.RGBA,gl.FLOAT,b);o.push([...b].map(v=>+v.toFixed(3)));}return o;},
  band(u,v,nx,ny,R,wc,thr){const b=new Float32Array(4);const T=wc?WT:OL,atts=wc?[1,2]:[0];let n=0;for(let s=-R;s<=R;s++){const X=Math.round(u*W+nx*s),Y=Math.round(v*H+ny*s);if(X<0||Y<0||X>=W||Y>=H)continue;let t=0;for(const a of atts){gl.bindFramebuffer(gl.FRAMEBUFFER,T.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0+a);gl.readPixels(X,Y,1,1,gl.RGBA,gl.FLOAT,b);t+=wc?b[0]+b[1]+b[2]+b[3]:b[0]+b[1];}if(t>(thr||.02))n++;}return n;},
  regionMax(x,y,w,h){const out=[0,0,0];const b=new Float32Array(w*h*4);gl.bindFramebuffer(gl.FRAMEBUFFER,OL.r.fb);for(let a=0;a<3;a++){gl.readBuffer(gl.COLOR_ATTACHMENT0+a);gl.readPixels(x,y,w,h,gl.RGBA,gl.FLOAT,b);let m=0;for(let i=0;i<b.length;i++){const v=Math.abs(b[i]);if(!(v<1e9)){m=Infinity;break;}if(v>m)m=v;}out[a]=m;}return out;},
- ageIdle:ms=>{lastAct-=ms;},diag:()=>diagInfo(),
+ ageIdle:ms=>{lastAct-=ms;},diag:()=>diagInfo(),setQuality,quality:()=>QUAL,perf:()=>({quality:QUAL,level:qualLevel(),fps:1000/Math.max(PERF.dtE,1),budget:PERF.budget,stepsS:PERF.stepsS,lastArea:PERF.lastArea,nominal:PERF.nominal,dtE:PERF.dtE,nsPx:PERF.nsPx,timer:!!TQ,igpu:GPUINFO.igpu,gpu:GPUINFO.name,reads:Object.assign({},PERFC),sr:SR.size,awake:awake.size}),igpuToast:()=>igpuToast(),
  wtStats(){if(!hasWater)return null;const b=new Float32Array(W*H*4);const r={};gl.bindFramebuffer(gl.FRAMEBUFFER,WT.r.fb);for(const a of [0,1,2]){gl.readBuffer(gl.COLOR_ATTACHMENT0+a);gl.readPixels(0,0,W,H,gl.RGBA,gl.FLOAT,b);let mx=0,bad=0,sum=0;for(let i=0;i<b.length;i++){const v=b[i];if(!isFinite(v)){bad++;continue;}if(Math.abs(v)>mx)mx=Math.abs(v);sum+=v;}r['a'+a]={mx:+mx.toPrecision(3),bad,sum:+sum.toPrecision(4)};}return r;},
  wet(x,y){const b=new Float32Array(4);if(!hasWater)return 0;gl.bindFramebuffer(gl.FRAMEBUFFER,WT.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);gl.readPixels(Math.round(x*W),Math.round(y*H),1,1,gl.RGBA,gl.FLOAT,b);return b[0];},
  info:()=>({W,H,gpuMB:+(gpuBytes/1e6).toFixed(1),gpuPeakMB:+(gpuPeak/1e6).toFixed(1),undoMB:+(undoBytes()/1e6).toFixed(1),awake:awake.size,live:liveTiles.size,hasWater,passCount,maxU:MAXU,simRect,tool:st.tool,shape:st.shape,IF:IF===gl.RGBA32F?'RGBA32F':'RGBA16F',sim:SIMIF===gl.RGBA32F?'RGBA32F':'RGBA16F',nolin:NOLIN,undo:SNAP.length,redo:REDO.length})};
