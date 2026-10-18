@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v0.16</title>
+<title>Medium — paint v0.17</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="app-version" content="medium-v0.16">
+<meta name="app-version" content="medium-v0.17">
 <meta name="theme-color" content="#161618">
 <style>
 :root{--bg:#161618;--glass:rgba(30,30,33,.97);--card:#232327;--card2:#2b2b30;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);--ink:#ececef;--mute:#9a9aa3;--dim:#6c6c75;--acc:#6ea8ff;--accS:rgba(110,168,255,.16);--r:14px;--sh:0 8px 30px rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.04) inset}
@@ -77,7 +77,7 @@ input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:#3a3
 .btn.pri,#nOk{background:var(--acc);color:#0b1426;box-shadow:none;font-weight:600}
 .btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.mini{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.mini button{padding:0}.mini svg.i{width:18px;height:18px}
+.mini{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}.mini button{padding:0}.mini svg.i{width:18px;height:18px}
 select{width:100%;min-height:36px;padding:6px 10px;border:0;border-radius:10px;background:var(--card2);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line);-webkit-appearance:none;appearance:none;background-image:linear-gradient(45deg,transparent 50%,#888 50%),linear-gradient(135deg,#888 50%,transparent 50%);background-position:calc(100% - 15px) 52%,calc(100% - 10px) 52%;background-size:5px 5px;background-repeat:no-repeat}
 input[type=color]{width:34px;height:26px;border:0;border-radius:8px;background:none;padding:0;cursor:pointer}
 .pick{display:flex;align-items:center;gap:10px;margin-top:10px;color:var(--mute);font-size:12.5px}
@@ -85,7 +85,7 @@ input[type=color]{width:34px;height:26px;border:0;border-radius:8px;background:n
 .ly{display:flex;align-items:center;gap:8px;min-height:40px;padding:4px 10px 4px 4px;border-radius:10px;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px var(--line);cursor:pointer;font-size:12.5px}
 .ly.on{background:var(--accS);box-shadow:inset 0 0 0 1px rgba(110,168,255,.45)}
 .ly .eye{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--ink)}.ly .eye.off{color:var(--dim)}.ly .eye svg{width:17px;height:17px}
-.ly .nm{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.ly .bm{color:var(--mute);font-size:10.5px}
+.ly .nm{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.ly .eye{border:0;background:none;padding:0;cursor:pointer;flex:none}.ly .eye:focus-visible,.ly:focus-visible{outline:2px solid var(--acc,#6ea8ff);outline-offset:1px}.ly:focus{outline:none}.ly .nmi{flex:1;min-width:0;height:30px;padding:0 8px;border:0;border-radius:7px;background:rgba(0,0,0,.35);color:var(--ink);font:inherit;box-shadow:inset 0 0 0 1px rgba(110,168,255,.7);outline:none}#layers{display:flex;flex-direction:column;gap:6px}.ly .bm{color:var(--mute);font-size:10.5px}
 .hint{font-size:11.5px;color:var(--mute);line-height:1.55}
 #zoomv{position:fixed;right:14px;bottom:12px;z-index:9;font-size:11px;font-weight:600;color:var(--mute);background:var(--glass);border:1px solid var(--line);padding:4px 9px;border-radius:9px;pointer-events:none;font-variant-numeric:tabular-nums}
 /* colour picker */
@@ -128,7 +128,7 @@ body.m #panel:not(.open){transform:translateY(24px);opacity:0}
 body.m #pHead{flex-direction:column;align-items:stretch;padding:4px 6px 2px 16px;border-bottom-color:transparent;position:relative}
 body.m #pHead .grab{display:block;width:38px;height:4px;border-radius:2px;background:#555;margin:2px auto 0}
 body.m #pHead .hrow{display:flex;justify-content:space-between;align-items:center}
-body.m .btns button,body.m .row2 button,body.m .mini button,body.m select,body.m .seg button{min-height:44px}
+body.m .ly{min-height:48px}body.m .ly .eye{width:44px;height:44px}body.m .ly .nmi{height:38px;font-size:16px}body.m .btns button,body.m .row2 button,body.m .mini button,body.m select,body.m .seg button{min-height:44px}
 body.m details.g>summary{min-height:50px}
 body.m .sw{grid-template-columns:repeat(9,1fr);gap:5px}
 body.m input[type=range]{height:34px}
@@ -142,7 +142,7 @@ body.m dialog{padding:18px}
 <div id="stage"><canvas id="c"></canvas><canvas id="cur" style="position:fixed;pointer-events:none"></canvas><div id="msg"></div></div>
 <div id="zoomv">100%</div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.16</span></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.17</span></div>
  <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tFit" data-tip="Fit to screen" aria-label="Fit to screen" data-ic="fit"></button><button class="ib dk" id="tExp" data-tip="Export PNG" aria-label="Export PNG" data-ic="download"></button></div>
 <!-- top-right: tools -->
 <div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button>
@@ -194,7 +194,7 @@ body.m dialog{padding:18px}
 </div></details>
 <details class="g"><summary><span data-ic="layers"></span>Layers</summary><div class="gb"><div>
  <div id="layers"></div>
- <div class="mini"><button id="lAdd" title="Add layer" aria-label="Add layer" data-ic="plus"></button><button id="lDel" title="Delete layer" aria-label="Delete layer" data-ic="trash"></button><button id="lUp" title="Move up" aria-label="Move up" data-ic="up"></button><button id="lDown" title="Move down" aria-label="Move down" data-ic="down"></button><button id="lMerge" title="Merge down" aria-label="Merge down" data-ic="merge"></button></div>
+ <div class="mini"><button id="lAdd" title="Add layer" aria-label="Add layer" data-ic="plus"></button><button id="lRen" title="Rename layer (F2)" aria-label="Rename layer" data-ic="pencil"></button><button id="lDel" title="Delete layer" aria-label="Delete layer" data-ic="trash"></button><button id="lUp" title="Move up" aria-label="Move up" data-ic="up"></button><button id="lDown" title="Move down" aria-label="Move down" data-ic="down"></button><button id="lMerge" title="Merge down" aria-label="Merge down" data-ic="merge"></button></div>
  <div class="lab" style="margin-top:14px"><span>Opacity</span><span id="lov"></span></div><input id="lop" type="range" min="0" max="1" step="0.01" value="1">
  <div class="lab" style="margin-top:10px"><span>Blend</span></div><select id="lblend"><option>normal</option><option>multiply</option><option>screen</option><option>overlay</option></select></div>
 </div></details>
@@ -210,7 +210,7 @@ body.m dialog{padding:18px}
  <label class="chk"><input type="checkbox" id="exp2x"> 2× upscale</label><div class="row2" style="margin-top:10px"><button id="bExport" style="grid-column:span 2" class="btn pri">Export</button><button id="bSaveP">Save project</button><button id="bOpenP">Open project</button></div>
  <input type="file" id="openFile" accept=".mpaint" style="display:none"></div>
 </div></details>
-<details class="g"><summary><span data-ic="help"></span>Tips</summary><div class="gb"><div class="hint">Drag to paint. Pen pressure changes size and load; pen tilt lays the brush on its side. Fast strokes thin and break up, slow strokes lay more paint; lift while moving to flick. With a mouse, speed stands in for pressure. Hold Shift to keep painting with what is left on the brush (dry-brush).<br><br>Watercolour: pre-wet with Clear water for soft wet-on-wet, let colours touch to bleed, drop water into a drying wash for blooms; low Water load gives dry-brush, or Tilt to let it run. Oil stays wet: drag through it to plough ridges and pick up colour; Dry all to lock layers and build on top.<br><br>Wheel = zoom · Space-drag or middle mouse = pan · pinch on touch · Ctrl/Cmd+Z undo · Ctrl/Cmd+Shift+Z redo · B / K tools</div></div></details>
+<details class="g"><summary><span data-ic="help"></span>Tips</summary><div class="gb"><div class="hint">Drag to paint. Pen pressure changes size and load; pen tilt lays the brush on its side. Fast strokes thin and break up, slow strokes lay more paint; lift while moving to flick. With a mouse, speed stands in for pressure. Hold Shift to keep painting with what is left on the brush (dry-brush).<br><br>Watercolour: pre-wet with Clear water for soft wet-on-wet, let colours touch to bleed, drop water into a drying wash for blooms; low Water load gives dry-brush, or Tilt to let it run. Oil stays wet: drag through it to plough ridges and pick up colour; Dry all to lock layers and build on top.<br><br>Wheel = zoom · Space-drag or middle mouse = pan · pinch on touch · Ctrl/Cmd+Z undo · Ctrl/Cmd+Shift+Z redo · B / K tools · F2 or double-click a layer to rename it</div></div></details>
 </div></div>
 <dialog id="dlgNew"><h2>New canvas</h2><div class="sub2">Pick a preset or enter a custom size.</div>
  <select id="preset"><option value="1024x768">1024 × 768</option><option value="1536x1024">1536 × 1024</option><option value="2048x1536">2048 × 1536</option><option value="2048x2048">Square 2048</option><option value="1754x2480">A4 portrait 150 dpi (1754 × 2480)</option><option value="2480x3508">A4 portrait 300 dpi (2480 × 3508)</option><option value="3508x4961">A3 portrait 300 dpi (3508 × 4961)</option><option value="4096x4096">Square 4096</option><option value="custom">Custom…</option></select>
@@ -964,12 +964,30 @@ $('bSave').onclick=()=>doExport('lit',false);
 function setSurface(o){Object.assign(surface,o);$('surf').value=surface.type;$('tscale').value=surface.scale;$('tsv').textContent=(+surface.scale).toFixed(2)+'×';$('ground').value=surface.ground;$('showSurf').checked=surface.show;genPaper();}
 $('surf').onchange=e=>setSurface({type:+e.target.value});$('tscale').oninput=e=>setSurface({scale:+e.target.value});
 $('ground').oninput=e=>{surface.ground=e.target.value;belowDirty=true;needRender=true;};$('showSurf').onchange=e=>{surface.show=e.target.checked;belowDirty=true;needRender=true;};
-function uiLayers(){const el=$('layers');el.innerHTML='';for(let i=layers.length-1;i>=0;i--){const l=layers[i];const d=document.createElement('div');d.className='ly'+(i===ai?' on':'');
- d.innerHTML='<span class="eye'+(l.vis?'':' off')+'">👁</span><span class="nm"></span><span class="bm">'+(l.blend!=='normal'?l.blend:'')+(l.op<1?' '+Math.round(l.op*100)+'%':'')+'</span>';d.querySelector('.nm').textContent=l.name;
- d.querySelector('.eye').onclick=ev=>{ev.stopPropagation();L_.vis(i,!l.vis);};d.onclick=()=>L_.select(i);
- d.ondblclick=()=>{const n=prompt('Layer name',l.name);if(n)L_.rename(i,n);};el.appendChild(d);}
- $('lop').value=layers[ai].op;$('lov').textContent=Math.round(layers[ai].op*100)+'%';$('lblend').value=layers[ai].blend;$('csz').textContent=W+' × '+H;}
-$('lAdd').onclick=()=>L_.add();$('lDel').onclick=()=>L_.del();$('lUp').onclick=()=>L_.up();$('lDown').onclick=()=>L_.down();$('lMerge').onclick=()=>L_.merge();
+let renI=-1;
+function uiLayers(){const el=$('layers');el.innerHTML='';el.setAttribute('role','listbox');el.setAttribute('aria-label','Layers');for(let i=layers.length-1;i>=0;i--){const l=layers[i];const d=document.createElement('div');d.className='ly'+(i===ai?' on':'');
+ d.tabIndex=i===ai?0:-1;d.setAttribute('role','option');d.setAttribute('aria-selected',i===ai?'true':'false');d.dataset.i=i;
+ d.innerHTML='<button type="button" class="eye'+(l.vis?'':' off')+'" aria-pressed="'+(l.vis?'true':'false')+'"></button><span class="nm"></span><span class="bm">'+(l.blend!=='normal'?l.blend:'')+(l.op<1?' '+Math.round(l.op*100)+'%':'')+'</span>';d.querySelector('.nm').textContent=l.name;
+ d.setAttribute('aria-label',l.name+(l.vis?'':' (hidden)'));const eb=d.querySelector('.eye');eb.setAttribute('aria-label',(l.vis?'Hide ':'Show ')+l.name);eb.title=l.vis?'Hide layer':'Show layer';
+ eb.onclick=ev=>{ev.stopPropagation();L_.vis(i,!l.vis);};d.onclick=()=>L_.select(i);
+ d.ondblclick=ev=>{if(ev.target.closest('.eye,.nmi'))return;startRename(i);};
+ d.onkeydown=ev=>{if(ev.target!==d)return;const k=ev.key;
+  if(k==='Enter'||k===' '){ev.preventDefault();L_.select(i);}else if(k==='F2'){ev.preventDefault();startRename(i);}
+  else if(k==='ArrowUp'||k==='ArrowDown'){ev.preventDefault();const j=i+(k==='ArrowUp'?1:-1);if(j>=0&&j<layers.length){L_.select(j);focusLayer(j);}}};
+ el.appendChild(d);}
+ renI=-1;$('lop').value=layers[ai].op;$('lov').textContent=Math.round(layers[ai].op*100)+'%';$('lblend').value=layers[ai].blend;$('csz').textContent=W+' × '+H;}
+function focusLayer(i){const r=$('layers').querySelector('.ly[data-i="'+i+'"]');if(r)r.focus();}
+// v0.17: inline layer rename (button, double-click/double-tap, F2). Works with touch and pen; no browser prompt().
+function startRename(i){if(i!==ai)L_.select(i);const row=$('layers').querySelector('.ly[data-i="'+i+'"]');if(!row||row.querySelector('.nmi'))return;
+ const nm=row.querySelector('.nm'),old=layers[i].name;const inp=document.createElement('input');inp.className='nmi';inp.type='text';inp.maxLength=40;inp.value=old;
+ inp.spellcheck=false;inp.setAttribute('aria-label','Layer name');inp.setAttribute('enterkeyhint','done');nm.replaceWith(inp);renI=i;let done=false;
+ const fin=ok=>{if(done)return;done=true;const n=inp.value.replace(/\s+/g,' ').trim().slice(0,40);
+  if(ok&&n&&n!==old)L_.rename(i,n);else uiLayers();focusLayer(i);};
+ inp.onkeydown=ev=>{ev.stopPropagation();if(ev.key==='Enter'){ev.preventDefault();fin(true);}else if(ev.key==='Escape'){ev.preventDefault();fin(false);}};
+ inp.onkeyup=ev=>ev.stopPropagation();
+ for(const t of ['pointerdown','pointerup','click','dblclick','touchstart','mousedown'])inp.addEventListener(t,ev=>ev.stopPropagation());
+ inp.onblur=()=>fin(true);inp.focus();inp.select();}
+$('lAdd').onclick=()=>L_.add();$('lRen').onclick=()=>startRename(ai);$('lDel').onclick=()=>L_.del();$('lUp').onclick=()=>L_.up();$('lDown').onclick=()=>L_.down();$('lMerge').onclick=()=>L_.merge();
 let opPushed=false;$('lop').addEventListener('pointerdown',()=>{opPushed=false;});$('lop').oninput=e=>{L_.opacity(e.target.value,!opPushed);opPushed=true;};$('lblend').onchange=e=>L_.blend(e.target.value);
 $('bFit').onclick=fit;
 // new canvas
@@ -1052,6 +1070,7 @@ const ICONS={
  help:'<circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.8M12 17.2h0"/>',
  plus:'<path d="M12 5v14M5 12h14"/>',trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
  up:'<path d="M12 19V5M6 11l6-6 6 6"/>',down:'<path d="M12 5v14M6 13l6 6 6-6"/>',merge:'<path d="M7 4l5 5 5-5M12 9v11M6 20h12"/>',
+ pencil:'<path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/>',
  eye:'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
  eyeoff:'<path d="M3 3l18 18M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3 3.8M6.5 6.6A17 17 0 0 0 2 12s3.6 7 10 7a9.6 9.6 0 0 0 4.4-1.1"/>'};
 const ic=n=>'<svg class="i" viewBox="0 0 24 24" aria-hidden="true">'+ICONS[n]+'</svg>';
@@ -1116,6 +1135,7 @@ function closeMP(){mp.classList.remove('open');$('dMed').classList.remove('on');
 $('dMed').onclick=$('tMed').onclick=()=>mp.classList.contains('open')?closeMP():openMP();
 document.addEventListener('pointerdown',e=>{if(mp.classList.contains('open')&&!mp.contains(e.target)&&!e.target.closest('#dMed,#tMed'))closeMP();},true);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMP();});
+document.addEventListener('keydown',e=>{if(e.key!=='F2'||e.ctrlKey||e.metaKey||e.altKey)return;const tg=e.target&&e.target.tagName;if(tg==='INPUT'&&e.target.type!=='range'&&e.target.type!=='checkbox'||tg==='SELECT'||tg==='TEXTAREA')return;e.preventDefault();setPanel(true);const dt=$('layers').closest('details');if(dt)dt.open=true;requestAnimationFrame(()=>startRename(ai));});
 $('tNew').onclick=()=>$('bNew').click();$('tFit').onclick=()=>fit();$('tExp').onclick=()=>doExport('lit',false);
 $('bUndo').onclick=$('tUndo').onclick=()=>{undo();};$('bRedo').onclick=$('tRedo').onclick=()=>{redo();};
 document.addEventListener('keydown',e=>{const tg=e.target&&e.target.tagName;if(tg==='INPUT'&&e.target.type!=='range'&&e.target.type!=='checkbox'||tg==='SELECT'||e.ctrlKey||e.metaKey||e.altKey)return;
