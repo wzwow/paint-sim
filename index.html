@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v0.19</title>
+<title>Medium — paint v0.20</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="app-version" content="medium-v0.19">
+<meta name="app-version" content="medium-v0.20">
 <meta name="theme-color" content="#161618">
 <style>
 :root{--bg:#161618;--glass:rgba(30,30,33,.97);--card:#232327;--card2:#2b2b30;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);--ink:#ececef;--mute:#9a9aa3;--dim:#6c6c75;--acc:#6ea8ff;--accS:rgba(110,168,255,.16);--r:14px;--sh:0 8px 30px rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.04) inset}
@@ -166,7 +166,7 @@ body.m .rseg span{min-height:46px}body.m .exn input{height:44px;font-size:16px}b
 <div id="stage"><canvas id="c"></canvas><canvas id="cur" style="position:fixed;pointer-events:none"></canvas><div id="msg"></div></div>
 <div id="zoomv">100%</div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.19</span></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.20</span></div>
  <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tFit" data-tip="Fit to screen" aria-label="Fit to screen" data-ic="fit"></button><button class="ib dk" id="tExp" data-tip="Export… (Ctrl+Shift+E)" aria-label="Export image" aria-haspopup="dialog" data-ic="download"></button></div>
 <!-- top-right: tools -->
 <div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button>
@@ -332,6 +332,12 @@ vec4 srnd4(vec4 a,vec4 b,float k){return vec4(srnd(a.x,b.x,k),srnd(a.y,b.y,k+1.)
 // NaN/Inf scrub + range cap before a value is stored (fp16 overflows to Inf above 65504; one Inf turns into NaN that spreads every step).
 vec4 safe4(vec4 v,float cap){return mix(clamp(v,-cap,cap),vec4(0),isnan(v));}
 float safe1(float v,float cap){return isnan(v)?0.:clamp(v,-cap,cap);}
+// v0.20 feathering: paper-fibre permeability at a canvas point (global coordinates, integer-hashed lattice => identical in every tile
+// and on every GPU; evaluated at the MIDPOINT of a pixel pair so both pixels compute the same value => pair fluxes stay antisymmetric).
+// Two families of sparse thin ridged fibres (ridge^6, ~20% of the paper) at the paper texture's fibre angles (.37 / -.52 rad). 0..1.
+uniform float uFeat,uFibS;
+float fibP(vec2 m){vec2 p=m/max(uFibS,.25);float a=1.-abs(2.*vnoise(rot(p,.37)*vec2(.3,.022)+5.)-1.),b=1.-abs(2.*vnoise(rot(p,-.52)*vec2(.022,.3)+13.)-1.);
+ float a2=a*a,b2=b*b;a=a2*a2*a2;b=b2*b2*b2;return clamp(max(a,b)*.9+.1*vnoise(p*.6+41.),0.,1.);}
 vec3 kmR(vec4 c){vec3 q=c.rgb/max(c.a,1e-4);return 1.+q-sqrt(q*q+2.*q);}
 uniform vec2 uPos,uDir,uAsp;uniform float uR,uK,uSeed;
 float bris(float c){return .62+.38*(vnoise(vec2(c*6.+uSeed,uSeed*.37))*.7+.3*vnoise(vec2(c*17.-uSeed,2.)));}
@@ -464,7 +470,13 @@ float mK=dot(f,vec4(1))*max(1.-outq/max(w,1e-6),0.),mR=dot(fR,vec4(1))*iR/max(wR
 float mt=mK+mR+mL+mU+mD;float gr=mt>1e-6?(s.w*mK+texture(uS,vUv+ex).w*mR+texture(uS,vUv-ex).w*mL+texture(uS,vUv+ey).w*mU+texture(uS,vUv-ey).w*mD)/mt:s.w;
 vec4 fn=f-f*(outq/max(w,1e-6))+fR*(iR/max(wR,1e-6))+fL*(iL/max(wL,1e-6))+fU*(iU/max(wU,1e-6))+fD*(iD/max(wD,1e-6));
 // pigment diffusion inside water (symmetric => conserved)
-float mc=step(.003,w);fn+=.06*((fR-f)*min(mc,step(.003,wR))+(fL-f)*min(mc,step(.003,wL))+(fU-f)*min(mc,step(.003,wU))+(fD-f)*min(mc,step(.003,wD)));
+// v0.20 feathering: inside wet paint the pair coefficient follows sparse paper fibres (fibP() at the pair midpoint, so both pixels use
+// the same value => still symmetric and conserved): pigment creeps fast along fibre channels (.12; total outflow kept well below 1 together with advection + rim drift, else fn=max(fn,0) would create pigment) and slowly across the paper between
+// them (.006 instead of .06), so a wet-into-wet bleed spreads in fine fibre-shaped fingers instead of a round gaussian blur. Only acts
+// between two wet pixels (same mc gating as before) => dry-paper stroke edges unchanged. uFeat=0 => exactly v0.19.
+float mc=step(.003,w);vec4 kd=vec4(.06);if(uFeat>0.){vec2 P0=FC.xy;vec4 fb=vec4(fibP(P0+vec2(.5,0)),fibP(P0-vec2(.5,0)),fibP(P0+vec2(0,.5)),fibP(P0-vec2(0,.5)));
+ kd=clamp(mix(vec4(.06),.006+.114*smoothstep(.35,.8,fb),min(uFeat,1.))*(1.+max(uFeat-1.,0.)*.5),0.,.12);}
+fn+=kd.x*(fR-f)*min(mc,step(.003,wR))+kd.y*(fL-f)*min(mc,step(.003,wL))+kd.z*(fU-f)*min(mc,step(.003,wU))+kd.w*(fD-f)*min(mc,step(.003,wD));
 // v0.13 edge rims ("coffee-ring"): water evaporates fastest at a wash's edge, so capillary flow carries suspended pigment from thicker
 // towards thinner water; when the wash dries the pigment is left as a dark line at the edge. Modelled as a pairwise drift of suspended
 // pigment down the (relative) water-depth gradient. Antisymmetric, computed from the previous step's values => pigment is conserved.
@@ -713,6 +725,8 @@ function medKS(ks){const k=st.med;if(!ks||ks[3]===0)return ks;
 let layers=[],ai=0,lid=1,belowDirty=true,needRender=true;const MODES={normal:0,multiply:1,screen:2,overlay:3};
 const surface={type:0,scale:1,ground:'#f7f1e4',show:true};
 const PR=[.35,.12,.7,.6,.45,.04];
+// v0.20 watercolour feathering strength per surface (cold, hot, rough, linen, cotton, panel)
+const FEAT=[1,.45,1.3,.3,.35,.15];
 function newMeta(name){const id=lid++;return{id,name:name||('Layer '+id),vis:true,op:1,blend:'normal',tex:null};}
 // undo: tile-based. Each entry keeps meta + the pre-change content of only the 128px tiles that changed (GPU tile pool, RGBA16F).
 let SNAP=[],REDO=[],MAXU=40;const PS=512,PT=(PS/TS)*(PS/TS);let pages=[],freeSlots=[];
@@ -899,7 +913,7 @@ function step(){if(st.tilt||st.dryAll)simFull();if(!inFrame)actPoll(true);else a
  if(SIMFULL||rc.area>=FULL_FRAC*W*H)rc=[[0,0,W,H]];PERF.lastArea=rc.area!=null?rc.area:W*H;
  const act=(++stepN%8===0&&!st.tilt&&!actPend)?{c:{},w:{},bb:{},bufs:[],nt:NTX*NTY}:null;const ro=st.dryAll?0:1;
  if(hasWater){simPass(P.flux,V,{uS:WT.r.t[0],uV:V.r.t[0],uP:PAPER.t[0]},{uTilt:st.tilt,uG:p.G,uEta:.03},rc,null,ro);
- simPass(P.water,WT,{uS:WT.r.t[0],uF:WT.r.t[1],uD:WT.r.t[2],uV:V.r.t[0],uP:PAPER.t[0]},{uRim:p.rim,uEvap:p.evap*evB,uEdgeK:p.edgeK,uAll:st.dryAll,uGran:p.gran,uLift:p.lift,uBloom:p.bloom,uDampDec:.0009},rc,act,ro);
+ simPass(P.water,WT,{uS:WT.r.t[0],uF:WT.r.t[1],uD:WT.r.t[2],uV:V.r.t[0],uP:PAPER.t[0]},{uRim:p.rim,uEvap:p.evap*evB,uEdgeK:p.edgeK,uAll:st.dryAll,uGran:p.gran,uLift:p.lift,uBloom:p.bloom,uDampDec:.0009,uFeat:FEAT[surface.type]*(st.feather!=null?st.feather:1),uFibS:surface.scale},rc,act,ro);
  if(p.water>.02)simPass(P.capil,WT,{uS:WT.r.t[0],uF:WT.r.t[1],uD:WT.r.t[2],uP:PAPER.t[0]},{uCap:.16},rc,null,ro,2);} // capil never changes attachment 2
  if(!fin)simPass(P.relax,OL,{uO0:OL.r.t[0],uO1:OL.r.t[1],uO2:OL.r.t[2]},{uMu:.2,uAll:st.dryAll,uTilt:st.tilt},rc,act,ro);st.dryAll=0;needRender=true;
  /* v0.14 rules kept: a tile that still holds water never sleeps (its bbox includes wet pixels); flow across a tile border is always computed
