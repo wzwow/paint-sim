@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v0.20</title>
+<title>Medium — paint v0.21</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="app-version" content="medium-v0.20">
+<meta name="app-version" content="medium-v0.21">
 <meta name="theme-color" content="#161618">
 <style>
 :root{--bg:#161618;--glass:rgba(30,30,33,.97);--card:#232327;--card2:#2b2b30;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);--ink:#ececef;--mute:#9a9aa3;--dim:#6c6c75;--acc:#6ea8ff;--accS:rgba(110,168,255,.16);--r:14px;--sh:0 8px 30px rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.04) inset}
@@ -166,7 +166,7 @@ body.m .rseg span{min-height:46px}body.m .exn input{height:44px;font-size:16px}b
 <div id="stage"><canvas id="c"></canvas><canvas id="cur" style="position:fixed;pointer-events:none"></canvas><div id="msg"></div></div>
 <div id="zoomv">100%</div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.20</span></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.21</span></div>
  <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tFit" data-tip="Fit to screen" aria-label="Fit to screen" data-ic="fit"></button><button class="ib dk" id="tExp" data-tip="Export… (Ctrl+Shift+E)" aria-label="Export image" aria-haspopup="dialog" data-ic="download"></button></div>
 <!-- top-right: tools -->
 <div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button>
@@ -968,7 +968,8 @@ function addPoint(x,y,pres,tl,tms){tl=tl||{t:st.btilt/80,phi:null,pen:false};if(
  if(tl.mouse&&st.dyn>0){const spN=cl(dyn.speed/1.6);pres=cl(.55+dynE()*(.3-.55*spN),.08,1);}
  if(last.pend&&strokePen&&dist<Math.max(3,st.size*.12)){last.p=pres;last.tl=tl;return;} // v11.2: pen — no orientation/dab until the nib has really moved (S Pen jitters at touch-down)
  const nd=[dx/dist,dy/dist];if(last.pend){dir=nd;last.pend=false;dab(last.x,last.y,last.p,0,last.tl);}
- {const da=wrapA(Math.atan2(nd[1],nd[0])-Math.atan2(dir[1],dir[0]));const w=Math.min(1,dist/8);dyn.angVel=(dyn.angVel||0)*(1-w)+w*cl(da/dist*1.6,-.08,.08);}dir=last.moved?[dir[0]*.6+nd[0]*.4,dir[1]*.6+nd[1]*.4]:nd;const dl=Math.hypot(dir[0],dir[1])||1;dir=[dir[0]/dl,dir[1]/dl];
+ {const da=wrapA(Math.atan2(nd[1],nd[0])-Math.atan2(dir[1],dir[0]));const w=dist/(dist+24);dyn.angVel=(dyn.angVel||0)*(1-w)+w*cl(da/dist*1.6,-.08,.08);}/* v0.21: turn rate averaged over ~24 px of path, not just the last segment */
+ const da2=last.moved?.4*Math.min(1,dist/6):1;dir=[dir[0]*(1-da2)+nd[0]*da2,dir[1]*(1-da2)+nd[1]*da2]; /* v0.21: blend weighted by segment length, so a tiny last move (lift jitter) cannot swing the direction */const dl=Math.hypot(dir[0],dir[1])||1;dir=[dir[0]/dl,dir[1]/dl];
  const Rp=st.size/800*(0.5+pres)*.9*512;
  const sp=st.tool==='knife'?Math.max(.9,Math.min(2.5,(3.4-2.2*tl.t)*.7)):Math.min(Math.max(Rp*.08,1),3);const n=Math.max(1,Math.ceil(dist/sp));
  for(let i=1;i<=n;i++){const f=i/n;const tt={t:last.tl.t+(tl.t-last.tl.t)*f,phi:tl.phi,pen:tl.pen};dab(last.x+(x-last.x)*f,last.y+(y-last.y)*f,last.p+(pres-last.p)*f,dist/n,tt);}
@@ -982,7 +983,8 @@ function penFlush(){const q=(PF&&PF.q)||[];PF&&(PF.q=[]);if(!q.length)return;
 function endStroke(){if(strokePen)penFlush();if(last&&last.pend)dab(last.x,last.y,last.p,0,last.tl);
  if(last&&!last.pend&&st.tool==='brush'&&st.flick&&st.dyn>0&&!strokePen){ // v11.3: not for pen — the pen has real lift data // lift-off: pressure falls to zero while the brush keeps moving, bristles spring back
   const D=dynE(),spN=cl(dyn.speed/1.6);const len=st.size*(.5+2.4*spN)*Math.min(1,D*1.4)/W;let x=last.x,y=last.y,d=dir.slice();const n=Math.max(6,Math.ceil(len*W/1.5));dyn.flick=1;
-  for(let i=1;i<=n;i++){const f=i/n;dyn.flickF=f;const rot=dyn.angVel*len*W/n*1.4*(1-.5*f);const c=Math.cos(rot),s_=Math.sin(rot);d=[d[0]*c-d[1]*s_,d[0]*s_+d[1]*c];dir=d.slice();x+=d[0]*len/n;y+=d[1]*len/n*W/H;const pp=Math.max(last.p*(1-.55*f),.2);dab(x,y,pp,len*W/n,last.tl);}dyn.flickF=0;}
+  const avL=.3/(1.05*len*W),av=cl(dyn.angVel||0,-avL,avL); // v0.21: the whole flick turns at most ~17 deg (was up to .08 rad/px over the flick length = several radians on fast strokes)
+  for(let i=1;i<=n;i++){const f=i/n;dyn.flickF=f;const rot=av*len*W/n*1.4*(1-.5*f);const c=Math.cos(rot),s_=Math.sin(rot);d=[d[0]*c-d[1]*s_,d[0]*s_+d[1]*c];dir=d.slice();x+=d[0]*len/n;y+=d[1]*len/n*W/H;const pp=Math.max(last.p*(1-.55*f),.2);dab(x,y,pp,len*W/n,last.tl);}dyn.flickF=0;}
  last=null;}
 function beginStroke(opts={}){pushUndo();strokePen=false;PF=null;last=null;resetTips();resetDyn();
  if(opts.dir)dir=opts.dir;
