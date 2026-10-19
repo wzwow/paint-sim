@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v0.18</title>
+<title>Medium — paint v0.19</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="app-version" content="medium-v0.18">
+<meta name="app-version" content="medium-v0.19">
 <meta name="theme-color" content="#161618">
 <style>
 :root{--bg:#161618;--glass:rgba(30,30,33,.97);--card:#232327;--card2:#2b2b30;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);--ink:#ececef;--mute:#9a9aa3;--dim:#6c6c75;--acc:#6ea8ff;--accS:rgba(110,168,255,.16);--r:14px;--sh:0 8px 30px rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.04) inset}
@@ -137,13 +137,37 @@ body.m #cp{top:auto;left:8px;right:8px;width:auto;bottom:calc(72px + env(safe-ar
 body.m #cpSV{height:150px}
 body.m #cpPig,body.m #cpRec{gap:8px}
 body.m dialog{padding:18px}
+/* v0.19 export dialog */
+#dlgExp{width:min(420px,calc(100vw - 24px));max-height:calc(100% - 24px);overflow:auto;padding:18px 20px 16px;overscroll-behavior:contain}
+#dlgExp [hidden]{display:none!important}
+#dlgExp fieldset{border:0;margin:0 0 12px;padding:0;min-width:0}
+#dlgExp legend,#dlgExp .flab{display:block;font-size:11.5px;color:var(--mute);font-weight:500;padding:0;margin-bottom:6px}
+.rseg{display:flex;gap:3px;padding:3px;border-radius:12px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px var(--line)}
+.rseg label{flex:1 1 0;min-width:0;position:relative;cursor:pointer}
+.rseg input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.rseg span{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:42px;padding:4px 6px;border-radius:9px;color:var(--mute);font-size:12.5px;font-weight:600;text-align:center;line-height:1.2;transition:background .12s,color .12s}
+.rseg small{display:block;max-width:100%;font-size:10.5px;font-weight:450;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-variant-numeric:tabular-nums}
+.rseg label:hover input:not(:disabled):not(:checked)+span{color:var(--ink)}
+.rseg input:checked+span{background:var(--card2);color:var(--ink);box-shadow:0 1px 3px #0006,inset 0 0 0 1px rgba(110,168,255,.45)}.rseg input:checked+span small{color:var(--mute)}
+.rseg input:focus-visible+span{outline:2px solid var(--acc);outline-offset:1px}
+.rseg input:disabled+span{opacity:.35}.rseg input:disabled{cursor:not-allowed}
+#dlgExp .exq{margin:-2px 0 10px}#dlgExp .exq .lab label{color:var(--mute)}
+.exn{display:flex;align-items:center;border-radius:10px;background:var(--card2);box-shadow:inset 0 0 0 1px var(--line)}.exn:focus-within{box-shadow:inset 0 0 0 1.5px var(--acc)}
+.exn input{flex:1;min-width:0;height:40px;padding:0 4px 0 12px;border:0;background:transparent;outline:none}.exn span{padding:0 12px 0 0;color:var(--mute)}
+#exInfo{margin-top:12px;padding:9px 12px;border-radius:10px;background:rgba(255,255,255,.04);font-size:11.5px;line-height:1.5;color:var(--mute)}#exInfo b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+.exBtns{display:flex;gap:8px;margin-top:14px}.exBtns .btn{flex:1 1 0;min-width:0;min-height:44px;font-size:14px;white-space:nowrap}.exBtns .btn svg.i{width:18px;height:18px}
+.exBtns .btn:disabled{opacity:.5;cursor:default}#dlgExp.busy .rseg,#dlgExp.busy .exn,#dlgExp.busy .exq{opacity:.55;pointer-events:none}
+#exSt{font-size:12px;color:var(--mute);min-height:0;margin-top:8px;text-align:center}#exSt:empty{display:none}
+#exToast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);z-index:60;max-width:calc(100vw - 32px);padding:10px 16px;border-radius:12px;background:rgba(30,30,33,.97);border:1px solid var(--line2);color:var(--ink);font-size:13px;box-shadow:var(--sh);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#exToast.on{opacity:1;transform:translate(-50%,0)}body.m #exToast{bottom:calc(86px + env(safe-area-inset-bottom))}
+body.m .rseg span{min-height:46px}body.m .exn input{height:44px;font-size:16px}body.m #bExpDlg{min-height:44px}body.m #dlgExp{padding:16px 16px 14px}body.m #dlgExp fieldset{margin-bottom:10px}
 </style></head>
 <body>
 <div id="stage"><canvas id="c"></canvas><canvas id="cur" style="position:fixed;pointer-events:none"></canvas><div id="msg"></div></div>
 <div id="zoomv">100%</div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.18</span></div>
- <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tFit" data-tip="Fit to screen" aria-label="Fit to screen" data-ic="fit"></button><button class="ib dk" id="tExp" data-tip="Export PNG" aria-label="Export PNG" data-ic="download"></button></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.19</span></div>
+ <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tFit" data-tip="Fit to screen" aria-label="Fit to screen" data-ic="fit"></button><button class="ib dk" id="tExp" data-tip="Export… (Ctrl+Shift+E)" aria-label="Export image" aria-haspopup="dialog" data-ic="download"></button></div>
 <!-- top-right: tools -->
 <div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button>
  <span class="sep"></span><button class="ib" id="dMed" data-tip="Choose medium" aria-label="Medium" aria-haspopup="true"><span data-ic="drop"></span><span class="t">Water</span></button>
@@ -207,9 +231,11 @@ body.m dialog{padding:18px}
   <div class="lab" style="margin-top:12px"><span>Texture scale</span><span id="tsv"></span></div><input id="tscale" type="range" min="0.5" max="3" step="0.05" value="1">
   <label class="pick"><input id="ground" type="color" value="#f7f1e4"> Ground colour</label><label class="chk"><input type="checkbox" id="showSurf" checked> Show surface (off = transparent)</label></div>
 </div></details>
-<details class="g"><summary><span data-ic="download"></span>Export &amp; projects</summary><div class="gb"><div>
- <select id="expMode"><option value="lit">PNG – lit relief (as seen)</option><option value="flat">PNG – flat colour (unlit)</option><option value="height">Height map</option><option value="normal">Normal map</option><option value="layers">Transparent PNG per layer</option></select>
- <label class="chk"><input type="checkbox" id="exp2x"> 2× upscale</label><div class="row2" style="margin-top:10px"><button id="bExport" style="grid-column:span 2" class="btn pri">Export</button><button id="bSaveP">Save project</button><button id="bOpenP">Open project</button></div>
+<details class="g"><summary><span data-ic="download"></span>Export &amp; projects</summary><div class="gb">
+ <div><button id="bExpDlg" class="btn pri" style="width:100%" aria-haspopup="dialog"><span data-ic="download"></span>Export image…</button><div class="hint" style="margin-top:8px">PNG, JPEG or WebP · with paper or transparent · all layers or the current one · 1× or 2×</div></div>
+ <div><div class="lab"><span>Maps &amp; extras</span></div><select id="expMode" aria-label="Map or extra to export"><option value="flat">PNG – flat colour (unlit)</option><option value="height">Height map</option><option value="normal">Normal map</option><option value="layers">Transparent PNG per layer</option><option value="lit">PNG – lit relief (as seen)</option></select>
+ <label class="chk"><input type="checkbox" id="exp2x"> 2× upscale</label><div class="row2" style="margin-top:10px"><button id="bExport" style="grid-column:span 2">Export map</button></div></div>
+ <div><div class="lab"><span>Project</span></div><div class="row2"><button id="bSaveP">Save project</button><button id="bOpenP">Open project</button></div>
  <input type="file" id="openFile" accept=".mpaint" style="display:none"></div>
 </div></details>
 <details class="g"><summary><span data-ic="help"></span>Tips</summary><div class="gb"><div class="hint">Drag to paint. Pen pressure changes size and load; pen tilt lays the brush on its side. Fast strokes thin and break up, slow strokes lay more paint; lift while moving to flick. With a mouse, speed stands in for pressure. Hold Shift to keep painting with what is left on the brush (dry-brush).<br><br>Watercolour: pre-wet with Clear water for soft wet-on-wet, let colours touch to bleed, drop water into a drying wash for blooms; low Water load gives dry-brush, or Tilt to let it run. Oil stays wet: drag through it to plough ridges and pick up colour; Dry all to lock layers and build on top.<br><br>Wheel = zoom · Space-drag or middle mouse = pan · pinch on touch · Ctrl/Cmd+Z undo · Ctrl/Cmd+Shift+Z redo · B / K tools · F2 or double-click a layer to rename it</div></div></details>
@@ -218,6 +244,25 @@ body.m dialog{padding:18px}
  <select id="preset"><option value="1024x768">1024 × 768</option><option value="1536x1024">1536 × 1024</option><option value="2048x1536">2048 × 1536</option><option value="2048x2048">Square 2048</option><option value="1754x2480">A4 portrait 150 dpi (1754 × 2480)</option><option value="2480x3508">A4 portrait 300 dpi (2480 × 3508)</option><option value="3508x4961">A3 portrait 300 dpi (3508 × 4961)</option><option value="4096x4096">Square 4096</option><option value="custom">Custom…</option></select>
  <div class="r"><label>Width<input type="number" id="nw" value="1024" min="256" max="8192" inputmode="numeric"></label><span class="x">×</span><label>Height<input type="number" id="nh" value="768" min="256" max="8192" inputmode="numeric"></label></div>
  <div id="nest" class="hint"></div><div class="row2"><button id="nCancel">Cancel</button><button id="nOk">Create</button></div></dialog>
+<dialog id="dlgExp" aria-labelledby="exT" aria-describedby="exInfo"><h2 id="exT">Export image</h2><div class="sub2">Pick a format and what to include.</div>
+ <fieldset><legend>Format</legend><div class="rseg">
+  <label><input type="radio" name="exFmt" value="png"><span>PNG<small>lossless</small></span></label>
+  <label><input type="radio" name="exFmt" value="jpeg"><span>JPEG<small>small file</small></span></label>
+  <label id="exWebpL"><input type="radio" name="exFmt" value="webp"><span>WebP<small>smallest</small></span></label></div></fieldset>
+ <div id="exQrow" class="exq"><div class="lab"><label for="exQ">Quality</label><span id="exQv">92%</span></div><input id="exQ" type="range" min="0.5" max="1" step="0.01" value="0.92"></div>
+ <fieldset><legend>Background</legend><div class="rseg">
+  <label><input type="radio" name="exBg" value="paper"><span>With paper<small>as you see it</small></span></label>
+  <label><input type="radio" name="exBg" value="transparent"><span>Transparent<small>paint only</small></span></label></div></fieldset>
+ <fieldset><legend>Layers</legend><div class="rseg">
+  <label><input type="radio" name="exLy" value="all"><span>All visible<small id="exLyAll">1 layer</small></span></label>
+  <label><input type="radio" name="exLy" value="current"><span>Current layer<small id="exLyCur">Layer 1</small></span></label></div></fieldset>
+ <fieldset><legend>Size</legend><div class="rseg">
+  <label><input type="radio" name="exSz" value="1"><span>1× canvas<small id="exSz1"></small></span></label>
+  <label><input type="radio" name="exSz" value="2"><span>2× upscaled<small id="exSz2"></small></span></label></div></fieldset>
+ <label class="flab" for="exName">File name</label><div class="exn"><input id="exName" type="text" spellcheck="false" autocomplete="off" autocapitalize="off" maxlength="80" enterkeyhint="done"><span id="exExt">.png</span></div>
+ <div id="exInfo"></div>
+ <div class="exBtns"><button id="exCancel" class="btn">Cancel</button><button id="exShare" class="btn" hidden><span data-ic="share"></span><span id="exShareT">Share…</span></button><button id="exGo" class="btn pri"><span data-ic="download"></span>Download</button></div>
+ <div id="exSt" role="status" aria-live="polite"></div></dialog>
 <script>
 "use strict";
 const PIG=[["Clear water",null],["Ultramarine","#1f3a93"],["Cadmium yellow","#f6c81a"],["Cadmium red","#d0281c"],["Alizarin","#9b1b30"],["Sap green","#4a6b1f"],["Burnt sienna","#8a3f1c"],["Payne's grey","#2e3a46"],["Titanium white","#fbfaf6"]];
@@ -1183,6 +1228,7 @@ const ICONS={
  up:'<path d="M12 19V5M6 11l6-6 6 6"/>',down:'<path d="M12 5v14M6 13l6 6 6-6"/>',merge:'<path d="M7 4l5 5 5-5M12 9v11M6 20h12"/>',
  pencil:'<path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/>',
  eye:'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+ share:'<path d="M12 15V4M8 8l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7a1 1 0 0 0-1-1h-1"/>',
  eyeoff:'<path d="M3 3l18 18M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3 3.8M6.5 6.6A17 17 0 0 0 2 12s3.6 7 10 7a9.6 9.6 0 0 0 4.4-1.1"/>'};
 const ic=n=>'<svg class="i" viewBox="0 0 24 24" aria-hidden="true">'+ICONS[n]+'</svg>';
 function paintIcons(root){root.querySelectorAll('[data-ic]').forEach(el=>{el.innerHTML=ic(el.dataset.ic);});}
@@ -1247,7 +1293,7 @@ $('dMed').onclick=$('tMed').onclick=()=>mp.classList.contains('open')?closeMP():
 document.addEventListener('pointerdown',e=>{if(mp.classList.contains('open')&&!mp.contains(e.target)&&!e.target.closest('#dMed,#tMed'))closeMP();},true);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMP();});
 document.addEventListener('keydown',e=>{if(e.key!=='F2'||e.ctrlKey||e.metaKey||e.altKey)return;const tg=e.target&&e.target.tagName;if(tg==='INPUT'&&e.target.type!=='range'&&e.target.type!=='checkbox'||tg==='SELECT'||tg==='TEXTAREA')return;e.preventDefault();setPanel(true);const dt=$('layers').closest('details');if(dt)dt.open=true;requestAnimationFrame(()=>startRename(ai));});
-$('tNew').onclick=()=>$('bNew').click();$('tFit').onclick=()=>fit();$('tExp').onclick=()=>doExport('lit',false);
+$('tNew').onclick=()=>$('bNew').click();$('tFit').onclick=()=>fit();
 $('bUndo').onclick=$('tUndo').onclick=()=>{undo();};$('bRedo').onclick=$('tRedo').onclick=()=>{redo();};
 document.addEventListener('keydown',e=>{const tg=e.target&&e.target.tagName;if(tg==='INPUT'&&e.target.type!=='range'&&e.target.type!=='checkbox'||tg==='SELECT'||e.ctrlKey||e.metaKey||e.altKey)return;
  const k=e.key.toLowerCase();if(k==='b'){setTool('brush');syncTB();}else if(k==='k'){setTool('knife');syncTB();}else if(k==='escape'){closeCP();}});
@@ -1324,4 +1370,126 @@ window.paintAPI={resetPeak:()=>{gpuPeak=gpuBytes;},pause:v=>paused=v,setMedium,s
  wet(x,y){const b=new Float32Array(4);if(!hasWater)return 0;gl.bindFramebuffer(gl.FRAMEBUFFER,WT.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);gl.readPixels(Math.round(x*W),Math.round(y*H),1,1,gl.RGBA,gl.FLOAT,b);return b[0];},
  info:()=>({W,H,gpuMB:+(gpuBytes/1e6).toFixed(1),gpuPeakMB:+(gpuPeak/1e6).toFixed(1),undoMB:+(undoBytes()/1e6).toFixed(1),awake:awake.size,live:liveTiles.size,hasWater,passCount,maxU:MAXU,simRect,tool:st.tool,shape:st.shape,IF:IF===gl.RGBA32F?'RGBA32F':'RGBA16F',sim:SIMIF===gl.RGBA32F?'RGBA32F':'RGBA16F',nolin:NOLIN,undo:SNAP.length,redo:REDO.length})};
 
+// ---- v0.19 export dialog: PNG / JPEG / WebP, with paper or transparent (paint only), all visible layers or the current layer, 1x or 2x
+// (upscaled on the CPU, not re-rendered), file name, Share on mobile. Reads the composite only: the simulation, paper and scheduler are untouched.
+const EXF={png:{mime:'image/png',ext:'png',lab:'PNG'},jpeg:{mime:'image/jpeg',ext:'jpg',lab:'JPEG'},webp:{mime:'image/webp',ext:'webp',lab:'WebP'}};
+const EX_WEBP=(()=>{try{const c=document.createElement('canvas');c.width=c.height=2;return c.toDataURL('image/webp').indexOf('data:image/webp')===0;}catch(_){return false;}})();
+const EXD={fmt:'png',q:.92,bg:'paper',layers:'all',scale:1};
+function normEx(o){o=Object.assign({},EXD,o||{});return{fmt:EXF[o.fmt]&&(o.fmt!=='webp'||EX_WEBP)?o.fmt:'png',q:Math.min(1,Math.max(.5,isFinite(+o.q)?+o.q:.92)),
+ bg:o.bg==='transparent'?'transparent':'paper',layers:o.layers==='current'?'current':'all',scale:+o.scale===2?2:1};}
+let EXO=(()=>{try{return normEx(JSON.parse(localStorage.getItem('exportOpts')||'{}'));}catch(_){return normEx({});}})();
+function exSave(o){EXO=normEx(o);try{localStorage.setItem('exportOpts',JSON.stringify(EXO));}catch(_){}}
+const exMobile=()=>document.body.classList.contains('m')||matchMedia('(pointer:coarse)').matches;
+/* 2x is a CPU upscale of the 1x render: it needs ~3 bytes x output px of JS memory (pixels + encoder), so keep it modest on phones
+   (16.7 Mpx is also the iOS canvas limit) and below Chrome's canvas limits on desktop. */
+function exLimit(scale){const w=W*scale,h=H*scale;if(scale>1&&(w>16384||h>16384||w*h>(exMobile()?16.7e6:64e6)))return{ok:false,w,h};return{ok:true,w,h};}
+function exEff(o){o=normEx(o);if(o.fmt==='jpeg')o.bg='paper';if(o.scale===2&&!exLimit(2).ok)o.scale=1;return o;}
+// straight-alpha RGBA8, top-down, rendered by the same final pass as the screen (lit relief, current light + relief settings)
+function renderPx(src,mode){const w=W,h=H;if(w>MAXTEX||h>MAXTEX)throw new Error('export too large');const t=target(1,w,h,gl.RGBA8,gl.UNSIGNED_BYTE);
+ try{run(P.final,t,{uAC:src.t[0],uAA:src.t[1],uP:PAPER.t[0]},Object.assign(litU(),{uScreen:0,uMode:mode,uView:[0,0,1,0],uBg:[0,0,0]}));
+  const px=new Uint8Array(w*h*4);gl.bindFramebuffer(gl.FRAMEBUFFER,t.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);gl.readPixels(0,0,w,h,gl.RGBA,gl.UNSIGNED_BYTE,px);
+  const row=new Uint8Array(w*4);for(let y=0;y<h>>1;y++){const a=y*w*4,b=(h-1-y)*w*4;row.set(px.subarray(a,a+w*4));px.copyWithin(a,b,b+w*4);px.set(row,b);}
+  return{px,w,h};}finally{delTarget(t);}}
+/* Composition: layers hold premultiplied colour; the surface is the first "layer" (ground colour, alpha 1 when shown). Transparent = the
+   same composite over an alpha-0 surface, exactly what the screen shows with "Show surface" off. Body paint is ordinary alpha;
+   watercolour (a multiply-like glaze) is stored by the app as its colour-to-alpha equivalent over white paper, so it composites
+   exactly over white and as a normal translucent layer over other colours. The final pass un-premultiplies before gamma, so the
+   PNG gets straight alpha with no dark fringe.
+   The app blends in linear light, design tools blend the stored 8-bit (gamma) values: with plain gamma-encoded colour, faint edges
+   came out ~20/255 too dark over white (a dark fringe in Photoshop/Figma/Canva). So partly transparent pixels keep their coverage
+   alpha but get the colour that makes a gamma-space "normal" blend over white match the app's linear blend over white exactly
+   (over dark backgrounds faint edges read slightly thinner instead of darker). */
+const EX_LIN=(()=>{const t=new Float32Array(256);for(let i=0;i<256;i++)t[i]=Math.pow(i/255,2.2);return t;})();
+function exWhiteRef(px){for(let i=0;i<px.length;i+=4){const A=px[i+3];if(A===0||A===255)continue;const a=A/255,k=1-a;
+ for(let c=0;c<3;c++){const v=(Math.pow(a*EX_LIN[px[i+c]]+k,1/2.2)-k)/a*255;px[i+c]=v<0?0:v>255?255:v+.5;}}}
+function exRender(o){const tmp=[];let restore=null;
+ try{let src;if(o.layers==='current'){const l=layers[ai];const s1=target(2,1,1);tmp.push(s1);run(P.surf,s1,{},{uGround:hexLin(surface.ground),uShow:o.bg==='paper'?1:0});
+   const lt=target(2);tmp.push(lt);liveLayer(lt);const out=target(2);tmp.push(out);run(P.blend,out,{uAC:s1.t[0],uAA:s1.t[1],uLC:lt.t[0],uLA:lt.t[1]},{uOp:l.op,uMode:MODES[l.blend]});src=out;}
+  else{const want=o.bg==='paper';if(surface.show!==want){const was=surface.show;surface.show=want;belowDirty=true;restore=()=>{surface.show=was;belowDirty=true;};}src=composite();}
+  const r=renderPx(src,0);if(o.bg==='transparent')exWhiteRef(r.px);if(o.fmt==='jpeg')for(let i=3;i<r.px.length;i+=4)r.px[i]=255;return r;}
+ finally{tmp.forEach(delTarget);if(restore)restore();compFull=true;needRender=true;}}
+// 2x Catmull-Rom upscale on premultiplied values (no halos into transparent areas), separable, 4-row cache
+function up2x(px,w,h){const W2=w*2,H2=h*2,out=new Uint8Array(W2*H2*4);const KA=[-.0234375,.2265625,.8671875,-.0703125],KB=[-.0703125,.8671875,.2265625,-.0234375];const rows=new Map();
+ const hrow=j=>{j=j<0?0:j>=h?h-1:j;let r=rows.get(j);if(r)return r;r=new Float32Array(W2*4);const base=j*w*4;
+  for(let i=0;i<w;i++)for(let s=0;s<2;s++){const K=s?KB:KA,o0=s?i-1:i-2;let R=0,G=0,B=0,A=0;
+   for(let t=0;t<4;t++){let x=o0+t;x=x<0?0:x>=w?w-1:x;const p=base+x*4,a=px[p+3]/255,k=K[t]*a;R+=px[p]*k;G+=px[p+1]*k;B+=px[p+2]*k;A+=k;}
+   const q=(i*2+s)*4;r[q]=R;r[q+1]=G;r[q+2]=B;r[q+3]=A;}
+  rows.set(j,r);return r;};
+ for(let i=0;i<h;i++){for(const k of [...rows.keys()])if(k<i-2)rows.delete(k);
+  for(let s=0;s<2;s++){const K=s?KB:KA,o0=s?i-1:i-2,r0=hrow(o0),r1=hrow(o0+1),r2=hrow(o0+2),r3=hrow(o0+3),ob=(i*2+s)*W2*4;
+   for(let q=0;q<W2*4;q+=4){let A=K[0]*r0[q+3]+K[1]*r1[q+3]+K[2]*r2[q+3]+K[3]*r3[q+3];if(A<.5/255)continue;if(A>1)A=1;
+    for(let c=0;c<3;c++){let v=(K[0]*r0[q+c]+K[1]*r1[q+c]+K[2]*r2[q+c]+K[3]*r3[q+c])/A;out[ob+q+c]=v<0?0:v>255?255:v+.5;}out[ob+q+3]=A*255+.5;}}}
+ return{px:out,w:W2,h:H2};}
+// PNG encoder for straight-alpha pixels (canvas.toBlob would premultiply to 8 bits first and lose colour in faint edges)
+const CRCT=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xedb88320^(c>>>1):c>>>1;t[n]=c>>>0;}return t;})();
+function crc32(b){let c=0xffffffff;for(let i=0;i<b.length;i++)c=CRCT[(c^b[i])&255]^(c>>>8);return(c^0xffffffff)>>>0;}
+async function encodePNG(px,w,h){const S=w*4,raw=new Uint8Array((S+1)*h);
+ for(let y=0;y<h;y++){const L=y*S,P_=L-S,o=y*(S+1);const sums=[0,0,0,0,0];
+  for(let i=0;i<S;i++){const x=px[L+i],a=i>=4?px[L+i-4]:0,b=y?px[P_+i]:0,c=y&&i>=4?px[P_+i-4]:0;const p=a+b-c,pa=Math.abs(p-a),pb=Math.abs(p-b),pc=Math.abs(p-c),pr=pa<=pb&&pa<=pc?a:pb<=pc?b:c;
+   const v=[x,(x-a)&255,(x-b)&255,(x-((a+b)>>1))&255,(x-pr)&255];for(let f=0;f<5;f++)sums[f]+=v[f]<128?v[f]:256-v[f];}
+  let f=0;for(let k=1;k<5;k++)if(sums[k]<sums[f])f=k;raw[o]=f;
+  for(let i=0;i<S;i++){const x=px[L+i],a=i>=4?px[L+i-4]:0,b=y?px[P_+i]:0,c=y&&i>=4?px[P_+i-4]:0;let pr=0;
+   if(f===1)pr=a;else if(f===2)pr=b;else if(f===3)pr=(a+b)>>1;else if(f===4){const p=a+b-c,pa=Math.abs(p-a),pb=Math.abs(p-b),pc=Math.abs(p-c);pr=pa<=pb&&pa<=pc?a:pb<=pc?b:c;}
+   raw[o+1+i]=(x-pr)&255;}}
+ const z=new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(new CompressionStream('deflate'))).arrayBuffer());
+ const chunk=(type,data)=>{const b=new Uint8Array(12+data.length),dv=new DataView(b.buffer);dv.setUint32(0,data.length);for(let i=0;i<4;i++)b[4+i]=type.charCodeAt(i);b.set(data,8);dv.setUint32(8+data.length,crc32(b.subarray(4,8+data.length)));return b;};
+ const hd=new Uint8Array(13),hv=new DataView(hd.buffer);hv.setUint32(0,w);hv.setUint32(4,h);hd[8]=8;hd[9]=6;
+ return new Blob([new Uint8Array([137,80,78,71,13,10,26,10]),chunk('IHDR',hd),chunk('IDAT',z),chunk('IEND',new Uint8Array(0))],{type:'image/png'});}
+async function exEncode(r,o){const f=EXF[o.fmt];
+ if(o.fmt==='png'&&o.bg==='transparent'&&window.CompressionStream)return encodePNG(r.px,r.w,r.h);
+ const c=document.createElement('canvas');c.width=r.w;c.height=r.h;c.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(r.px.buffer,r.px.byteOffset,r.px.length),r.w,r.h),0,0);
+ const b=await new Promise(res=>{try{c.toBlob(res,f.mime,o.fmt==='png'?undefined:o.q);}catch(_){res(null);}});c.width=c.height=1;
+ if(!b){if(o.fmt==='png'&&window.CompressionStream)return encodePNG(r.px,r.w,r.h);throw new Error('this browser could not encode a '+f.lab+' this large; try PNG');}
+ if(b.type!==f.mime)throw new Error(f.lab+' export is not supported by this browser');return b;}
+async function exportImage(opts){const o=exEff(opts);let img=exRender(o);if(o.scale===2)img=up2x(img.px,img.w,img.h);const blob=await exEncode(img,o);return{blob,w:img.w,h:img.h,o};}
+const p2=n=>String(n).padStart(2,'0');
+function exDefName(){const d=new Date();return'paint-'+d.getFullYear()+p2(d.getMonth()+1)+p2(d.getDate())+'-'+p2(d.getHours())+p2(d.getMinutes());}
+function exFileName(n,fmt){n=String(n||'').replace(/[\\/:*?"<>|\u0000-\u001f]+/g,'-').trim().replace(/\.(png|jpe?g|webp)$/i,'').replace(/^[.\s]+|[.\s]+$/g,'').slice(0,80);return(n||exDefName())+'.'+EXF[fmt].ext;}
+const fmtSize=b=>b>=1e6?(b/1e6).toFixed(1)+' MB':Math.max(1,Math.round(b/1e3))+' KB';
+// ---- dialog UI ----
+const dlgE=$('dlgExp');let exBgPref=EXO.bg,exBusy=false,exPend=null;
+const exRadio=n=>{const r=dlgE.querySelector('input[name="'+n+'"]:checked');return r?r.value:null;};
+const exSet=(n,v)=>{const r=dlgE.querySelector('input[name="'+n+'"][value="'+v+'"]');if(r)r.checked=true;};
+function exRead(){return normEx({fmt:exRadio('exFmt'),q:+$('exQ').value,bg:exBgPref,layers:exRadio('exLy'),scale:+exRadio('exSz')});}
+function exCanShare(){try{return exMobile()&&!!navigator.canShare&&!!navigator.share&&navigator.canShare({files:[new File([new Uint8Array(1)],'t.png',{type:'image/png'})]});}catch(_){return false;}}
+function exSync(){const o=exRead(),e=exEff(o),jp=o.fmt==='jpeg';
+ const tr=dlgE.querySelector('input[name="exBg"][value="transparent"]');tr.disabled=jp;exSet('exBg',e.bg);
+ $('exQrow').hidden=o.fmt==='png';$('exQv').textContent=Math.round(+$('exQ').value*100)+'%';
+ const l2=exLimit(2),r2=dlgE.querySelector('input[name="exSz"][value="2"]');r2.disabled=!l2.ok;if(!l2.ok)exSet('exSz','1');
+ $('exSz1').textContent=W+' × '+H;$('exSz2').textContent=l2.ok?l2.w+' × '+l2.h:'too large here';$('exExt').textContent='.'+EXF[o.fmt].ext;
+ const w=W*e.scale,h=H*e.scale,l=layers[ai];
+ $('exInfo').innerHTML='<b>'+w+' × '+h+' px</b> · '+EXF[e.fmt].lab+' · '+(e.bg==='paper'?'with paper':'transparent')+' · '+(e.layers==='all'?'all visible layers':'current layer')+
+  (e.scale===2?'<br>Upscaled 2× from '+W+' × '+H+' (smoother, not more detail).':'')+
+  (jp?'<br>JPEG has no transparency, so it is saved with the paper.':e.bg==='transparent'?'<br>Unpainted paper becomes transparent; watercolour keeps its translucency.':'')+
+  (e.layers==='current'&&!l.vis?'<br>The current layer is hidden but will be exported.':'');
+ exPend=null;$('exShareT').textContent='Share…';exSave(o);}
+function openExport(){if(dlgE.open)return;closeCP();if(document.body.classList.contains('m'))setPanel(false);
+ exSet('exFmt',EXO.fmt);$('exQ').value=EXO.q;exBgPref=EXO.bg;exSet('exLy',EXO.layers);exSet('exSz',String(EXO.scale));
+ $('exWebpL').hidden=!EX_WEBP;$('exName').value=exDefName();
+ const nv=layers.filter(l=>l.vis).length;$('exLyAll').textContent=nv+' layer'+(nv===1?'':'s');$('exLyCur').textContent=layers[ai].name;
+ $('exShare').hidden=!exCanShare();$('exSt').textContent='';exSync();dlgE.showModal();
+ const f=dlgE.querySelector('input[name="exFmt"]:checked');if(f)f.focus();}
+function exBusyUI(on,msg){exBusy=on;['exGo','exShare','exCancel'].forEach(id=>$(id).disabled=on);$('exSt').textContent=msg||'';dlgE.classList.toggle('busy',on);}
+function exToast(t){let d=$('exToast');if(!d){d=document.createElement('div');d.id='exToast';d.setAttribute('role','status');document.body.appendChild(d);}d.textContent=t;d.classList.add('on');clearTimeout(d._t);d._t=setTimeout(()=>d.classList.remove('on'),2600);}
+async function exRun(share){if(exBusy)return;const o=exRead();exSave(o);
+ if(share&&exPend){const p=exPend;exPend=null;try{await navigator.share({files:[p.file],title:p.file.name});dlgE.close();exToast('Shared '+p.file.name);}catch(e){exShareErr(e,p);}return;}
+ exBusyUI(true,'Preparing '+EXF[exEff(o).fmt].lab+'…');await new Promise(r=>requestAnimationFrame(()=>setTimeout(r,0)));
+ let res;try{res=await exportImage(o);}catch(e){exBusyUI(false,'Export failed: '+(e&&e.message||e));return;}
+ const name=exFileName($('exName').value,res.o.fmt);exBusyUI(false);
+ if(share){const file=new File([res.blob],name,{type:res.blob.type});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:name});dlgE.close();exToast('Shared '+name);}catch(e){exShareErr(e,{file});}return;}}
+ download(name,res.blob);dlgE.close();exToast('Saved '+name+' · '+fmtSize(res.blob.size));}
+function exShareErr(e,p){const n=e&&e.name;if(n==='AbortError'){$('exSt').textContent='';return;}
+ if(n==='NotAllowedError'){exPend=p;$('exShareT').textContent='Share now';$('exSt').textContent='Image ready. Tap Share now to open the share sheet.';return;}
+ download(p.file.name,p.file);dlgE.close();exToast('Sharing failed, downloaded '+p.file.name+' instead');}
+dlgE.addEventListener('change',e=>{if(e.target.name==='exBg')exBgPref=e.target.value;exSync();});$('exQ').addEventListener('input',exSync);
+dlgE.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'&&e.target.id==='exName'){e.preventDefault();exRun(false);}});dlgE.addEventListener('keyup',e=>e.stopPropagation());
+dlgE.addEventListener('cancel',e=>{if(exBusy)e.preventDefault();});
+dlgE.addEventListener('click',e=>{if(e.target!==dlgE||exBusy)return;const r=dlgE.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dlgE.close();});
+$('exCancel').onclick=()=>dlgE.close();$('exGo').onclick=()=>exRun(false);$('exShare').onclick=()=>exRun(true);
+$('tExp').onclick=openExport;$('bExpDlg').onclick=openExport;
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.shiftKey&&e.key.toLowerCase()==='e'){e.preventDefault();openExport();}});
+Object.assign(window.paintAPI,{exportBlob:o=>exportImage(o||{}).then(r=>r.blob),exportImage:o=>exportImage(o||{}).then(r=>({blob:r.blob,w:r.w,h:r.h,opts:r.o})),
+ exportInfo:o=>{const e=exEff(o||EXO);return Object.assign(e,{w:W*e.scale,h:H*e.scale,webp:EX_WEBP,max2x:exLimit(2).ok});},exportOptions:()=>Object.assign({},EXO),
+ exportFormats:()=>Object.keys(EXF).filter(k=>k!=='webp'||EX_WEBP),openExport,closeExport:()=>dlgE.open&&dlgE.close(),exportFileName:(n,f)=>exFileName(n,f||'png')});
 </script></body></html>
