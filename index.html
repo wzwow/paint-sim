@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v0.21</title>
+<title>Medium — paint v0.22</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="app-version" content="medium-v0.21">
+<meta name="app-version" content="medium-v0.22">
 <meta name="theme-color" content="#161618">
 <style>
 :root{--bg:#161618;--glass:rgba(30,30,33,.97);--card:#232327;--card2:#2b2b30;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);--ink:#ececef;--mute:#9a9aa3;--dim:#6c6c75;--acc:#6ea8ff;--accS:rgba(110,168,255,.16);--r:14px;--sh:0 8px 30px rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.04) inset}
@@ -161,13 +161,60 @@ body.m dialog{padding:18px}
 #exToast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);z-index:60;max-width:calc(100vw - 32px);padding:10px 16px;border-radius:12px;background:rgba(30,30,33,.97);border:1px solid var(--line2);color:var(--ink);font-size:13px;box-shadow:var(--sh);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #exToast.on{opacity:1;transform:translate(-50%,0)}body.m #exToast{bottom:calc(86px + env(safe-area-inset-bottom))}
 body.m .rseg span{min-height:46px}body.m .exn input{height:44px;font-size:16px}body.m #bExpDlg{min-height:44px}body.m #dlgExp{padding:16px 16px 14px}body.m #dlgExp fieldset{margin-bottom:10px}
+/* v0.22 help sheet + first-run welcome (UI only) */
+#dlgHelp{width:min(820px,calc(100vw - 48px));max-height:min(880px,calc(100% - 48px));padding:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#48484f transparent}
+#dlgHelp .hHead{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:12px;padding:10px 10px 10px 22px;background:var(--card);border-bottom:1px solid var(--line)}
+#dlgHelp .hHead h2{flex:1;margin:0;font-size:17px;outline:none}#dlgHelp .hHead .hSub{font-size:12px;color:var(--mute);font-weight:450}
+#dlgHelp .hBody{padding:16px 22px 22px}
+.hNav{display:flex;flex-wrap:wrap;gap:6px}
+.hNav button{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:4px 12px 4px 10px;border:0;border-radius:999px;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px var(--line);color:var(--ink);font-size:12.5px;font-weight:500;cursor:pointer}
+.hNav button:hover{background:rgba(255,255,255,.11)}.hNav svg.i{width:15px;height:15px;color:var(--mute)}
+.hNav button:focus-visible,#dlgHelp .hBody button:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+.hSec{scroll-margin-top:70px;margin-top:18px;padding-top:16px;border-top:1px solid var(--line);min-width:0}
+.hSec h3{display:flex;align-items:center;gap:9px;margin:0 0 10px;font-size:14.5px;font-weight:650;letter-spacing:.005em}
+.hSec h3 svg.i{width:18px;height:18px;color:var(--acc)}
+.hSec ul{margin:0;padding:0 0 0 17px;display:flex;flex-direction:column;gap:7px;font-size:13px;line-height:1.5;color:#c9c9d0}
+.hSec li::marker{color:var(--dim)}.hSec li b{color:var(--ink);font-weight:600}
+.hCols{display:grid;grid-template-columns:1fr 1fr;column-gap:30px}
+.hSteps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:8px;counter-reset:hs}
+.hSteps li{counter-increment:hs;position:relative;padding:11px 12px 11px 46px;border-radius:12px;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px var(--line);font-size:12.5px;line-height:1.45;color:var(--mute)}
+.hSteps li::before,.wcSteps li::before{content:counter(hs);position:absolute;left:12px;top:11px;width:24px;height:24px;border-radius:50%;background:var(--accS);color:var(--acc);font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center}
+.hSteps li b{display:block;color:var(--ink);font-size:13px;font-weight:600;margin-bottom:2px}
+.hNote{margin:10px 0 0;font-size:12px;line-height:1.5;color:var(--mute)}
+kbd{display:inline-block;min-width:24px;padding:0 6px;border-radius:6px;background:var(--card2);box-shadow:inset 0 -1px 0 rgba(0,0,0,.45),inset 0 0 0 1px var(--line2);font:600 11.5px/21px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink);text-align:center;white-space:nowrap}
+.hKeys{width:100%;border-collapse:collapse;font-size:13px;color:#c9c9d0}
+.hKeys td{padding:7px 0;border-bottom:1px solid var(--line);vertical-align:middle;line-height:1.45}
+.hKeys td:first-child{white-space:nowrap;padding-right:18px;width:1%;color:var(--mute);font-size:12px}
+.hKeys tr:last-child td{border-bottom:0}.hKeys .or{color:var(--dim);font-size:11.5px;margin:0 4px}
+.hFoot{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;color:var(--dim)}
+.hFoot .btn{min-height:40px;padding:6px 22px;font-size:13.5px}
+body.m #dlgHelp{width:calc(100vw - 16px);max-height:calc(100% - 16px - env(safe-area-inset-top) - env(safe-area-inset-bottom));border-radius:20px}
+body.m #dlgHelp .hHead{padding:6px 6px 6px 18px}body.m #dlgHelp .hBody{padding:14px 18px 18px}
+body.m .hNav{gap:6px}body.m .hNav button{min-height:44px;padding:4px 14px 4px 12px;font-size:13px}
+body.m .hCols,body.m .hSteps{grid-template-columns:1fr}
+body.m .hSec ul{font-size:14px;gap:8px}body.m .hSteps li{font-size:13.5px}body.m .hSteps li b{font-size:14px}
+body.m .hKeys{font-size:14px}body.m .hKeys tr{display:block;padding:9px 0;border-bottom:1px solid var(--line)}body.m .hKeys tr:last-child{border-bottom:0}body.m .hKeys td{display:block;padding:0;border:0;width:auto}body.m .hKeys td:first-child{white-space:normal;width:auto;padding:0 0 5px;font-size:12.5px}body.m .hKeys td:last-child{color:var(--ink)}
+body.m .hFoot .btn,body.m #bHelp{min-height:44px}
+.mo{display:none}body.m .mo{display:inline}
+#welcome{z-index:25;left:50%;bottom:24px;width:min(440px,calc(100vw - 24px));transform:translateX(-50%);padding:18px 18px 14px;border-radius:18px;border-color:var(--line2);box-shadow:0 18px 50px rgba(0,0,0,.55),0 1px 0 rgba(255,255,255,.05) inset}
+#welcome[hidden]{display:none}#welcome.on{animation:wcIn .24s cubic-bezier(.2,.8,.2,1)}
+@keyframes wcIn{from{opacity:0;transform:translate(-50%,12px)}}@keyframes wcInM{from{opacity:0;transform:translateY(-10px)}}
+.wcHead{display:flex;gap:12px;align-items:center;margin-bottom:14px}.wcHead .logo{width:32px;height:32px;border-radius:10px;flex:none}
+#welcome h2{margin:0;font-size:16px;font-weight:650}.wcSub{font-size:12.5px;color:var(--mute);margin-top:2px}
+.wcSteps{list-style:none;margin:0 0 14px;padding:0;display:flex;flex-direction:column;gap:10px;counter-reset:hs}
+.wcSteps li{counter-increment:hs;position:relative;padding:2px 0 0 36px;min-height:24px;font-size:13px;line-height:1.45;color:var(--mute)}.wcSteps li::before{left:0;top:0}
+.wcSteps b{color:var(--ink);font-weight:600}
+.wcBtns{display:flex;gap:8px;justify-content:flex-end;align-items:center;padding-top:12px;border-top:1px solid var(--line)}.wcBtns .btn{min-height:40px;padding:6px 18px;font-size:13.5px}
+#wcHelp{background:transparent;box-shadow:none;color:var(--acc);margin-right:auto;padding-left:6px}#wcHelp:hover{background:var(--accS)}
+body.m #welcome{left:8px;right:8px;top:calc(64px + env(safe-area-inset-top));bottom:auto;width:auto;transform:none;padding:16px 16px 12px}body.m #welcome.on{animation-name:wcInM}
+body.m .wcSteps li{font-size:14px}body.m .wcBtns .btn{min-height:44px}
 </style></head>
 <body>
 <div id="stage"><canvas id="c"></canvas><canvas id="cur" style="position:fixed;pointer-events:none"></canvas><div id="msg"></div></div>
 <div id="zoomv">100%</div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.21</span></div>
- <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tFit" data-tip="Fit to screen" aria-label="Fit to screen" data-ic="fit"></button><button class="ib dk" id="tExp" data-tip="Export… (Ctrl+Shift+E)" aria-label="Export image" aria-haspopup="dialog" data-ic="download"></button></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.22</span></div>
+ <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tFit" data-tip="Fit to screen" aria-label="Fit to screen" data-ic="fit"></button><button class="ib dk" id="tExp" data-tip="Export… (Ctrl+Shift+E)" aria-label="Export image" aria-haspopup="dialog" data-ic="download"></button><button class="ib dk" id="tHelp" data-tip="Help &amp; shortcuts (?)" aria-label="Help and keyboard shortcuts" aria-haspopup="dialog" data-ic="help"></button></div>
 <!-- top-right: tools -->
 <div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button>
  <span class="sep"></span><button class="ib" id="dMed" data-tip="Choose medium" aria-label="Medium" aria-haspopup="true"><span data-ic="drop"></span><span class="t">Water</span></button>
@@ -238,7 +285,7 @@ body.m .rseg span{min-height:46px}body.m .exn input{height:44px;font-size:16px}b
  <div><div class="lab"><span>Project</span></div><div class="row2"><button id="bSaveP">Save project</button><button id="bOpenP">Open project</button></div>
  <input type="file" id="openFile" accept=".mpaint" style="display:none"></div>
 </div></details>
-<details class="g"><summary><span data-ic="help"></span>Tips</summary><div class="gb"><div class="hint">Drag to paint. Pen pressure changes size and load; pen tilt lays the brush on its side. Fast strokes thin and break up, slow strokes lay more paint; lift while moving to flick. With a mouse, speed stands in for pressure. Hold Shift to keep painting with what is left on the brush (dry-brush).<br><br>Watercolour: pre-wet with Clear water for soft wet-on-wet, let colours touch to bleed, drop water into a drying wash for blooms; low Water load gives dry-brush, or Tilt to let it run. Oil stays wet: drag through it to plough ridges and pick up colour; Dry all to lock layers and build on top.<br><br>Wheel = zoom · Space-drag or middle mouse = pan · pinch on touch · Ctrl/Cmd+Z undo · Ctrl/Cmd+Shift+Z redo · B / K tools · F2 or double-click a layer to rename it</div></div></details>
+<details class="g"><summary><span data-ic="help"></span>Help &amp; tips</summary><div class="gb"><div><div class="hint" style="margin-bottom:10px">Getting started, tips for each medium, pen and touch gestures, and all keyboard shortcuts.</div><button id="bHelp" class="btn" style="width:100%" aria-haspopup="dialog"><span data-ic="help"></span>Open help</button></div></div></details>
 </div></div>
 <dialog id="dlgNew"><h2>New canvas</h2><div class="sub2">Pick a preset or enter a custom size.</div>
  <select id="preset"><option value="1024x768">1024 × 768</option><option value="1536x1024">1536 × 1024</option><option value="2048x1536">2048 × 1536</option><option value="2048x2048">Square 2048</option><option value="1754x2480">A4 portrait 150 dpi (1754 × 2480)</option><option value="2480x3508">A4 portrait 300 dpi (2480 × 3508)</option><option value="3508x4961">A3 portrait 300 dpi (3508 × 4961)</option><option value="4096x4096">Square 4096</option><option value="custom">Custom…</option></select>
@@ -263,6 +310,57 @@ body.m .rseg span{min-height:46px}body.m .exn input{height:44px;font-size:16px}b
  <div id="exInfo"></div>
  <div class="exBtns"><button id="exCancel" class="btn">Cancel</button><button id="exShare" class="btn" hidden><span data-ic="share"></span><span id="exShareT">Share…</span></button><button id="exGo" class="btn pri"><span data-ic="download"></span>Download</button></div>
  <div id="exSt" role="status" aria-live="polite"></div></dialog>
+<!-- v0.22 help sheet (desktop: ? button, ? key or F1; mobile: Settings > Help & tips) -->
+<dialog id="dlgHelp" aria-labelledby="hT"><div class="hHead"><h2 id="hT" tabindex="-1">Help <span class="hSub">· how to paint with Medium</span></h2><button class="ib" id="hClose" aria-label="Close help" data-ic="x"></button></div>
+<div class="hBody">
+ <nav class="hNav" aria-label="Help sections"><button type="button" data-go="hsStart"><span data-ic="brush"></span>Getting started</button><button type="button" data-go="hsWater"><span data-ic="drop"></span>Watercolour</button><button type="button" data-go="hsOil"><span data-ic="oil"></span>Oil &amp; impasto</button><button type="button" data-go="hsPen"><span data-ic="pencil"></span>Pen &amp; touch</button><button type="button" data-go="hsLayers"><span data-ic="layers"></span>Layers</button><button type="button" data-go="hsExport"><span data-ic="download"></span>Export</button><button type="button" data-go="hsKeys"><span data-ic="keys"></span>Shortcuts</button></nav>
+ <section class="hSec" id="hsStart"><h3><span data-ic="brush"></span>Getting started</h3><ol class="hSteps">
+  <li><b>Pick a medium</b>Open the Medium menu (<span class="dk">top right</span><span class="mo">bottom bar</span>) and choose Watercolour, Gouache, Acrylic, Oil or Ink.</li>
+  <li><b>Pick a colour</b>The colour dot opens the pigments, a custom colour picker and your recent colours.</li>
+  <li><b>Set up the brush</b>Choose brush or palette knife and set the size <span class="dk">on the left rail</span><span class="mo">with the Size slider</span>. Brush shape, stiffness and water load are in Settings.</li>
+  <li><b>Paint</b>Drag on the paper. Made a mistake? Undo is <span class="dk">on the left rail, or <span class="kmod">Ctrl</span>+Z</span><span class="mo">at the top right</span>.</li></ol>
+  <p class="hNote">Painting feels slow? Try Settings › Canvas &amp; surface › Quality: Low.</p></section>
+ <div class="hCols">
+ <section class="hSec" id="hsWater"><h3><span data-ic="drop"></span>Watercolour tips</h3><ul>
+  <li><b>Water load</b> sets how wet the brush is: high for flowing washes, low for dry-brush texture.</li>
+  <li><b>Wet-on-wet:</b> paint Clear water (the first swatch) on the paper first, then drop colour in for soft, feathered edges.</li>
+  <li>Let wet colours touch to bleed. Drop water into a drying wash for a bloom.</li>
+  <li>Washes dry with slightly darker edges, as on real paper.</li>
+  <li><b>Tilt canvas</b> lets wet paint run down. <b>Dry all</b> dries everything so you can glaze on top.</li>
+  <li>Ultramarine and Burnt sienna granulate; it shows best on Cold-press or Rough paper.</li></ul></section>
+ <section class="hSec" id="hsOil"><h3><span data-ic="oil"></span>Oil &amp; impasto tips</h3><ul>
+  <li>Choose <b>Oil</b> in the Medium menu. The Medium slider (Settings › Paint) goes from soft to thick impasto at the far right.</li>
+  <li>Oil stays wet: drag through it to blend, plough ridges and pick up colour.</li>
+  <li><b>Palette knife:</b> Spread, Scrape, or Load &amp; lay thick paint.</li>
+  <li><b>Multi-colour load</b> (Settings › Brush): pick 2–4 colours for streaky, loaded strokes.</li>
+  <li><b>Light &amp; relief</b> changes where the light comes from and how strongly ridges show.</li>
+  <li><b>Dry all</b> sets the paint so you can build on top. Linen or cotton canvas suits oils.</li></ul></section>
+ <section class="hSec" id="hsPen"><h3><span data-ic="pencil"></span>Pen &amp; touch</h3><ul>
+  <li><b>Pressure</b> changes the size and how much paint goes down. With a mouse or finger, speed stands in: slow strokes lay more paint, fast ones thin out and break up.</li>
+  <li><b>Tilt</b> a pen to lay the brush on its side (Settings › Brush › Use pen tilt). Without one, use the Brush tilt slider.</li>
+  <li><b>Flick:</b> lift while still moving for a tapered tail. Turn it off with Flick on lift.</li>
+  <li><b>Touch:</b> one finger paints, a tap leaves a dab. Two fingers pinch to zoom and drag to move the canvas.</li>
+  <li>While you use a pen, touches are ignored for a moment, so you can rest your palm on the screen.</li>
+  <li><b>Mouse:</b> the wheel zooms; hold Space and drag, or drag with the middle button, to move the canvas.</li></ul></section>
+ <section class="hSec" id="hsLayers"><h3><span data-ic="layers"></span>Layers</h3><ul>
+  <li>Open Settings › Layers. You paint on the highlighted layer.</li>
+  <li><b>+</b> adds a layer; the eye hides or shows one.</li>
+  <li><b>Rename:</b> the pencil button, a double-click or double-tap on the name<span class="dk">, or F2</span>.</li>
+  <li>The arrows move a layer up or down; <b>Merge down</b> joins it with the layer below.</li>
+  <li><b>Opacity</b> and <b>Blend</b> (normal, multiply, screen, overlay) apply to the current layer.</li>
+  <li><b>Clear layer</b> (Settings › Paint) clears only the current layer.</li></ul></section>
+ </div>
+ <section class="hSec" id="hsExport"><h3><span data-ic="download"></span>Export</h3><ul>
+  <li><b>Export image</b>: <span class="dk">the download button at the top left, <span class="kmod">Ctrl</span>+Shift+E, or </span>Settings › Export &amp; projects. Choose PNG, JPEG or WebP; with paper or transparent; all visible layers or the current one; 1× or 2×.<span class="mo"> Share sends it straight to another app.</span></li>
+  <li><b>Save project</b> keeps your layers and paint so you can open the file and carry on later.</li>
+  <li><b>Maps &amp; extras</b> exports height and normal maps, or one PNG per layer.</li></ul></section>
+ <section class="hSec" id="hsKeys"><h3><span data-ic="keys"></span>Keyboard shortcuts</h3><table class="hKeys" id="hKeys"><tbody></tbody></table><p class="hNote mo">Shortcuts need a keyboard, for example on a tablet with a keyboard cover.</p></section>
+ <div class="hFoot"><span>Medium <span id="hVer"></span></span><button class="btn pri" id="hDone">Done</button></div>
+</div></dialog>
+<!-- v0.22 first-run welcome card (shown once; remembered in localStorage 'seenWelcome') -->
+<div id="welcome" class="fl" role="dialog" aria-modal="false" aria-labelledby="wcT" hidden><div class="wcHead"><span class="logo"></span><div><h2 id="wcT">Welcome to Medium</h2><div class="wcSub">Realistic paint, from watercolour to thick oil.</div></div></div>
+ <ol class="wcSteps"><li><b>Pick a medium</b> from the Medium menu <span class="dk">(top right)</span><span class="mo">(bottom bar)</span>.</li><li><b>Pick a colour</b> with the colour dot.</li><li><b>Paint</b> by dragging on the paper. Pen pressure and tilt work too.</li><li><b>Undo</b> is <span class="dk">on the left (<span class="kmod">Ctrl</span>+Z)</span><span class="mo">at the top right</span>; everything else is in Settings.</li></ol>
+ <div class="wcBtns"><button class="btn" id="wcHelp">Open help</button><button class="btn pri" id="wcOk">Got it</button></div></div>
 <script>
 "use strict";
 const PIG=[["Clear water",null],["Ultramarine","#1f3a93"],["Cadmium yellow","#f6c81a"],["Cadmium red","#d0281c"],["Alizarin","#9b1b30"],["Sap green","#4a6b1f"],["Burnt sienna","#8a3f1c"],["Payne's grey","#2e3a46"],["Titanium white","#fbfaf6"]];
@@ -1245,6 +1343,7 @@ const ICONS={
  pencil:'<path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/>',
  eye:'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
  share:'<path d="M12 15V4M8 8l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7a1 1 0 0 0-1-1h-1"/>',
+ keys:'<rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6 10h0M9.5 10h0M13 10h0M16.5 10h0M8 14h8"/>',
  eyeoff:'<path d="M3 3l18 18M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3 3.8M6.5 6.6A17 17 0 0 0 2 12s3.6 7 10 7a9.6 9.6 0 0 0 4.4-1.1"/>'};
 const ic=n=>'<svg class="i" viewBox="0 0 24 24" aria-hidden="true">'+ICONS[n]+'</svg>';
 function paintIcons(root){root.querySelectorAll('[data-ic]').forEach(el=>{el.innerHTML=ic(el.dataset.ic);});}
@@ -1508,4 +1607,59 @@ document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.shiftKey&&e
 Object.assign(window.paintAPI,{exportBlob:o=>exportImage(o||{}).then(r=>r.blob),exportImage:o=>exportImage(o||{}).then(r=>({blob:r.blob,w:r.w,h:r.h,opts:r.o})),
  exportInfo:o=>{const e=exEff(o||EXO);return Object.assign(e,{w:W*e.scale,h:H*e.scale,webp:EX_WEBP,max2x:exLimit(2).ok});},exportOptions:()=>Object.assign({},EXO),
  exportFormats:()=>Object.keys(EXF).filter(k=>k!=='webp'||EX_WEBP),openExport,closeExport:()=>dlgE.open&&dlgE.close(),exportFileName:(n,f)=>exFileName(n,f||'png')});
+
+// ---- v0.22 help sheet, keyboard shortcut list and first-run welcome. UI only: nothing here touches the simulation, brush or export. ----
+const IS_MAC=/Mac|iPhone|iPad|iPod/.test(navigator.platform||'')||/Mac OS X/.test(navigator.userAgent)&&!/Mobile/.test(navigator.userAgent);
+const MODK=IS_MAC?'⌘':'Ctrl';document.querySelectorAll('.kmod').forEach(e=>e.textContent=MODK);
+/* Every row below is wired in this file (keydown handlers above / pointer handlers on the canvas); test-help.js exercises each id.
+   Key lists: a token in [] is a key cap, anything else is plain text. alt = a second way to do the same thing. */
+const HELP_KEYS=[
+ {id:'brush',keys:['[B]'],what:'Brush'},
+ {id:'knife',keys:['[K]'],what:'Palette knife'},
+ {id:'undo',keys:['['+MODK+']','[Z]'],what:'Undo'},
+ {id:'redo',keys:['['+MODK+']','[Shift]','[Z]'],alt:['['+MODK+']','[Y]'],what:'Redo'},
+ {id:'export',keys:['['+MODK+']','[Shift]','[E]'],what:'Export image…'},
+ {id:'help',keys:['[?]'],alt:['[F1]'],what:'Open or close this help'},
+ {id:'rename',keys:['[F2]'],what:'Rename the current layer (double-click a layer also works)'},
+ {id:'layersel',keys:['[↑] / [↓]'],what:'Select the layer above or below, when the layer list has focus'},
+ {id:'pan',keys:['hold [Space]','drag'],alt:['middle-button drag'],what:'Move the canvas'},
+ {id:'zoom',keys:['mouse wheel'],what:'Zoom in or out at the pointer'},
+ {id:'keep',keys:['hold [Shift]','paint'],what:'Keep painting with what is left on the brush (dry-brush)'},
+ {id:'esc',keys:['[Esc]'],what:'Close the colour picker, the Medium menu, this help or a dialog'}];
+function keyHTML(ks){return ks.map(t=>t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])).replace(/\[([^\]]+)\]/g,'<kbd>$1</kbd>')).join(' + ');}
+$('hKeys').tBodies[0].innerHTML=HELP_KEYS.map(k=>'<tr data-k="'+k.id+'"><td>'+keyHTML(k.keys)+(k.alt?'<span class="or">or</span>'+keyHTML(k.alt):'')+'</td><td>'+k.what+'</td></tr>').join('');
+$('hVer').textContent=$('ver').textContent;paintIcons($('dlgHelp'));
+const dlgH=$('dlgHelp');let helpRet=null;
+const typingIn=t=>!!t&&(t.isContentEditable||t.tagName==='TEXTAREA'||t.tagName==='SELECT'||t.tagName==='INPUT'&&!/^(range|checkbox|radio|button|submit|color)$/.test(t.type));
+function helpGo(id){const el=$(id);if(!el)return;el.scrollIntoView({block:'start',behavior:'auto'});}
+function openHelp(sec){if(!dlgH.open){const od=document.querySelector('dialog[open]');if(od)return false; // never stack on the export / new-canvas dialog
+  try{closeCP();closeMP();}catch(_){}if(document.body.classList.contains('m'))setPanel(false);if(!wc.hidden)hideWelcome();
+  helpRet=document.activeElement;dlgH.showModal();dlgH.scrollTop=0;$('hT').focus({preventScroll:true});}
+ if(sec)helpGo(sec);return true;}
+function closeHelp(){if(dlgH.open)dlgH.close();}
+dlgH.addEventListener('close',()=>{const r=helpRet;helpRet=null;if(r&&r!==document.body&&r.isConnected&&r.getClientRects().length&&getComputedStyle(r).visibility!=='hidden'){try{r.focus({preventScroll:true});}catch(_){}}
+ else if(document.activeElement&&dlgH.contains(document.activeElement))document.activeElement.blur();});
+const helpFocusables=()=>[...dlgH.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])')].filter(e=>!e.disabled&&e.getClientRects().length);
+/* Capture phase on window runs before every other key handler: while the help is open no key reaches the painting (B/K/Ctrl+Z/Space...);
+   Tab cycles inside the sheet; Esc, ? and F1 close it. When it is closed, ? (Shift+/) and F1 open it unless you are typing in a field. */
+window.addEventListener('keydown',e=>{
+ if(dlgH.open){const k=e.key;
+  if(k==='Tab'){const f=helpFocusables();if(f.length){const i=f.indexOf(document.activeElement);
+    if(e.shiftKey&&i<=0){e.preventDefault();f[f.length-1].focus();}else if(!e.shiftKey&&(i<0||i===f.length-1)){e.preventDefault();f[0].focus();}}}
+  else if(k==='Escape'||k==='F1'||(k==='?'&&!e.ctrlKey&&!e.metaKey&&!e.altKey)){e.preventDefault();closeHelp();}
+  e.stopPropagation();return;}
+ if(e.key==='F1'&&!e.ctrlKey&&!e.metaKey&&!e.altKey){e.preventDefault();e.stopPropagation();openHelp();return;}
+ if(e.key==='?'&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!typingIn(e.target)&&!document.querySelector('dialog[open]')){e.preventDefault();e.stopPropagation();openHelp();}},true);
+dlgH.addEventListener('click',e=>{const g=e.target.closest&&e.target.closest('[data-go]');if(g){helpGo(g.dataset.go);return;}
+ if(e.target!==dlgH)return;const r=dlgH.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dlgH.close();});
+$('hClose').onclick=closeHelp;$('hDone').onclick=closeHelp;$('tHelp').onclick=()=>openHelp();$('bHelp').onclick=()=>openHelp();
+// first-run welcome card: once per browser (localStorage 'seenWelcome'); not under automation (navigator.webdriver) unless ?welcome=1; ?welcome=0 never
+const wc=$('welcome'),WQ=QS.get('welcome');
+const wcSeen=()=>{try{return localStorage.getItem('seenWelcome')==='1';}catch(_){return false;}};
+function showWelcome(force){if(!force&&wcSeen())return false;wc.hidden=false;wc.classList.remove('on');void wc.offsetWidth;wc.classList.add('on');return true;}
+function hideWelcome(){try{localStorage.setItem('seenWelcome','1');}catch(_){}wc.classList.remove('on');const had=wc.contains(document.activeElement);wc.hidden=true;if(had)document.activeElement.blur();}
+$('wcOk').onclick=hideWelcome;$('wcHelp').onclick=()=>{hideWelcome();openHelp('hsStart');};
+if(WQ!=='0'&&(WQ==='1'||!navigator.webdriver))setTimeout(()=>showWelcome(false),450);
+Object.assign(window.paintAPI,{openHelp:s=>openHelp(s),closeHelp,helpOpen:()=>dlgH.open,helpKeys:()=>HELP_KEYS.map(k=>({id:k.id,keys:k.keys,alt:k.alt||null,what:k.what})),
+ showWelcome:()=>showWelcome(true),hideWelcome,welcomeOpen:()=>!wc.hidden});
 </script></body></html>
