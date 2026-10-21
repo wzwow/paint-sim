@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v0.22</title>
+<title>Medium — paint v0.23</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="app-version" content="medium-v0.22">
+<meta name="app-version" content="medium-v0.23">
 <meta name="theme-color" content="#161618">
 <style>
 :root{--bg:#161618;--glass:rgba(30,30,33,.97);--card:#232327;--card2:#2b2b30;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);--ink:#ececef;--mute:#9a9aa3;--dim:#6c6c75;--acc:#6ea8ff;--accS:rgba(110,168,255,.16);--r:14px;--sh:0 8px 30px rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.04) inset}
@@ -161,6 +161,26 @@ body.m dialog{padding:18px}
 #exToast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);z-index:60;max-width:calc(100vw - 32px);padding:10px 16px;border-radius:12px;background:rgba(30,30,33,.97);border:1px solid var(--line2);color:var(--ink);font-size:13px;box-shadow:var(--sh);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #exToast.on{opacity:1;transform:translate(-50%,0)}body.m #exToast{bottom:calc(86px + env(safe-area-inset-bottom))}
 body.m .rseg span{min-height:46px}body.m .exn input{height:44px;font-size:16px}body.m #bExpDlg{min-height:44px}body.m #dlgExp{padding:16px 16px 14px}body.m #dlgExp fieldset{margin-bottom:10px}
+/* v0.23 brush presets */
+#dPreT{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#dPre.mod::before,#tPre.mod::before{content:"";position:absolute;top:7px;right:6px;width:7px;height:7px;border-radius:50%;background:#f0b44c;box-shadow:0 0 0 2px var(--card,#222)}
+#bp{display:none;z-index:31;background:var(--card,#1c1c20);padding:10px 12px 12px;max-height:calc(100% - 90px);overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#48484f transparent}#bp.open{display:block}
+.bpH{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px}.bpT{font-weight:650;font-size:14.5px}.bpS{font-size:12px;color:var(--mute);margin-top:2px}.bpS b{color:var(--ink);font-weight:550}
+.bpL{font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mute);margin:10px 2px 6px}.bpLm{display:flex;align-items:center;justify-content:space-between}
+.bpLm .btn{display:inline-flex;align-items:center;gap:6px;min-height:34px;text-transform:none;letter-spacing:0;font-size:12.5px}.bpLm .btn svg{width:15px;height:15px}
+.bpG{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.bpI{position:relative;display:flex;flex-direction:column;border-radius:12px;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
+.bpI.on{box-shadow:inset 0 0 0 2px var(--acc);background:var(--accS)}
+.bpC{display:flex;flex-direction:column;align-items:stretch;gap:4px;padding:5px 5px 7px;border:0;background:transparent;color:var(--ink);cursor:pointer;text-align:left;font:inherit;min-height:44px}
+.bpC:hover{background:rgba(255,255,255,.05)}
+.bpC img{display:block;width:100%;height:auto;aspect-ratio:3/1;border-radius:8px;background:linear-gradient(90deg,#efe8d8,#f6f1e4,#efe8d8);background-size:200% 100%;animation:bpSh 1.4s linear infinite}.bpC img.ok{animation:none;background:#f6f1e4}
+@keyframes bpSh{to{background-position:-200% 0}}
+.bpC .nm{font-size:12.5px;font-weight:550;padding:0 3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bpC .md{display:none;font-size:11px;color:#f0b44c;padding:0 3px;margin-top:-3px}.bpI.mod .md{display:block}
+.bpA{display:flex;justify-content:flex-end;gap:2px;padding:0 4px 4px}.bpA .ib{min-width:34px;height:34px;padding:0 6px}.bpA .ib svg{width:16px;height:16px}.bpA .bpDel.sure{background:#7a2626;color:#fff;font-size:12px}
+.bpIn{margin:-2px 8px 6px;min-width:0;font:550 13px inherit;color:var(--ink);background:rgba(0,0,0,.35);border:1px solid var(--acc);border-radius:7px;padding:5px 7px}
+.bpNone{padding:4px 2px}
+body.m #bp{border-radius:20px;max-height:calc(72% - 40px)}body.m .bpC{min-height:44px}body.m .bpA .ib,body.m .bpLm .btn{min-width:44px;min-height:44px;height:44px}body.m .bpIn{font-size:16px;min-height:40px}
 /* v0.22 help sheet + first-run welcome (UI only) */
 #dlgHelp{width:min(820px,calc(100vw - 48px));max-height:min(880px,calc(100% - 48px));padding:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#48484f transparent}
 #dlgHelp .hHead{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:12px;padding:10px 10px 10px 22px;background:var(--card);border-bottom:1px solid var(--line)}
@@ -213,11 +233,11 @@ body.m .wcSteps li{font-size:14px}body.m .wcBtns .btn{min-height:44px}
 <div id="stage"><canvas id="c"></canvas><canvas id="cur" style="position:fixed;pointer-events:none"></canvas><div id="msg"></div></div>
 <div id="zoomv">100%</div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.22</span></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.23</span></div>
  <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tFit" data-tip="Fit to screen" aria-label="Fit to screen" data-ic="fit"></button><button class="ib dk" id="tExp" data-tip="Export… (Ctrl+Shift+E)" aria-label="Export image" aria-haspopup="dialog" data-ic="download"></button><button class="ib dk" id="tHelp" data-tip="Help &amp; shortcuts (?)" aria-label="Help and keyboard shortcuts" aria-haspopup="dialog" data-ic="help"></button></div>
 <!-- top-right: tools -->
 <div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button>
- <span class="sep"></span><button class="ib" id="dMed" data-tip="Choose medium" aria-label="Medium" aria-haspopup="true"><span data-ic="drop"></span><span class="t">Water</span></button>
+ <span class="sep"></span><button class="ib" id="dPre" data-tip="Brush presets (P)" aria-label="Brush presets" aria-haspopup="true"><span data-ic="presets"></span><span class="t" id="dPreT">Presets</span></button><button class="ib" id="dMed" data-tip="Choose medium" aria-label="Medium" aria-haspopup="true"><span data-ic="drop"></span><span class="t">Water</span></button>
  <span class="sep"></span><button class="ib" id="dCol" data-tip="Colour" aria-label="Colour"><span class="cdot"></span></button><button class="ib" id="dSet" data-tip="Settings & layers" aria-label="Settings" data-ic="sliders"></button></div>
 <!-- left rail -->
 <div id="rail" class="fl"><div class="vs" id="vsSize" data-t="size" data-tip="Brush size"></div><div class="vl">Size<b id="vlSize"></b></div>
@@ -227,10 +247,14 @@ body.m .wcSteps li{font-size:14px}body.m .wcBtns .btn{min-height:44px}
 <!-- mobile top-right -->
 <div id="mTop" class="fl"><button class="ib" id="tUndo" aria-label="Undo" data-ic="undo"></button><button class="ib" id="tRedo" aria-label="Redo" data-ic="redo"></button></div>
 <!-- mobile bottom toolbar -->
-<div id="tb" class="fl"><button class="ib" id="tTool" aria-label="Brush / knife" data-ic="brush"></button><button class="ib" id="tMed" aria-label="Medium"><span data-ic="drop"></span></button><button class="ib" id="tCol" aria-label="Colour"><span class="cdot"></span></button>
+<div id="tb" class="fl"><button class="ib" id="tTool" aria-label="Brush / knife" data-ic="brush"></button><button class="ib" id="tMed" aria-label="Medium"><span data-ic="drop"></span></button><button class="ib" id="tPre" aria-label="Brush presets" aria-haspopup="true" data-ic="presets"></button><button class="ib" id="tCol" aria-label="Colour"><span class="cdot"></span></button>
  <div class="hs" id="tSize" data-t="size" aria-label="Size"></div><button class="ib" id="tSet" aria-label="Settings" data-ic="sliders"></button></div>
 <!-- colour picker -->
-<div id="mp" class="fl" role="menu" aria-label="Medium"></div><div id="cp" class="fl"><div id="cpHead"><div id="cpPrev"></div><input id="cpHex" spellcheck="false" maxlength="7" aria-label="Hex colour"><button class="ib" id="cpClose" aria-label="Close" data-ic="x"></button></div>
+<div id="mp" class="fl" role="menu" aria-label="Medium"></div>
+<!-- v0.23 brush presets -->
+<div id="bp" class="fl" role="dialog" aria-label="Brush presets"><div class="bpH"><div><div class="bpT">Brush presets</div><div class="bpS">Active: <b id="bpAct"></b></div></div><button class="ib" id="bpClose" aria-label="Close presets" data-ic="x"></button></div>
+ <div class="bpL">Built-in</div><div id="bpGrid" class="bpG"></div>
+ <div class="bpL bpLm"><span>My presets</span><button class="btn" id="bpSave" type="button"><span data-ic="plus"></span>Save current</button></div><div id="bpMine" class="bpG"></div><div id="bpNone" class="bpS bpNone">Set up a brush the way you like it, then <b>Save current</b>. Your presets stay in this browser.</div></div><div id="cp" class="fl"><div id="cpHead"><div id="cpPrev"></div><input id="cpHex" spellcheck="false" maxlength="7" aria-label="Hex colour"><button class="ib" id="cpClose" aria-label="Close" data-ic="x"></button></div>
  <div class="cpw"><canvas id="cpSV" width="512" height="340"></canvas><div class="cpk" id="cpSVk"></div></div>
  <div class="cpw"><canvas id="cpH" width="512" height="22"></canvas><div class="cpk" id="cpHk" style="top:23px"></div></div>
  <div class="cpl"><span>Pigments</span><span id="cpPn"></span></div><div id="cpPig"></div>
@@ -313,7 +337,7 @@ body.m .wcSteps li{font-size:14px}body.m .wcBtns .btn{min-height:44px}
 <!-- v0.22 help sheet (desktop: ? button, ? key or F1; mobile: Settings > Help & tips) -->
 <dialog id="dlgHelp" aria-labelledby="hT"><div class="hHead"><h2 id="hT" tabindex="-1">Help <span class="hSub">· how to paint with Medium</span></h2><button class="ib" id="hClose" aria-label="Close help" data-ic="x"></button></div>
 <div class="hBody">
- <nav class="hNav" aria-label="Help sections"><button type="button" data-go="hsStart"><span data-ic="brush"></span>Getting started</button><button type="button" data-go="hsWater"><span data-ic="drop"></span>Watercolour</button><button type="button" data-go="hsOil"><span data-ic="oil"></span>Oil &amp; impasto</button><button type="button" data-go="hsPen"><span data-ic="pencil"></span>Pen &amp; touch</button><button type="button" data-go="hsLayers"><span data-ic="layers"></span>Layers</button><button type="button" data-go="hsExport"><span data-ic="download"></span>Export</button><button type="button" data-go="hsKeys"><span data-ic="keys"></span>Shortcuts</button></nav>
+ <nav class="hNav" aria-label="Help sections"><button type="button" data-go="hsStart"><span data-ic="brush"></span>Getting started</button><button type="button" data-go="hsPresets"><span data-ic="presets"></span>Brush presets</button><button type="button" data-go="hsWater"><span data-ic="drop"></span>Watercolour</button><button type="button" data-go="hsOil"><span data-ic="oil"></span>Oil &amp; impasto</button><button type="button" data-go="hsPen"><span data-ic="pencil"></span>Pen &amp; touch</button><button type="button" data-go="hsLayers"><span data-ic="layers"></span>Layers</button><button type="button" data-go="hsExport"><span data-ic="download"></span>Export</button><button type="button" data-go="hsKeys"><span data-ic="keys"></span>Shortcuts</button></nav>
  <section class="hSec" id="hsStart"><h3><span data-ic="brush"></span>Getting started</h3><ol class="hSteps">
   <li><b>Pick a medium</b>Open the Medium menu (<span class="dk">top right</span><span class="mo">bottom bar</span>) and choose Watercolour, Gouache, Acrylic, Oil or Ink.</li>
   <li><b>Pick a colour</b>The colour dot opens the pigments, a custom colour picker and your recent colours.</li>
@@ -321,6 +345,12 @@ body.m .wcSteps li{font-size:14px}body.m .wcBtns .btn{min-height:44px}
   <li><b>Paint</b>Drag on the paper. Made a mistake? Undo is <span class="dk">on the left rail, or <span class="kmod">Ctrl</span>+Z</span><span class="mo">at the top right</span>.</li></ol>
   <p class="hNote">Painting feels slow? Try Settings › Canvas &amp; surface › Quality: Low.</p></section>
  <div class="hCols">
+ <section class="hSec" id="hsPresets"><h3><span data-ic="presets"></span>Brush presets</h3><ul>
+  <li>Open <b>Presets</b> (<span class="dk">top right, or <span class="kmod">P</span></span><span class="mo">the grid button in the bottom bar</span>). One tap sets the medium, tool, brush shape, size, stiffness, water load, dynamics and flick together. Your colour stays.</li>
+  <li>Built-in: watercolour round wash, wet-on-wet bloom, dry brush, watercolour detail, gouache flat, acrylic filbert, oil impasto round, oil fan blender, palette knife impasto, ink liner and ink wash. Each card shows a stroke painted by the real engine.</li>
+  <li>The active preset is highlighted. When you change one of its settings it is marked <b>modified</b> (an orange dot on the Presets button).</li>
+  <li><b>Save current</b> keeps your own setup under <b>My presets</b>; rename it with the pencil, delete it with the bin (tap twice). Presets and the last active one are kept in this browser.</li>
+  <li>Wet-on-wet bloom works best on paper that is still wet: lay clear water or a pale wash first.</li></ul></section>
  <section class="hSec" id="hsWater"><h3><span data-ic="drop"></span>Watercolour tips</h3><ul>
   <li><b>Water load</b> sets how wet the brush is: high for flowing washes, low for dry-brush texture.</li>
   <li><b>Wet-on-wet:</b> paint Clear water (the first swatch) on the paper first, then drop colour in for soft, feathered edges.</li>
@@ -363,6 +393,8 @@ body.m .wcSteps li{font-size:14px}body.m .wcBtns .btn{min-height:44px}
  <div class="wcBtns"><button class="btn" id="wcHelp">Open help</button><button class="btn pri" id="wcOk">Got it</button></div></div>
 <script>
 "use strict";
+// v0.23: ?thumbs=1 = hidden iframe that paints the brush-preset thumbnails; it must never write the user's storage
+const THUMBS=new URLSearchParams(location.search).has('thumbs');if(THUMBS){try{Storage.prototype.setItem=function(){};Storage.prototype.removeItem=function(){};}catch(_){}}
 const PIG=[["Clear water",null],["Ultramarine","#1f3a93"],["Cadmium yellow","#f6c81a"],["Cadmium red","#d0281c"],["Alizarin","#9b1b30"],["Sap green","#4a6b1f"],["Burnt sienna","#8a3f1c"],["Payne's grey","#2e3a46"],["Titanium white","#fbfaf6"]];
 const cv=document.getElementById('c');
 const gl=cv.getContext('webgl2',{preserveDrawingBuffer:true,antialias:false,premultipliedAlpha:false,powerPreference:'high-performance'});
@@ -1340,6 +1372,8 @@ const ICONS={
  help:'<circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.8M12 17.2h0"/>',
  plus:'<path d="M12 5v14M5 12h14"/>',trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
  up:'<path d="M12 19V5M6 11l6-6 6 6"/>',down:'<path d="M12 5v14M6 13l6 6 6-6"/>',merge:'<path d="M7 4l5 5 5-5M12 9v11M6 20h12"/>',
+ presets:'<rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><path d="M17.2 13.6l1.1 2.3 2.5.4-1.8 1.7.4 2.5-2.2-1.2-2.2 1.2.4-2.5-1.8-1.7 2.5-.4z"/>',
+ trash:'<path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/><path d="M10 11v6M14 11v6"/>',
  pencil:'<path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/>',
  eye:'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
  share:'<path d="M12 15V4M8 8l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7a1 1 0 0 0-1-1h-1"/>',
@@ -1615,6 +1649,7 @@ const MODK=IS_MAC?'⌘':'Ctrl';document.querySelectorAll('.kmod').forEach(e=>e.t
    Key lists: a token in [] is a key cap, anything else is plain text. alt = a second way to do the same thing. */
 const HELP_KEYS=[
  {id:'brush',keys:['[B]'],what:'Brush'},
+ {id:'presets',keys:['[P]'],what:'Brush presets'},
  {id:'knife',keys:['[K]'],what:'Palette knife'},
  {id:'undo',keys:['['+MODK+']','[Z]'],what:'Undo'},
  {id:'redo',keys:['['+MODK+']','[Shift]','[Z]'],alt:['['+MODK+']','[Y]'],what:'Redo'},
@@ -1659,7 +1694,108 @@ const wcSeen=()=>{try{return localStorage.getItem('seenWelcome')==='1';}catch(_)
 function showWelcome(force){if(!force&&wcSeen())return false;wc.hidden=false;wc.classList.remove('on');void wc.offsetWidth;wc.classList.add('on');return true;}
 function hideWelcome(){try{localStorage.setItem('seenWelcome','1');}catch(_){}wc.classList.remove('on');const had=wc.contains(document.activeElement);wc.hidden=true;if(had)document.activeElement.blur();}
 $('wcOk').onclick=hideWelcome;$('wcHelp').onclick=()=>{hideWelcome();openHelp('hsStart');};
-if(WQ!=='0'&&(WQ==='1'||!navigator.webdriver))setTimeout(()=>showWelcome(false),450);
+if(!THUMBS&&WQ!=='0'&&(WQ==='1'||!navigator.webdriver))setTimeout(()=>showWelcome(false),450);
 Object.assign(window.paintAPI,{openHelp:s=>openHelp(s),closeHelp,helpOpen:()=>dlgH.open,helpKeys:()=>HELP_KEYS.map(k=>({id:k.id,keys:k.keys,alt:k.alt||null,what:k.what})),
  showWelcome:()=>showWelcome(true),hideWelcome,welcomeOpen:()=>!wc.hidden});
+// ---- v0.23 brush presets: one tap sets medium + tool + shape + size + stiffness + load + dynamics + flick etc. (existing parameters only).
+// Built-ins in BP; custom presets in localStorage 'brushPresets'; active preset id in 'brushPresetActive' (re-applied at start-up).
+// Thumbnails are painted by the real engine in a hidden same-page iframe (?thumbs=1: own GL context, storage writes disabled) and cached
+// in localStorage 'presetThumbs' keyed by app version + preset values + preview colour.
+const BP_KEYS=['med','m','tool','shape','size','stiff','wload','dyn','wobble','flick','follow','kmode','btilt','bang'];
+const BP_DEF={med:'water',m:0,tool:'brush',shape:'round',size:34,stiff:.5,wload:.7,dyn:.6,wobble:true,flick:true,follow:true,kmode:'spread',btilt:0,bang:0};
+const BP=[
+ {id:'wcWash',name:'Watercolour round wash',hex:'#1f3a93',d:'Big soft round, lots of water',v:{med:'water',m:0,shape:'round',size:72,stiff:.22,wload:.95,dyn:.45,flick:false}},
+ {id:'wcBloom',name:'Wet-on-wet bloom',hex:'#9b1b30',wet:1,d:'Very wet, soft; best into wet paper',v:{med:'water',m:0,shape:'round',size:58,stiff:.12,wload:1,dyn:.35,flick:false,wobble:true}},
+ {id:'dryBrush',name:'Dry brush',hex:'#8a3f1c',d:'Almost dry stiff flat: breaks up on the paper tooth',v:{med:'acrylic',m:.6,shape:'flat',size:44,stiff:.95,wload:.03,dyn:.9,flick:true}},
+ {id:'wcDetail',name:'Watercolour detail',hex:'#4a6b1f',d:'Small pointed round with a flick',v:{med:'water',m:0,shape:'round',size:9,stiff:.6,wload:.65,dyn:.75,flick:true}},
+ {id:'gouFlat',name:'Gouache flat',hex:'#d0281c',d:'Opaque matte, even flat stroke',v:{med:'gouache',m:.32,shape:'flat',size:40,stiff:.6,wload:.6,dyn:.35,flick:false}},
+ {id:'acrFilb',name:'Acrylic filbert',hex:'#2a7f62',d:'Satin body paint, rounded flat',v:{med:'acrylic',m:.58,shape:'filbert',size:36,stiff:.65,wload:.7,dyn:.6,flick:true}},
+ {id:'oilImp',name:'Oil impasto round',hex:'#c8452a',d:'Thick glossy oil with ridges',v:{med:'oil',m:1,shape:'round',size:34,stiff:.72,wload:.95,dyn:.6,flick:true}},
+ {id:'oilFan',name:'Oil fan blender',hex:'#6b8fb3',d:'Soft oil, light fan for blending',v:{med:'oil',m:.85,shape:'fan',size:52,stiff:.3,wload:.3,dyn:.5,flick:false}},
+ {id:'knife',name:'Palette knife impasto',hex:'#e0a530',d:'Knife, load & lay thick oil',v:{med:'oil',m:1,tool:'knife',kmode:'lay',size:60,wload:1}},
+ {id:'inkLine',name:'Ink liner',hex:'#1b1b24',d:'Fine, firm, pressure-sensitive line',v:{med:'ink',m:0,shape:'round',size:5,stiff:.9,wload:.5,dyn:.8,flick:true}},
+ {id:'inkWash',name:'Ink wash',hex:'#2e3a46',d:'Wide wet ink wash',v:{med:'ink',m:0,shape:'round',size:64,stiff:.3,wload:1,dyn:.4,flick:false}}];
+const bpFull=v=>Object.assign({},BP_DEF,v);
+const bpSig=v=>{const f=bpFull(v);return BP_KEYS.map(k=>typeof f[k]==='number'?(+f[k]).toFixed(2):String(f[k])).join('|');};
+function bpCur(){return{med:st.med,m:+st.m,tool:st.tool,shape:st.shape,size:+st.size,stiff:+st.stiff,wload:+st.wload,dyn:+st.dyn,wobble:!!st.wobble,flick:!!st.flick,follow:!!st.follow,kmode:st.kmode,btilt:+st.btilt,bang:+st.bang};}
+function bpApplyVals(v){v=bpFull(v);setMedium(v.m,v.med);setTool(v.tool);setShape(v.shape);$('size').value=v.size;setSize(v.size);setStiff(v.stiff);setWLoad(v.wload);setDyn(v.dyn);
+ st.wobble=!!v.wobble;$('wob').checked=st.wobble;st.flick=!!v.flick;$('flick').checked=st.flick;st.follow=!!v.follow;$('follow').checked=st.follow;setKMode(v.kmode);setBTilt(v.btilt);setBAng(v.bang);
+ if(st.multi){st.multi=false;$('multi').checked=false;st.stripes=[];}curDirty=true;tbSig='';syncTB();SL.forEach(s=>s.draw());}
+const bpLS={get(k,d){try{const s=localStorage.getItem(k);return s?JSON.parse(s):d;}catch(_){return d;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(_){return false;}}};
+let bpMine=bpLS.get('brushPresets',[]);if(!Array.isArray(bpMine))bpMine=[];bpMine=bpMine.filter(p=>p&&p.id&&p.v);
+let bpAct=bpLS.get('brushPresetActive',null);
+let bpThumbs=bpLS.get('presetThumbs',{});if(!bpThumbs||typeof bpThumbs!=='object')bpThumbs={};
+const bpAll=()=>BP.concat(bpMine);const bpFind=id=>bpAll().find(p=>p.id===id)||null;
+const APPV=(document.querySelector('meta[name="app-version"]')||{}).content||'';
+const bpKey=p=>APPV+'|'+bpSig(p.v)+'|'+(p.hex||'')+'|'+(p.wet?1:0);
+function bpState(){const p=bpAct&&bpFind(bpAct);return p?{id:p.id,name:p.name,modified:bpSig(bpCur())!==bpSig(p.v),custom:!BP.includes(p)}:null;}
+function bpApply(id){const p=bpFind(id);if(!p)return false;bpApplyVals(p.v);bpAct=id;bpLS.set('brushPresetActive',id);bpUI();return true;}
+function bpSave(name){const id='my'+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36);let n=(name||'').trim().slice(0,40);
+ if(!n){let k=bpMine.length+1;while(bpMine.some(p=>p.name==='My preset '+k))k++;n='My preset '+k;}
+ const p={id,name:n,hex:/^#[0-9a-f]{6}$/i.test($('col').value)?$('col').value:'#1f3a93',v:bpCur()};bpMine.push(p);bpLS.set('brushPresets',bpMine);bpAct=id;bpLS.set('brushPresetActive',id);bpBuild();return id;}
+function bpRename(id,name){const p=bpMine.find(q=>q.id===id);name=(name||'').trim().slice(0,40);if(!p||!name)return false;p.name=name;bpLS.set('brushPresets',bpMine);bpBuild();return true;}
+function bpDelete(id){const i=bpMine.findIndex(q=>q.id===id);if(i<0)return false;bpMine.splice(i,1);bpLS.set('brushPresets',bpMine);if(bpAct===id){bpAct=null;bpLS.set('brushPresetActive',null);}bpBuild();return true;}
+// ---- thumbnails (real engine, hidden iframe) ----
+let bpFr=null,bpFrReady=false,bpBusy=null;const bpQ=[];
+function bpThumb(p){const k=bpKey(p);if(bpThumbs[k])return bpThumbs[k];if(!THUMBS&&!bpQ.some(j=>j.key===k)&&!(bpBusy&&bpBusy.key===k)){bpQ.push({type:'bpThumb',key:k,v:bpFull(p.v),hex:p.hex,wet:!!p.wet});bpPump();}return null;}
+function bpPump(){if(bpBusy||!bpQ.length)return;if(!bpFr){bpFr=document.createElement('iframe');bpFr.id='bpFrame';bpFr.setAttribute('aria-hidden','true');bpFr.tabIndex=-1;
+  bpFr.style.cssText='position:fixed;left:-10000px;top:0;width:800px;height:400px;border:0;visibility:hidden;pointer-events:none';bpFr.src=location.pathname+'?thumbs=1&welcome=0';document.body.appendChild(bpFr);return;}
+ if(!bpFrReady)return;bpBusy=bpQ.shift();bpFr.contentWindow.postMessage(bpBusy,'*');}
+function bpPrune(){const keep=new Set(bpAll().map(bpKey));for(const k of Object.keys(bpThumbs))if(!keep.has(k))delete bpThumbs[k];}
+window.addEventListener('message',e=>{const d=e.data;if(!d||!bpFr||e.source!==bpFr.contentWindow)return;
+ if(d.type==='bpThumbsReady'){bpFrReady=true;bpPump();}
+ else if(d.type==='bpThumbDone'){if(d.url){bpThumbs[d.key]=d.url;bpPrune();if(!bpLS.set('presetThumbs',bpThumbs)){bpThumbs={};bpThumbs[d.key]=d.url;}
+  document.querySelectorAll('#bp img[data-k="'+CSS.escape(d.key)+'"]').forEach(im=>{im.src=d.url;im.classList.add('ok');});}
+  bpBusy=null;if(bpQ.length)bpPump();else{bpFr.remove();bpFr=null;bpFrReady=false;}}});
+let bpTI=false;
+async function bpRender(d){const A=paintAPI;A.pause(true);A.newCanvas(720,240);bpTI=true; // fresh document per thumbnail (clear() keeps committed layer paint)
+ const ln=(n,f)=>{const a=[];for(let i=0;i<=n;i++)a.push(f(i/n));return a;};
+ if(d.wet){bpApplyVals({med:'water',m:0,size:120,wload:1,stiff:.2,dyn:0,flick:false});selectPig(0);A.stroke(ln(20,t=>[.03+.94*t,.5,.7]),.7);A.step(25);}
+ bpApplyVals(d.v);st.ks=hexKS(d.hex);st.granP=.4;
+ const v=bpFull(d.v),big=v.size>45;
+ A.stroke(ln(48,t=>[.1+.8*t,.5+(big?.12:.2)*Math.sin(t*Math.PI*1.6+.4),.25+.6*Math.sin(Math.PI*Math.min(1,t*1.15))]),.6,{dt:14});
+ const wet=v.med==='water'||v.med==='ink';A.step(wet?150:30);if(wet)A.dryAll();A.step(2);
+ const src=A.exportData('lit')[0][1];const c=document.createElement('canvas');c.width=360;c.height=120;const x=c.getContext('2d');x.imageSmoothingQuality='high';x.drawImage(src,0,0,360,120);
+ return c.toDataURL('image/jpeg',.82);}
+if(THUMBS){window.addEventListener('message',async e=>{const d=e.data;if(!d||d.type!=='bpThumb'||e.source!==parent)return;let url=null;try{url=await bpRender(d);}catch(err){url=null;}parent.postMessage({type:'bpThumbDone',key:d.key,url},'*');});
+ if(parent!==window)parent.postMessage({type:'bpThumbsReady'},'*');}
+// ---- picker UI ----
+const bpEl=$('bp');
+function bpCard(p,custom){const w=document.createElement('div');w.className='bpI';w.dataset.id=p.id;const b=document.createElement('button');b.type='button';b.className='bpC';b.dataset.id=p.id;b.title=p.d||p.name;
+ const im=document.createElement('img');im.alt='';im.dataset.k=bpKey(p);im.width=180;im.height=60;const u=bpThumb(p);if(u){im.src=u;im.classList.add('ok');}
+ const nm=document.createElement('span');nm.className='nm';nm.textContent=p.name;const md=document.createElement('span');md.className='md';md.textContent='modified';b.append(im,nm,md);b.onclick=()=>{bpApply(p.id);if(document.body.classList.contains('m'))bpClose();};w.appendChild(b);
+ if(custom){const r=document.createElement('div');r.className='bpA';
+  const rn=document.createElement('button');rn.type='button';rn.className='ib bpRen';rn.setAttribute('aria-label','Rename '+p.name);rn.innerHTML=ic('pencil');rn.onclick=()=>bpStartRename(p.id);
+  const dl=document.createElement('button');dl.type='button';dl.className='ib bpDel';dl.setAttribute('aria-label','Delete '+p.name);dl.innerHTML=ic('trash');
+  dl.onclick=()=>{if(dl.classList.contains('sure'))bpDelete(p.id);else{dl.classList.add('sure');dl.textContent='Delete?';setTimeout(()=>{if(dl.isConnected){dl.classList.remove('sure');dl.innerHTML=ic('trash');}},3000);}};r.append(rn,dl);w.appendChild(r);}
+ return w;}
+function bpStartRename(id){const w=bpEl.querySelector('.bpI[data-id="'+id+'"]'),p=bpMine.find(q=>q.id===id);if(!w||!p)return;const nm=w.querySelector('.nm');const inp=document.createElement('input');inp.className='bpIn';inp.value=p.name;inp.maxLength=40;inp.setAttribute('aria-label','Preset name');
+ let done=false;const fin=ok=>{if(done)return;done=true;if(ok&&inp.value.trim())bpRename(id,inp.value);else bpBuild();};inp.onkeydown=e=>{e.stopPropagation();if(e.key==='Enter'){e.preventDefault();fin(true);}else if(e.key==='Escape'){e.preventDefault();fin(false);}};inp.onblur=()=>fin(true);
+ inp.onclick=e=>e.stopPropagation();nm.style.display='none';w.querySelector('.bpC').after(inp);inp.focus();inp.select();} // input outside the card button (a space in an input inside a <button> clicks the button)
+function bpBuild(){const g=$('bpGrid'),mine=$('bpMine');g.innerHTML='';mine.innerHTML='';BP.forEach(p=>g.appendChild(bpCard(p,false)));bpMine.forEach(p=>mine.appendChild(bpCard(p,true)));
+ $('bpNone').hidden=bpMine.length>0;bpEl.dataset.built='1';bpLast='';bpUI();}
+let bpLast='';
+function bpUI(){const s=bpState(),sig=s?s.id+'|'+s.modified+'|'+s.name:'';if(sig===bpLast)return;bpLast=sig;
+ bpEl.querySelectorAll('.bpI').forEach(w=>{const on=!!s&&w.dataset.id===s.id;w.classList.toggle('on',on);w.classList.toggle('mod',on&&s.modified);const b=w.querySelector('.bpC');if(b)b.setAttribute('aria-pressed',on?'true':'false');});
+ $('bpAct').textContent=s?(s.name+(s.modified?' (modified)':'')):'None: your own settings';
+ $('dPreT').textContent=s?s.name:'Presets';$('dPre').classList.toggle('mod',!!s&&s.modified);$('tPre').classList.toggle('mod',!!s&&s.modified);
+ $('dPre').setAttribute('aria-label','Brush presets'+(s?': '+s.name+(s.modified?' (modified)':''):''));$('tPre').setAttribute('aria-label',$('dPre').getAttribute('aria-label'));}
+function bpOpen(){closeCP();closeMP();const m=document.body.classList.contains('m');if(m)setPanel(false);if(!bpEl.dataset.built)bpBuild();else bpEl.querySelectorAll('img:not(.ok)').forEach(im=>{const p=bpAll().find(q=>bpKey(q)===im.dataset.k);if(p)bpThumb(p);});
+ if(m){bpEl.style.left='8px';bpEl.style.right='8px';bpEl.style.top='';bpEl.style.bottom='calc(72px + env(safe-area-inset-bottom))';}
+ else{const a=$('dPre').getBoundingClientRect(),w=Math.min(460,innerWidth-16);bpEl.style.width=w+'px';bpEl.style.left=Math.max(8,Math.min(a.left,innerWidth-w-8))+'px';bpEl.style.right='';bpEl.style.top=(a.bottom+8)+'px';bpEl.style.bottom='';}
+ bpEl.classList.add('open');$('dPre').classList.add('on');$('tPre').classList.add('on');bpLast='';bpUI();}
+function bpClose(){bpEl.classList.remove('open');$('dPre').classList.remove('on');$('tPre').classList.remove('on');}
+const bpIsOpen=()=>bpEl.classList.contains('open');
+$('dPre').onclick=$('tPre').onclick=()=>bpIsOpen()?bpClose():bpOpen();$('bpClose').onclick=bpClose;
+$('bpSave').onclick=()=>{const id=bpSave('');requestAnimationFrame(()=>bpStartRename(id));};
+document.addEventListener('pointerdown',e=>{if(bpIsOpen()&&!bpEl.contains(e.target)&&!e.target.closest('#dPre,#tPre'))bpClose();},true);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&bpIsOpen()){bpClose();return;}const tg=e.target&&e.target.tagName;if(tg==='INPUT'&&e.target.type!=='range'&&e.target.type!=='checkbox'||tg==='SELECT'||tg==='TEXTAREA'||e.ctrlKey||e.metaKey||e.altKey)return;
+ if(e.key.toLowerCase()==='p'&&!(dlgH&&dlgH.open)){e.preventDefault();bpIsOpen()?bpClose():bpOpen();}});
+// the closeMP/openMP and colour picker close the presets too
+{const _oMP=openMP;openMP=function(){bpClose();_oMP();};}
+setInterval(()=>{if(bpEl.dataset.built||bpAct)bpUI();},400);
+if(!THUMBS&&bpAct&&bpFind(bpAct))bpApplyVals(bpFind(bpAct).v);else if(bpAct&&!bpFind(bpAct))bpAct=null;
+bpUI();
+Object.assign(window.paintAPI,{presets:()=>bpAll().map(p=>({id:p.id,name:p.name,custom:!BP.includes(p),v:bpFull(p.v)})),applyPreset:bpApply,presetState:bpState,savePreset:bpSave,renamePreset:bpRename,deletePreset:bpDelete,
+ openPresets:bpOpen,closePresets:bpClose,presetsOpen:bpIsOpen,presetThumb:id=>{const p=bpFind(id);return p?bpThumbs[bpKey(p)]||null:null;},renderPresetThumbVals:(v,hex,wet)=>bpRender({v:bpFull(v),hex:hex||'#1f3a93',wet:!!wet}),presetThumbsPending:()=>bpQ.length+(bpBusy?1:0),renderPresetThumb:(id)=>bpRender(Object.assign({},bpFind(id),{v:bpFull(bpFind(id).v)}))});
 </script></body></html>
