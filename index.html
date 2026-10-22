@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v0.24</title>
+<title>Medium — paint v0.25</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="app-version" content="medium-v0.24">
+<meta name="app-version" content="medium-v0.25">
 <meta name="theme-color" content="#161618">
 <style>
 :root{--bg:#161618;--glass:rgba(30,30,33,.97);--card:#232327;--card2:#2b2b30;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);--ink:#ececef;--mute:#9a9aa3;--dim:#6c6c75;--acc:#6ea8ff;--accS:rgba(110,168,255,.16);--r:14px;--sh:0 8px 30px rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.04) inset}
@@ -228,12 +228,16 @@ body.m .hFoot .btn,body.m #bHelp{min-height:44px}
 #wcHelp{background:transparent;box-shadow:none;color:var(--acc);margin-right:auto;padding-left:6px}#wcHelp:hover{background:var(--accS)}
 body.m #welcome{left:8px;right:8px;top:calc(64px + env(safe-area-inset-top));bottom:auto;width:auto;transform:none;padding:16px 16px 12px}body.m #welcome.on{animation-name:wcInM}
 body.m .wcSteps li{font-size:14px}body.m .wcBtns .btn{min-height:44px}
+#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,16px);opacity:0;pointer-events:none;z-index:60;display:flex;align-items:center;gap:12px;max-width:min(92vw,520px);padding:10px 12px 10px 16px;background:var(--glass);color:var(--ink);border:1px solid var(--line2);border-radius:12px;box-shadow:var(--sh);font-size:13px;line-height:1.4;transition:opacity .2s,transform .2s}
+#toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+#toast button{flex:none;background:var(--accS);color:var(--acc);border:0;border-radius:8px;padding:7px 12px;font:inherit;font-weight:600;cursor:pointer;min-height:36px}
+body.m #toast{bottom:calc(84px + env(safe-area-inset-bottom));width:calc(100vw - 32px);justify-content:space-between}
 </style></head>
 <body>
 <div id="stage"><canvas id="c"></canvas><canvas id="cur" style="position:fixed;pointer-events:none"></canvas><div id="msg"></div></div>
 <div id="zoomv">100%</div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.24</span></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.25</span></div>
  <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tFit" data-tip="Fit to screen" aria-label="Fit to screen" data-ic="fit"></button><button class="ib dk" id="tExp" data-tip="Export… (Ctrl+Shift+E)" aria-label="Export image" aria-haspopup="dialog" data-ic="download"></button><button class="ib dk" id="tHelp" data-tip="Help &amp; shortcuts (?)" aria-label="Help and keyboard shortcuts" aria-haspopup="dialog" data-ic="help"></button></div>
 <!-- top-right: tools -->
 <div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button>
@@ -308,7 +312,9 @@ body.m .wcSteps li{font-size:14px}body.m .wcBtns .btn{min-height:44px}
  <div><div class="lab"><span>Maps &amp; extras</span></div><select id="expMode" aria-label="Map or extra to export"><option value="flat">PNG – flat colour (unlit)</option><option value="height">Height map</option><option value="normal">Normal map</option><option value="layers">Transparent PNG per layer</option><option value="lit">PNG – lit relief (as seen)</option></select>
  <label class="chk"><input type="checkbox" id="exp2x"> 2× upscale</label><div class="row2" style="margin-top:10px"><button id="bExport" style="grid-column:span 2">Export map</button></div></div>
  <div><div class="lab"><span>Project</span></div><div class="row2"><button id="bSaveP">Save project</button><button id="bOpenP">Open project</button></div>
- <input type="file" id="openFile" accept=".mpaint" style="display:none"></div>
+ <input type="file" id="openFile" accept=".mpaint" style="display:none">
+ <label class="chk" style="margin-top:10px"><input type="checkbox" id="autoSave" checked> Autosave in this browser</label>
+ <div class="hint" id="asv" aria-live="polite">Your painting is kept on this device and reopened next time.</div></div>
 </div></details>
 <details class="g"><summary><span data-ic="help"></span>Help &amp; tips</summary><div class="gb"><div><div class="hint" style="margin-bottom:10px">Getting started, tips for each medium, pen and touch gestures, and all keyboard shortcuts.</div><button id="bHelp" class="btn" style="width:100%" aria-haspopup="dialog"><span data-ic="help"></span>Open help</button></div></div></details>
 </div></div>
@@ -1678,6 +1684,8 @@ const HELP_KEYS=[
  {id:'undo',keys:['['+MODK+']','[Z]'],what:'Undo'},
  {id:'redo',keys:['['+MODK+']','[Shift]','[Z]'],alt:['['+MODK+']','[Y]'],what:'Redo'},
  {id:'export',keys:['['+MODK+']','[Shift]','[E]'],what:'Export image…'},
+ {id:'save',keys:['['+MODK+']','[S]'],what:'Save project file (.mpaint)'},
+ {id:'open',keys:['['+MODK+']','[O]'],what:'Open project file'},
  {id:'help',keys:['[?]'],alt:['[F1]'],what:'Open or close this help'},
  {id:'rename',keys:['[F2]'],what:'Rename the current layer (double-click a layer also works)'},
  {id:'layersel',keys:['[↑] / [↓]'],what:'Select the layer above or below, when the layer list has focus'},
@@ -1822,4 +1830,48 @@ if(!THUMBS&&bpAct&&bpFind(bpAct))bpApplyVals(bpFind(bpAct).v);else if(bpAct&&!bp
 bpUI();
 Object.assign(window.paintAPI,{presets:()=>bpAll().map(p=>({id:p.id,name:p.name,custom:!BP.includes(p),v:bpFull(p.v)})),applyPreset:bpApply,presetState:bpState,savePreset:bpSave,renamePreset:bpRename,deletePreset:bpDelete,
  openPresets:bpOpen,closePresets:bpClose,presetsOpen:bpIsOpen,presetThumb:id=>{const p=bpFind(id);return p?bpThumbs[bpKey(p)]||null:null;},renderPresetThumbVals:(v,hex,wet)=>bpRender({v:bpFull(v),hex:hex||'#1f3a93',wet:!!wet}),presetThumbsPending:()=>bpQ.length+(bpBusy?1:0),renderPresetThumb:(id)=>bpRender(Object.assign({},bpFind(id),{v:bpFull(bpFind(id).v)}))});
+// ---- v0.25 autosave: the whole document (layers, wet paint, surface) is kept in IndexedDB and reopened on the next visit ----
+// Not under automation (navigator.webdriver) unless ?autosave=1; ?autosave=0 disables it; never in the ?thumbs=1 preset iframe.
+const ASQ=new URLSearchParams(location.search).get('autosave');
+const AS_ON=!THUMBS&&ASQ!=='0'&&(ASQ==='1'||!navigator.webdriver);
+let asDirty=false,asLastSave=0,asSaveMs=0,asBusy=false,asTimer=0,asRestoring=false,asInfo=null,asEnabled=localStorage.getItem('autoSave')!=='0';
+function asDB(){return new Promise((res,rej)=>{const q=indexedDB.open('medium-paint',1);q.onupgradeneeded=()=>q.result.createObjectStore('kv');q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error);});}
+async function asIdb(mode,fn){const db=await asDB();try{return await new Promise((res,rej)=>{const tx=db.transaction('kv',mode);const r=fn(tx.objectStore('kv'));tx.oncomplete=()=>res(r&&r.result);tx.onerror=tx.onabort=()=>rej(tx.error||new Error('storage error'));});}finally{db.close();}}
+const asGet=k=>asIdb('readonly',s=>s.get(k)),asPut=(k,v)=>asIdb('readwrite',s=>s.put(v,k)),asDel=k=>asIdb('readwrite',s=>s.delete(k));
+function asHM(t){const d=new Date(t);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+function asStatus(txt){const el=$('asv');if(el)el.textContent=txt;}
+function asStatusInfo(){if(!AS_ON){asStatus('Autosave is off in this session.');return;}if(!asEnabled){asStatus('Autosave is off. Use Save project to keep your work.');return;}
+ asStatus(asInfo?'Autosaved at '+asHM(asInfo.t)+' ('+(asInfo.bytes>1e6?(asInfo.bytes/1e6).toFixed(1)+' MB':Math.max(1,Math.round(asInfo.bytes/1e3))+' kB')+'). Reopens next time.':'Your painting is kept on this device and reopened next time.');}
+function asMark(){if(asRestoring)return;asDirty=true;asSchedule(4000);}
+function asSchedule(ms){if(!AS_ON||!asEnabled)return;clearTimeout(asTimer);asTimer=setTimeout(asTick,ms);}
+// wait for the pen to lift, and space saves out by ~10x the time the last save took, so big canvases on slow devices don't stutter
+function asTick(){if(!asDirty)return;if(drawing!=null||asBusy){asSchedule(1500);return;}const gap=Math.max(4000,asSaveMs*10)-(performance.now()-asLastSave);if(gap>0){asSchedule(gap);return;}asSave();}
+async function asSave(){if(!AS_ON||!asEnabled||asBusy)return false;asBusy=true;asDirty=false;const t0=performance.now();
+ try{if(liveTiles.size===0&&layers.every((l,i)=>i===ai||!l.tex)){await asDel('autosave');asInfo=null;asStatusInfo();return true;} // empty canvas: nothing to reopen
+  const bytes=await saveProjectBytes();const rec={bytes,t:Date.now(),W,H,v:(document.querySelector('meta[name=app-version]')||{}).content||''};await asPut('autosave',rec);asInfo={t:rec.t,bytes:bytes.length,W,H};asStatusInfo();return true;}
+ catch(err){asDirty=true;asStatus('Autosave failed: '+(err&&err.message||err)+'. Use Save project to keep your work.');return false;}
+ finally{asSaveMs=performance.now()-t0;asLastSave=performance.now();asBusy=false;}}
+// everything that changes the picture goes through pushUndo / undo / redo / newCanvas / setSurface / endStroke
+{const w=(f)=>function(){const r=f.apply(this,arguments);asMark();return r;};pushUndo=w(pushUndo);undo=w(undo);redo=w(redo);newCanvas=w(newCanvas);setSurface=w(setSurface);endStroke=w(endStroke);}
+// leaving the page (phone app switch, tab close): save at once if anything is unsaved or paint is still wet
+function asFlush(){if(AS_ON&&asEnabled&&(asDirty||awake.size)&&drawing==null&&!asBusy){clearTimeout(asTimer);asDirty=true;asSave();}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')asFlush();});window.addEventListener('pagehide',asFlush);
+// toast
+const asT=document.createElement('div');asT.id='toast';asT.setAttribute('role','status');document.body.appendChild(asT);let asTT=0;
+function toast(html,ms,btns){asT.innerHTML='<span>'+html+'</span>';(btns||[]).forEach(([lab,fn])=>{const b=document.createElement('button');b.textContent=lab;b.onclick=()=>{hideToast();fn();};asT.appendChild(b);});asT.classList.add('on');clearTimeout(asTT);if(ms)asTT=setTimeout(hideToast,ms);}
+function hideToast(){asT.classList.remove('on');}
+async function asStartFresh(){const w=asInfo&&asInfo.prevW||W,h=asInfo&&asInfo.prevH||H;newCanvas(w,h);asDirty=true;await asSave();toast('Started a fresh canvas.',2500);}
+async function asRestore(){if(!AS_ON)return false;let rec;try{rec=await asGet('autosave');}catch(_){return false;}if(!rec||!rec.bytes)return false;
+ const pW=W,pH=H;asRestoring=true;try{await openProjectBytes(rec.bytes);}catch(err){asRestoring=false;toast('Could not reopen your last painting ('+(err&&err.message||err)+'). It is still stored; try Settings › Export &amp; projects later.',8000);return false;}
+ asRestoring=false;asInfo={t:rec.t,bytes:rec.bytes.length,W:rec.W,H:rec.H,prevW:pW,prevH:pH};asStatusInfo();
+ toast('Reopened your painting from '+(new Date(rec.t).toDateString()===new Date().toDateString()?asHM(rec.t):new Date(rec.t).toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' '+asHM(rec.t))+'.',7000,[['Start fresh',asStartFresh]]);return true;}
+$('autoSave').checked=asEnabled;$('autoSave').onchange=e=>{asEnabled=e.target.checked;localStorage.setItem('autoSave',asEnabled?'1':'0');if(asEnabled){asDirty=true;asSchedule(500);}else{clearTimeout(asTimer);asDel('autosave').catch(()=>{});asInfo=null;}asStatusInfo();};
+if(!AS_ON)$('autoSave').disabled=true;
+// Ctrl/Cmd+S saves a project file, Ctrl/Cmd+O opens one
+function projName(){const d=new Date(),p=n=>String(n).padStart(2,'0');return 'painting-'+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'-'+p(d.getHours())+p(d.getMinutes())+'.mpaint';}
+$('bSaveP').onclick=async()=>{download(projName(),new Blob([await saveProjectBytes()]));toast('Project saved as a .mpaint file.',2500);};
+document.addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey)||e.shiftKey||e.altKey)return;const k=e.key.toLowerCase();if(k!=='s'&&k!=='o')return;if(document.querySelector('dialog[open]'))return;e.preventDefault();if(k==='s')$('bSaveP').click();else $('bOpenP').click();});
+if(AS_ON&&asEnabled)asRestore().then(ok=>{if(!ok)asStatusInfo();});else asStatusInfo();
+if(AS_ON&&navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
+Object.assign(window.paintAPI,{autosaveNow:()=>{asDirty=true;return asSave();},autosaveInfo:()=>({on:AS_ON,enabled:asEnabled,dirty:asDirty,busy:asBusy,info:asInfo,lastMs:asSaveMs}),autosaveRestore:asRestore,autosaveClear:()=>asDel('autosave'),toast});
 </script></body></html>
