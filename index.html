@@ -1,9 +1,16 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v0.25</title>
+<title>Medium — paint v0.26</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="app-version" content="medium-v0.25">
+<meta name="app-version" content="medium-v0.26">
 <meta name="theme-color" content="#161618">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Medium">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
 :root{--bg:#161618;--glass:rgba(30,30,33,.97);--card:#232327;--card2:#2b2b30;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);--ink:#ececef;--mute:#9a9aa3;--dim:#6c6c75;--acc:#6ea8ff;--accS:rgba(110,168,255,.16);--r:14px;--sh:0 8px 30px rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.04) inset}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -231,13 +238,14 @@ body.m .wcSteps li{font-size:14px}body.m .wcBtns .btn{min-height:44px}
 #toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,16px);opacity:0;pointer-events:none;z-index:60;display:flex;align-items:center;gap:12px;max-width:min(92vw,520px);padding:10px 12px 10px 16px;background:var(--glass);color:var(--ink);border:1px solid var(--line2);border-radius:12px;box-shadow:var(--sh);font-size:13px;line-height:1.4;transition:opacity .2s,transform .2s}
 #toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 #toast button{flex:none;background:var(--accS);color:var(--acc);border:0;border-radius:8px;padding:7px 12px;font:inherit;font-weight:600;cursor:pointer;min-height:36px}
+body.m #bInstall{min-height:44px}
 body.m #toast{bottom:calc(84px + env(safe-area-inset-bottom));width:calc(100vw - 32px);justify-content:space-between}
 </style></head>
 <body>
 <div id="stage"><canvas id="c"></canvas><canvas id="cur" style="position:fixed;pointer-events:none"></canvas><div id="msg"></div></div>
 <div id="zoomv">100%</div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.25</span></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.26</span></div>
  <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tFit" data-tip="Fit to screen" aria-label="Fit to screen" data-ic="fit"></button><button class="ib dk" id="tExp" data-tip="Export… (Ctrl+Shift+E)" aria-label="Export image" aria-haspopup="dialog" data-ic="download"></button><button class="ib dk" id="tHelp" data-tip="Help &amp; shortcuts (?)" aria-label="Help and keyboard shortcuts" aria-haspopup="dialog" data-ic="help"></button></div>
 <!-- top-right: tools -->
 <div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button>
@@ -316,6 +324,7 @@ body.m #toast{bottom:calc(84px + env(safe-area-inset-bottom));width:calc(100vw -
  <label class="chk" style="margin-top:10px"><input type="checkbox" id="autoSave" checked> Autosave in this browser</label>
  <div class="hint" id="asv" aria-live="polite">Your painting is kept on this device and reopened next time.</div></div>
 </div></details>
+<details class="g" id="gInst"><summary><span data-ic="download"></span>Install &amp; offline</summary><div class="gb"><div><div class="hint" id="instMsg" style="margin-bottom:10px">Install Medium as an app: it opens in its own window, gets an icon, and works without internet.</div><button id="bInstall" class="btn" style="width:100%" hidden><span data-ic="download"></span>Install app</button><div class="hint" id="offMsg" aria-live="polite" style="margin-top:8px"></div></div></div></details>
 <details class="g"><summary><span data-ic="help"></span>Help &amp; tips</summary><div class="gb"><div><div class="hint" style="margin-bottom:10px">Getting started, tips for each medium, pen and touch gestures, and all keyboard shortcuts.</div><button id="bHelp" class="btn" style="width:100%" aria-haspopup="dialog"><span data-ic="help"></span>Open help</button></div></div></details>
 </div></div>
 <dialog id="dlgNew"><h2>New canvas</h2><div class="sub2">Pick a preset or enter a custom size.</div>
@@ -390,7 +399,8 @@ body.m #toast{bottom:calc(84px + env(safe-area-inset-bottom));width:calc(100vw -
  <section class="hSec" id="hsExport"><h3><span data-ic="download"></span>Export</h3><ul>
   <li><b>Export image</b>: <span class="dk">the download button at the top left, <span class="kmod">Ctrl</span>+Shift+E, or </span>Settings › Export &amp; projects. Choose PNG, JPEG or WebP; with paper or transparent; all visible layers or the current one; 1× or 2×.<span class="mo"> Share sends it straight to another app.</span></li>
   <li><b>Save project</b> keeps your layers and paint so you can open the file and carry on later.</li>
-  <li><b>Maps &amp; extras</b> exports height and normal maps, or one PNG per layer.</li></ul></section>
+  <li><b>Maps &amp; extras</b> exports height and normal maps, or one PNG per layer.</li>
+  <li><b>Install as an app</b>: Settings › Install &amp; offline<span class="dk">, or the install icon in Chrome's address bar</span><span class="mo">, or your browser menu › Add to Home screen</span>. It then opens in its own window and works offline; your autosaved painting is shared with the browser tab.</li></ul></section>
  <section class="hSec" id="hsKeys"><h3><span data-ic="keys"></span>Keyboard shortcuts</h3><table class="hKeys" id="hKeys"><tbody></tbody></table><p class="hNote mo">Shortcuts need a keyboard, for example on a tablet with a keyboard cover.</p></section>
  <div class="hFoot"><span>Medium <span id="hVer"></span></span><button class="btn pri" id="hDone">Done</button></div>
 </div></dialog>
@@ -1874,4 +1884,25 @@ document.addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey)||e.shiftKey||
 if(AS_ON&&asEnabled)asRestore().then(ok=>{if(!ok)asStatusInfo();});else asStatusInfo();
 if(AS_ON&&navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
 Object.assign(window.paintAPI,{autosaveNow:()=>{asDirty=true;return asSave();},autosaveInfo:()=>({on:AS_ON,enabled:asEnabled,dirty:asDirty,busy:asBusy,info:asInfo,lastMs:asSaveMs}),autosaveRestore:asRestore,autosaveClear:()=>asDel('autosave'),toast});
+
+// ---- v0.26 installable app + offline: manifest + icons in <head>, service worker sw.js (pages network-first, icons cache-first) ----
+// Registered only over http(s) (not file://), never in the ?thumbs=1 preset iframe, and not under automation unless ?sw=1.
+const SWQ=new URLSearchParams(location.search).get('sw');
+const SW_ON=!THUMBS&&'serviceWorker' in navigator&&/^https?:$/.test(location.protocol)&&SWQ!=='0'&&(SWQ==='1'||!navigator.webdriver);
+const isStandalone=()=>matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: window-controls-overlay)').matches||navigator.standalone===true;
+let instEvt=null,swState=SW_ON?'registering':(/^https?:$/.test(location.protocol)?'off':'file');
+const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+function instUI(){const b=$('bInstall'),m=$('instMsg'),o=$('offMsg');if(!b)return;
+ if(isStandalone()){b.hidden=true;m.textContent='You are using the installed app.';}
+ else if(instEvt){b.hidden=false;m.textContent='Install Medium as an app: it opens in its own window, gets an icon, and works without internet.';}
+ else{b.hidden=true;m.textContent=isIOS?'To install: tap Share, then Add to Home Screen.':(document.body.classList.contains('m')?'To install: open your browser menu and choose Add to Home screen or Install app.':'To install: use the install icon in the address bar, or the browser menu › Install Medium (Chrome, Edge).');}
+ o.textContent={ready:'Works offline: this version is saved on this device.',registering:'Getting ready to work offline…',off:'Offline use is switched off.',file:'Offline use needs the web address (not a local file).',error:'Offline use is not available in this browser.'}[swState]||'';}
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();instEvt=e;instUI();});
+addEventListener('appinstalled',()=>{instEvt=null;instUI();toast('Medium is installed. You can open it from your apps.',3500);});
+$('bInstall').onclick=async()=>{if(!instEvt)return;const e=instEvt;instEvt=null;try{await e.prompt();await e.userChoice;}catch(_){}instUI();};
+if(SW_ON){addEventListener('load',()=>{navigator.serviceWorker.register('sw.js',{scope:'./'}).then(r=>navigator.serviceWorker.ready).then(()=>{swState='ready';instUI();}).catch(err=>{swState='error';instUI();console.warn('sw',err);});});}
+// opening a .mpaint file with the installed app (desktop Chrome/Edge file handling)
+if('launchQueue' in window&&!THUMBS)launchQueue.setConsumer(async lp=>{if(!lp.files||!lp.files.length)return;try{const f=await lp.files[0].getFile();await openProjectBytes(await f.arrayBuffer());}catch(err){alert('Could not open project: '+err.message);}});
+instUI();
+window.paintAPI.installInfo=()=>({sw:swState,swOn:SW_ON,standalone:isStandalone(),canPrompt:!!instEvt,controlled:!!(navigator.serviceWorker&&navigator.serviceWorker.controller),msg:$('instMsg').textContent,off:$('offMsg').textContent});
 </script></body></html>
