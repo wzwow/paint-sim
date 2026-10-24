@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v0.26</title>
+<title>Medium — paint v0.27</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="app-version" content="medium-v0.26">
+<meta name="app-version" content="medium-v0.27">
 <meta name="theme-color" content="#161618">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -94,7 +94,10 @@ input[type=color]{width:34px;height:26px;border:0;border-radius:8px;background:n
 .ly .eye{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--ink)}.ly .eye.off{color:var(--dim)}.ly .eye svg{width:17px;height:17px}
 .ly .nm{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.ly .eye{border:0;background:none;padding:0;cursor:pointer;flex:none}.ly .eye:focus-visible,.ly:focus-visible{outline:2px solid var(--acc,#6ea8ff);outline-offset:1px}.ly:focus{outline:none}.ly .nmi{flex:1;min-width:0;height:30px;padding:0 8px;border:0;border-radius:7px;background:rgba(0,0,0,.35);color:var(--ink);font:inherit;box-shadow:inset 0 0 0 1px rgba(110,168,255,.7);outline:none}#layers{display:flex;flex-direction:column;gap:6px}.ly .bm{color:var(--mute);font-size:10.5px}
 .hint{font-size:11.5px;color:var(--mute);line-height:1.55}
-#zoomv{position:fixed;right:14px;bottom:12px;z-index:9;font-size:11px;font-weight:600;color:var(--mute);background:var(--glass);border:1px solid var(--line);padding:4px 9px;border-radius:9px;pointer-events:none;font-variant-numeric:tabular-nums}
+#viewc{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);z-index:9;display:flex;align-items:center;gap:2px;background:var(--glass);border:1px solid var(--line);border-radius:11px;padding:3px;box-shadow:var(--sh)}
+#viewc button{background:none;border:0;color:var(--mute);border-radius:8px;height:28px;min-width:28px;padding:0 6px;display:grid;place-items:center;cursor:pointer;font:600 11px/1 system-ui;font-variant-numeric:tabular-nums}
+#viewc button{position:relative}#viewc [data-tip]:hover::after{top:auto;bottom:calc(100% + 8px)}#viewc button:hover{background:var(--accS);color:var(--ink)}#viewc button svg{width:16px;height:16px}#viewc .vsep{width:1px;height:16px;background:var(--line);margin:0 3px}
+#zoomv{min-width:50px!important}#rotv[hidden]{display:none}#rotv{color:var(--acc)!important}
 /* colour picker */
 #cp{width:288px;padding:14px;display:none;top:68px;right:12px}
 #cp.open{display:block}
@@ -129,7 +132,7 @@ body.m #mTop{display:flex}
 #mTop{display:none;top:calc(8px + env(safe-area-inset-top));right:8px;padding:2px;gap:2px}
 body.m #tb{display:flex;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom));padding:5px;gap:3px;align-items:center;border-radius:18px}
 body.m #tb .ib{min-width:46px;height:46px;padding:0 6px}
-body.m #zoomv{top:calc(14px + env(safe-area-inset-top));bottom:auto;right:auto;left:50%;transform:translateX(-50%);display:none}
+body.m #viewc{top:calc(78px + env(safe-area-inset-top));bottom:auto;padding:2px}body.m #viewc:not(.off){display:flex}body.m #viewc.home{display:none}body.m #viewc>*:not(#zoomv){display:none}body.m #zoomv{min-height:36px;padding:0 12px!important;font-size:12px!important}
 body.m #panel{top:auto;left:8px;right:8px;width:auto;bottom:calc(72px + env(safe-area-inset-bottom));max-height:calc(72% - 40px);border-radius:20px;transform:none;transition:transform .24s cubic-bezier(.2,.8,.2,1),opacity .2s}
 body.m #panel:not(.open){transform:translateY(24px);opacity:0}
 body.m #pHead{flex-direction:column;align-items:stretch;padding:4px 6px 2px 16px;border-bottom-color:transparent;position:relative}
@@ -243,9 +246,9 @@ body.m #toast{bottom:calc(84px + env(safe-area-inset-bottom));width:calc(100vw -
 </style></head>
 <body>
 <div id="stage"><canvas id="c"></canvas><canvas id="cur" style="position:fixed;pointer-events:none"></canvas><div id="msg"></div></div>
-<div id="zoomv">100%</div>
+<div id="viewc" role="toolbar" aria-label="Canvas view"><button id="vOut" data-ic="minus" data-tip="Zoom out (Ctrl+−)" aria-label="Zoom out"></button><button id="zoomv" data-tip="Zoom: click for 100% (Ctrl+1), again to fit (Ctrl+0)" aria-label="Zoom level">100%</button><button id="vIn" data-ic="plus" data-tip="Zoom in (Ctrl++)" aria-label="Zoom in"></button><span class="vsep"></span><button id="vRL" data-ic="rotl" data-tip="Rotate view left 15° (Shift+R)" aria-label="Rotate view left"></button><button id="vRR" data-ic="rotr" data-tip="Rotate view right 15° (R)" aria-label="Rotate view right"></button><button id="rotv" hidden data-tip="Straighten the view" aria-label="Reset rotation">0°</button></div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.26</span></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.27</span></div>
  <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tFit" data-tip="Fit to screen" aria-label="Fit to screen" data-ic="fit"></button><button class="ib dk" id="tExp" data-tip="Export… (Ctrl+Shift+E)" aria-label="Export image" aria-haspopup="dialog" data-ic="download"></button><button class="ib dk" id="tHelp" data-tip="Help &amp; shortcuts (?)" aria-label="Help and keyboard shortcuts" aria-haspopup="dialog" data-ic="help"></button></div>
 <!-- top-right: tools -->
 <div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button>
@@ -363,7 +366,7 @@ body.m #toast{bottom:calc(84px + env(safe-area-inset-bottom));width:calc(100vw -
  <div class="hCols">
  <section class="hSec" id="hsPresets"><h3><span data-ic="presets"></span>Brush presets</h3><ul>
   <li>Open <b>Presets</b> (<span class="dk">top right, or <span class="kmod">P</span></span><span class="mo">the grid button in the bottom bar</span>). One tap sets the medium, tool, brush shape, size, stiffness, water load, dynamics and flick together. Your colour stays.</li>
-  <li>Built-in: watercolour round wash, wet-on-wet bloom, dry brush, watercolour detail, gouache flat, acrylic filbert, oil impasto round, oil fan blender, palette knife impasto, ink liner and ink wash. Each card shows a stroke painted by the real engine.</li>
+  <li>Built-in: watercolour round wash, wet-on-wet bloom, dry brush, watercolour detail, gouache flat, acrylic filbert, oil impasto round, oil fan blender, palette knife impasto, oil rigger, acrylic liner, ink liner and ink wash. Each card shows a stroke painted by the real engine.</li>
   <li>The active preset is highlighted. When you change one of its settings it is marked <b>modified</b> (an orange dot on the Presets button).</li>
   <li><b>Save current</b> keeps your own setup under <b>My presets</b>; rename it with the pencil, delete it with the bin (tap twice). Presets and the last active one are kept in this browser.</li>
   <li>Wet-on-wet bloom works best on paper that is still wet: lay clear water or a pale wash first.</li></ul></section>
@@ -385,9 +388,9 @@ body.m #toast{bottom:calc(84px + env(safe-area-inset-bottom));width:calc(100vw -
   <li><b>Pressure</b> changes the size and how much paint goes down. With a mouse or finger, speed stands in: slow strokes lay more paint, fast ones thin out and break up.</li>
   <li><b>Tilt</b> a pen to lay the brush on its side (Settings › Brush › Use pen tilt). Without one, use the Brush tilt slider.</li>
   <li><b>Flick:</b> lift while still moving for a tapered tail. Turn it off with Flick on lift.</li>
-  <li><b>Touch:</b> one finger paints, a tap leaves a dab. Two fingers pinch to zoom and drag to move the canvas.</li>
+  <li><b>Touch:</b> one finger paints, a tap leaves a dab. Two fingers pinch to zoom and drag to move the canvas; twist them to rotate the view. A quick two-finger tap fits the canvas back to the screen, straight.</li>
   <li>While you use a pen, touches are ignored for a moment, so you can rest your palm on the screen.</li>
-  <li><b>Mouse:</b> the wheel zooms; hold Space and drag, or drag with the middle button, to move the canvas.</li></ul></section>
+  <li><b>Mouse:</b> the wheel zooms; hold Space and drag, or drag with the middle button, to move the canvas. The bar at the bottom zooms, shows the zoom (click it for 100%, again to fit) and rotates the view; rotating only turns your view, not the painting.</li></ul></section>
  <section class="hSec" id="hsLayers"><h3><span data-ic="layers"></span>Layers</h3><ul>
   <li>Open Settings › Layers. You paint on the highlighted layer.</li>
   <li><b>+</b> adds a layer; the eye hides or shows one.</li>
@@ -711,7 +714,7 @@ o0=vec4((1.-ab)*Cs.rgb+(1.-as)*Cb.rgb+as*ab*B(cb,cs),as+ab*(1.-as));
 o1=vec4(Ab.x+As.x*uOp,max(Ab.y*(1.-as),As.y*uOp),max(Ab.z*(1.-as),As.z*uOp),Ab.w+As.w*uOp);}`,
 final:`uniform sampler2D uAC,uAA,uP;uniform vec3 uL,uBg;uniform float uRelief,uPR,uMode,uScreen;uniform vec4 uView;out vec4 o;
 float Ht(vec2 u){return texture(uAA,u).x+texture(uP,u).r*uPR;}
-void main(){vec2 u=vUv;if(uScreen>.5){vec2 cp=(FC.xy-uView.xy)/uView.z;u=cp/uSz;if(u.x<0.||u.y<0.||u.x>1.||u.y>1.){o=vec4(uBg,1);return;}}
+void main(){vec2 u=vUv;if(uScreen>.5){vec2 q=FC.xy-uView.xy;float cr=cos(uView.w),sr=sin(uView.w);vec2 cp=vec2(cr*q.x+sr*q.y,-sr*q.x+cr*q.y)/uView.z;u=cp/uSz;if(u.x<0.||u.y<0.||u.x>1.||u.y>1.){o=vec4(uBg,1);return;}}
 vec2 t=1./uSz;vec4 C=texture(uAC,u),A=texture(uAA,u);
 if(uMode>3.5){o=vec4(C.a>1e-5?pow(clamp(C.rgb/C.a,0.,1.),vec3(1./2.2)):vec3(0),C.a);return;}
 vec3 R=C.a>1e-5?C.rgb/C.a:vec3(1);
@@ -1088,7 +1091,10 @@ function step(){if(st.tilt||st.dryAll)simFull();if(!inFrame)actPoll(true);else a
     on both sides (the bbox + MARG spills into the neighbour). */
  if(act){if(act.bufs.length){act.sync=gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE,0);gl.flush();actPend={act,frame:frameNo};}else applyAct(act);}
  if(idle>(hasWater?150000:45000)&&drawing==null){awake=new Set();SR.clear();simRect=null;shrinkScr();}return PERF.stepPx;}
-const view={s:1,ox:0,oy:0};
+const view={s:1,ox:0,oy:0,r:0};
+// v0.27: view rotation. Canvas px c -> screen device px (y up): O + s*R(r)*c
+function v2s(x,y){const c=Math.cos(view.r),n=Math.sin(view.r);return[view.ox+view.s*(c*x-n*y),view.oy+view.s*(n*x+c*y)];}
+function s2v(px,py){const c=Math.cos(view.r),n=Math.sin(view.r),qx=(px-view.ox)/view.s,qy=(py-view.oy)/view.s;return[c*qx+n*qy,-n*qx+c*qy];}
 function hexLin(h){const n=parseInt(h.slice(1),16);return[n>>16&255,n>>8&255,n&255].map(v=>Math.pow(v/255,2.2));}
 function belowSrc(){return layers.slice(0,ai).some(l=>l.vis&&l.tex)?BELOW:SURF1;}
 function chainTargets(k){ensureT('TMP');const seq=[];let t=OUT;for(let i=0;i<k;i++){seq.unshift(t);t=t===OUT?TMP:OUT;}return seq;}
@@ -1110,18 +1116,29 @@ function litU(){const a=st.light*Math.PI/180;return{uL:[Math.cos(a)*.75,Math.sin
 /* v0.18: the screen pass (paper lighting at full display resolution, 8 Mpx on a 4K screen) is redrawn only where the composite changed when
    nothing else did (the drawing buffer is preserved); any view / lighting / layer / canvas change still redraws everything. */
 let finKey='';function render(){const full=compFull||belowDirty,dirty=full?null:new Set(compTiles);const src=composite();
- const L=litU(),key=[view.s,view.ox,view.oy,cv.width,cv.height,W,H,JSON.stringify(L),surface.type,ai,layers.length].join();let sc=null;
+ const L=litU(),key=[view.s,view.ox,view.oy,view.r,cv.width,cv.height,W,H,JSON.stringify(L),surface.type,ai,layers.length].join();let sc=null;
  if(full||key!==finKey||!dirty){finKey=key;}else if(!dirty.size){return lastZoomUpd();}else{let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(const k of dirty){const r=tileRect(k);x0=Math.min(x0,r[0]);y0=Math.min(y0,r[1]);x1=Math.max(x1,r[0]+r[2]);y1=Math.max(y1,r[1]+r[3]);}
-  const pad=Math.ceil(view.s)+2,X0=Math.floor(view.ox+x0*view.s)-pad,Y0=Math.floor(view.oy+y0*view.s)-pad,X1=Math.ceil(view.ox+x1*view.s)+pad,Y1=Math.ceil(view.oy+y1*view.s)+pad;
+  const pad=Math.ceil(view.s)+2,cs=[v2s(x0,y0),v2s(x1,y0),v2s(x0,y1),v2s(x1,y1)],X0=Math.floor(Math.min(...cs.map(q=>q[0])))-pad,Y0=Math.floor(Math.min(...cs.map(q=>q[1])))-pad,X1=Math.ceil(Math.max(...cs.map(q=>q[0])))+pad,Y1=Math.ceil(Math.max(...cs.map(q=>q[1])))+pad;
   sc=[Math.max(0,X0),Math.max(0,Y0),Math.min(cv.width,X1)-Math.max(0,X0),Math.min(cv.height,Y1)-Math.max(0,Y0)];if(sc[2]<=0||sc[3]<=0)return lastZoomUpd();}
- run(P.final,null,{uAC:src.t[0],uAA:src.t[1],uP:PAPER.t[0]},Object.assign(L,{uScreen:1,uMode:0,uView:[view.ox,view.oy,view.s,0],uBg:[.085,.085,.095]}),sc);lastZoomUpd();}
+ run(P.final,null,{uAC:src.t[0],uAA:src.t[1],uP:PAPER.t[0]},Object.assign(L,{uScreen:1,uMode:0,uView:[view.ox,view.oy,view.s,view.r],uBg:[.085,.085,.095]}),sc);lastZoomUpd();}
 function lastZoomUpd(){
- const zt=Math.round(view.s/(devicePixelRatio||1)*100)+'%';if(zt!==lastZoomT){lastZoomT=zt;const z=$('zoomv');if(z)z.textContent=zt;}}
+ const deg=rotDeg(),zt=Math.round(view.s/(devicePixelRatio||1)*100)+'%'+(deg?' · '+(-deg)+'°':'')+(isHome()?'h':'');if(zt!==lastZoomT){lastZoomT=zt;const z=$('zoomv');if(z)z.textContent=zt.replace(/h$/,'').replace(/ · .*$/,m=>document.body.classList.contains('m')?m:'');const rv=$('rotv');if(rv){rv.hidden=!deg;rv.textContent=(-deg)+'°';}const vc=$('viewc');if(vc)vc.classList.toggle('home',isHome());}}
+function rotDeg(){let d=Math.round(view.r*180/Math.PI)%360;if(d>180)d-=360;if(d<=-180)d+=360;return d;}
+let homeS=0;function isHome(){return !rotDeg()&&homeS>0&&Math.abs(view.s/homeS-1)<.02;}
 let lastZoomT='';
 // v11.1: cache the canvas rect (was read per frame and per pointer event); invalidated on resize
 let cvR=null;const cvRect=()=>cvR||(cvR=cv.getBoundingClientRect());addEventListener('resize',()=>{cvR=null;});if(window.ResizeObserver)new ResizeObserver(()=>{cvR=null;}).observe(cv);
 function resizeGL(){const r=cvRect(),d=devicePixelRatio||1;const w=Math.max(1,Math.round(r.width*d)),h=Math.max(1,Math.round(r.height*d));if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h;return true;}return false;}
-function fit(){resizeGL();const d=cv.width/Math.max(1,cv.getBoundingClientRect().width),I=fitInsets(),aw=cv.width-(I.l+I.r)*d,ah=cv.height-(I.t+I.b)*d;view.s=Math.min(aw*.96/W,ah*.96/H);view.ox=I.l*d+(aw-W*view.s)/2;view.oy=I.b*d+(ah-H*view.s)/2;needRender=true;curDirty=true;}
+function fit(){resizeGL();const d=cv.width/Math.max(1,cv.getBoundingClientRect().width),I=fitInsets(),aw=cv.width-(I.l+I.r)*d,ah=cv.height-(I.t+I.b)*d,c=Math.abs(Math.cos(view.r)),n=Math.abs(Math.sin(view.r));
+ view.s=Math.min(aw*.96/(c*W+n*H),ah*.96/(n*W+c*H));if(!rotDeg())homeS=view.s;const cx=I.l*d+aw/2,cy=I.b*d+ah/2,m=v2s(W/2,H/2);view.ox+=cx-m[0];view.oy+=cy-m[1];needRender=true;curDirty=true;}
+// v0.27: home view = fit to screen with rotation reset (fit() alone keeps the rotation, so resizes and panel toggles don't straighten it)
+function homeView(){view.r=0;fit();}
+function viewCentre(){const I=fitInsets(),d=cv.width/Math.max(1,cvRect().width);return[(I.l*d+cv.width-I.r*d)/2,(I.b*d+cv.height-I.t*d)/2];}
+function rotateAt(px,py,da){const c=Math.cos(da),n=Math.sin(da),qx=view.ox-px,qy=view.oy-py;view.ox=px+c*qx-n*qy;view.oy=py+n*qx+c*qy;view.r+=da;needRender=true;curDirty=true;}
+function rotStep(deg){const[px,py]=viewCentre(),cur=view.r*180/Math.PI,tgt=Math.round((cur+deg)/15)*15;rotateAt(px,py,(tgt-cur)*Math.PI/180);if(!rotDeg())rotateAt(px,py,-view.r);}
+function rotReset(){const[px,py]=viewCentre();rotateAt(px,py,-view.r);}
+function zoomStep(f){const[px,py]=viewCentre();zoomAt(px,py,f);}
+function zoom100(){const[px,py]=viewCentre();zoomAt(px,py,(devicePixelRatio||1)/view.s);}
 function zoomAt(px,py,f){const s2=Math.min(Math.max(view.s*f,.05),32);view.ox=px-(px-view.ox)*s2/view.s;view.oy=py-(py-view.oy)*s2/view.s;view.s=s2;needRender=true;curDirty=true;}
 function genPaper(){run(P.paper,PAPER,{},{uType:surface.type,uScale:surface.scale});belowDirty=true;needRender=true;}
 // ---- strokes ----
@@ -1157,7 +1174,7 @@ function endStroke(){if(strokePen)penFlush();if(last&&last.pend)dab(last.x,last.
 function beginStroke(opts={}){pushUndo();strokePen=false;PF=null;last=null;resetTips();resetDyn();
  if(opts.dir)dir=opts.dir;
  if(st.tool==='knife')knifeBegin();else if(!opts.keep)loadBristles(opts.load==null?1:opts.load);}
-function toUV(e){const r=cvRect(),d=cv.width/r.width;const px=(e.clientX-r.left)*d,py=(r.bottom-e.clientY)*d;return[(px-view.ox)/view.s/W,(py-view.oy)/view.s/H];}
+function toUV(e){const r=cvRect(),d=cv.width/r.width;const px=(e.clientX-r.left)*d,py=(r.bottom-e.clientY)*d,c=s2v(px,py);return[c[0]/W,c[1]/H];}
 function devXY(e){const r=cvRect(),d=cv.width/r.width;return[(e.clientX-r.left)*d,(r.bottom-e.clientY)*d];}
 // v11.2: pen stroke-start filter. Android Chrome (S Pen) reports pressure 0/spikes and garbage tilt for the first events after contact:
 // sanitize, ease pressure in, ramp tilt from 0 with clamped per-sample change, smooth azimuth as a vector.
@@ -1176,22 +1193,22 @@ function feed(ev){const[x,y]=toUV(ev);if(strokePen){if(ev.buttons===0&&PF&&PF.n>
   PF.q=PF.q||[];PF.q.push({x,y,p:s.p,raw,tl:s.tl,ts:ev.timeStamp});if(PF.q.length>PQ){const o=PF.q.shift();addPoint(o.x,o.y,o.p,o.tl,o.ts);PF.lp=o.p;PF.ltl=o.tl;}}else addPoint(x,y,pr(ev),tiltOf(ev),ev.timeStamp);}
 function pr(e){return e.pointerType==='pen'?Math.max(e.pressure||.5,.05):null;}
 function tiltOf(e){if(st.pen&&e.pointerType==='pen'){const tX=e.tiltX||0,tY=e.tiltY||0;
-  if(tX||tY){const a=Math.tan(tX*D2R),b=Math.tan(tY*D2R);const alt=Math.atan2(1,Math.hypot(a,b));return{t:cl((Math.PI/2-alt)/(80*D2R)),phi:-Math.atan2(b,a),pen:true};}
-  if(e.altitudeAngle!=null&&e.altitudeAngle<1.55)return{t:cl((Math.PI/2-e.altitudeAngle)/(80*D2R)),phi:-(e.azimuthAngle||0),pen:true};}
+  if(tX||tY){const a=Math.tan(tX*D2R),b=Math.tan(tY*D2R);const alt=Math.atan2(1,Math.hypot(a,b));return{t:cl((Math.PI/2-alt)/(80*D2R)),phi:-Math.atan2(b,a)-view.r,pen:true};}
+  if(e.altitudeAngle!=null&&e.altitudeAngle<1.55)return{t:cl((Math.PI/2-e.altitudeAngle)/(80*D2R)),phi:-(e.azimuthAngle||0)-view.r,pen:true};}
  return{t:st.btilt/80,phi:null,pen:false,mouse:e.pointerType!=='pen'};}
 let drawing=null;
 let panning=null,spaceDown=false;const touches=new Map();
 cv.addEventListener('wheel',e=>{e.preventDefault();const[x,y]=devXY(e);zoomAt(x,y,Math.exp(-e.deltaY*.0015));},{passive:false});
 window.addEventListener('keydown',e=>{if(e.code==='Space'&&e.target===document.body){spaceDown=true;cv.style.cursor='grab';e.preventDefault();}});
 window.addEventListener('keyup',e=>{if(e.code==='Space'){spaceDown=false;cv.style.cursor='crosshair';}});
-function pinch(){const p=[...touches.values()];if(p.length<2)return null;return{c:[(p[0][0]+p[1][0])/2,(p[0][1]+p[1][1])/2],d:Math.hypot(p[0][0]-p[1][0],p[0][1]-p[1][1])};}
+function pinch(){const p=[...touches.values()];if(p.length<2)return null;return{c:[(p[0][0]+p[1][0])/2,(p[0][1]+p[1][1])/2],d:Math.hypot(p[0][0]-p[1][0],p[0][1]-p[1][1]),a:Math.atan2(p[1][1]-p[0][1],p[1][0]-p[0][0])};}
 let penT=-1e9,pend=null;
 function startDraw(e,evs){try{cv.setPointerCapture(e.pointerId);}catch(_){}drawing=e.pointerId;beginStroke({keep:e.shiftKey});strokePen=e.pointerType==='pen';for(const ev of evs)feed(ev);hover=null;}
 function evCopy(e){return{buttons:e.buttons,clientX:e.clientX,clientY:e.clientY,pressure:e.pressure,tiltX:e.tiltX,tiltY:e.tiltY,altitudeAngle:e.altitudeAngle,azimuthAngle:e.azimuthAngle,pointerType:e.pointerType,timeStamp:e.timeStamp,twist:e.twist};}
 cv.addEventListener('pointerdown',e=>{if(e.pointerType==='pen')penT=performance.now();
  if(e.pointerType==='touch'){if(performance.now()-penT<1500||drawing!=null&&drawing!==e.pointerId&&!touches.has(drawing))return; // palm rejection while pen is in use
   touches.set(e.pointerId,devXY(e));
-  if(touches.size>=2){pend=null;if(drawing!=null){drawing=null;endStroke();undo(true);}panning={pinch:pinch()};return;}
+  if(touches.size>=2){pend=null;if(drawing!=null){drawing=null;endStroke();undo(true);}{const q=pinch();panning={pinch:q,p0:q,t0:e.timeStamp,moved:false,rotOn:false};}return;}
   pend={e:evCopy(e),id:e.pointerId,evs:[evCopy(e)],t:performance.now()};try{cv.setPointerCapture(e.pointerId);}catch(_){}return;}
  if(e.button===1||spaceDown){try{cv.setPointerCapture(e.pointerId);}catch(_){}panning={id:e.pointerId,p:devXY(e)};e.preventDefault();return;}
  if(e.pointerType==='pen'&&e.buttons===0)return; // v11.2: hover/pre-contact pen event
@@ -1201,15 +1218,22 @@ document.addEventListener('gesturestart',e=>e.preventDefault());
 cv.addEventListener('pointerleave',()=>{hover=null;curDirty=true;});
 cv.addEventListener('pointermove',e=>{if(e.pointerType==='pen')penT=performance.now();if(e.pointerType==='touch'&&!touches.has(e.pointerId))return;if(e.pointerType==='touch')touches.set(e.pointerId,devXY(e));
  if(pend&&pend.id===e.pointerId&&!panning){pend.evs.push(evCopy(e));const d=Math.hypot(e.clientX-pend.e.clientX,e.clientY-pend.e.clientY);if(d>8||performance.now()-pend.t>90){const p0=pend;pend=null;startDraw(e,p0.evs);}return;}
- if(panning){if(panning.pinch){const q=pinch();if(q){zoomAt(q.c[0],q.c[1],q.d/Math.max(panning.pinch.d,1));view.ox+=q.c[0]-panning.pinch.c[0];view.oy+=q.c[1]-panning.pinch.c[1];panning.pinch=q;}}
+ if(panning){if(panning.pinch){const q=pinch();if(q){const P0=panning.p0;view.ox+=q.c[0]-panning.pinch.c[0];view.oy+=q.c[1]-panning.pinch.c[1];zoomAt(q.c[0],q.c[1],q.d/Math.max(panning.pinch.d,1));
+   // v0.27: two-finger twist rotates the view, but only once the twist passes ~12 deg so a plain pinch never tilts the painting
+   let da=q.a-panning.pinch.a;da=Math.atan2(Math.sin(da),Math.cos(da));const dev=cv.width/Math.max(1,cvRect().width);
+   if(!panning.rotOn){let tw=q.a-P0.a;tw=Math.atan2(Math.sin(tw),Math.cos(tw));if(Math.abs(tw)>.21){panning.rotOn=true;da=tw;}else da=0;}if(da)rotateAt(q.c[0],q.c[1],da);
+   if(Math.hypot(q.c[0]-P0.c[0],q.c[1]-P0.c[1])>12*dev||Math.abs(q.d-P0.d)>14*dev||panning.rotOn)panning.moved=true;panning.pinch=q;}}
   else if(panning.id===e.pointerId){const p=devXY(e);view.ox+=p[0]-panning.p[0];view.oy+=p[1]-panning.p[1];panning.p=p;needRender=true;curDirty=true;}return;}
  curDirty=true;if(drawing!==e.pointerId){hover={uv:toUV(e),tl:tiltOf(e),p:e.pointerType==='mouse'?.55:Math.max(e.pressure||.5,.3)};return;}let evs=e.getCoalescedEvents?e.getCoalescedEvents():[];if(!evs.length)evs=[e];if(e.pointerType==='pen'&&e.buttons===0)return;evs=evs.slice().sort((a,b)=>a.timeStamp-b.timeStamp);for(const ev of evs)feed(ev);});
-const up=e=>{if(pend&&pend.id===e.pointerId){const p0=pend;pend=null;touches.delete(e.pointerId);if(!panning){startDraw(e,p0.evs);drawing=null;endStroke();}return;}touches.delete(e.pointerId);if(panning&&(panning.id===e.pointerId||(panning.pinch&&touches.size<2))){panning=null;return;}if(drawing===e.pointerId){drawing=null;endStroke();}};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+const up=e=>{if(pend&&pend.id===e.pointerId){const p0=pend;pend=null;touches.delete(e.pointerId);if(!panning){startDraw(e,p0.evs);drawing=null;endStroke();}return;}touches.delete(e.pointerId);if(panning&&(panning.id===e.pointerId||(panning.pinch&&touches.size<2))){const pp=panning;panning=null;
+ if(pp.pinch){if(!pp.moved&&e.timeStamp-pp.t0<350)homeView(); // v0.27: quick two-finger tap = fit to screen
+  else if(pp.rotOn&&Math.abs(rotDeg())<=5&&view.r){const q=pp.pinch;rotateAt(q.c[0],q.c[1],-view.r);}} // snap nearly-straight back to 0 deg
+ return;}if(drawing===e.pointerId){drawing=null;endStroke();}};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
 let hover=null,curDirty=true;const cur=document.getElementById('cur'),cg=cur.getContext('2d');
 let curKey='';function drawCursor(){const r=cvRect();
  if(cur.width!==cv.width||cur.height!==cv.height){cur.width=cv.width;cur.height=cv.height;}
  const ck=r.left+','+r.top+','+r.width+','+r.height;if(ck!==curKey){curKey=ck;Object.assign(cur.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});}cg.clearRect(0,0,cur.width,cur.height);
- const sx=view.s,sy=view.s;const P2=(px,py)=>[view.ox+px*sx,cur.height-(view.oy+py*sy)];cg.lineWidth=devicePixelRatio||1;
+ const sx=view.s,sy=view.s;const P2=(px,py)=>{const q=v2s(px,py);return[q[0],cur.height-q[1]];};cg.lineWidth=devicePixelRatio||1;
  if(st.tool!=='brush')return; 
  if(drawing!=null){cg.fillStyle='rgba(40,30,20,.35)';for(const b of BRS){if(!b.tip)continue;const[a,c]=P2(b.tip[0],b.tip[1]);cg.beginPath();cg.arc(a,c,Math.max(1,b.rb*6*sx*.5),0,6.283);cg.fill();}return;}
  if(!hover)return;const pres=hover.p,tl=hover.tl,t=tl.t;const Rp=st.size/800*(0.5+pres)*.9*512;const C=[hover.uv[0]*W,hover.uv[1]*H];
@@ -1218,7 +1242,7 @@ let curKey='';function drawCursor(){const r=cvRect();
  cg.strokeStyle='rgba(40,30,20,.55)';cg.fillStyle='rgba(40,30,20,.22)';
  for(const b of BRS){const s=cl(st.stiff+b.sv*.35,.02,1);const spl=1+.6*pres*(1-s)*(1+1.2*dynE());let cx=b.ox*spl*ex[0]+b.oy*spl*ey[0],cy=b.ox*spl*ex[1]+b.oy*spl*ey[1];const pj=cx*td[0]+cy*td[1];
   cx+=td[0]*(pj*(stretch-1)+t*.35);cy+=td[1]*(pj*(stretch-1)+t*.35);const[a,c]=P2(C[0]+cx*Rp,C[1]+cy*Rp);cg.beginPath();cg.arc(a,c,Math.max(1,Rp*b.rb*sx*.6),0,6.283);cg.fill();}
- if(t>.02){const[a,c]=P2(C[0],C[1]);cg.beginPath();cg.moveTo(a,c);cg.lineTo(a-td[0]*Rp*2.2*t*sx,c+td[1]*Rp*2.2*t*sy);cg.stroke();}}
+ if(t>.02){const[a,c]=P2(C[0],C[1]),[a2,c2]=P2(C[0]-td[0]*Rp*2.2*t,C[1]-td[1]*Rp*2.2*t);cg.beginPath();cg.moveTo(a,c);cg.lineTo(a2,c2);cg.stroke();}}
 let memT=0,memTxt='';function memUI(){const el=$('memv');if(!el)return;const tx='GPU ≈ '+fmtMB(gpuBytes)+' · undo '+SNAP.length+' steps ('+fmtMB(undoBytes())+')';if(tx!==memTxt){memTxt=tx;el.textContent=tx;}}
 /* v0.18: integrated-GPU detection (hybrid laptops often run Chrome on the iGPU even with powerPreference:'high-performance') */
 const GPUINFO=(()=>{const d=gl.getExtension('WEBGL_debug_renderer_info');const r=String(d?gl.getParameter(d.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER));
@@ -1409,7 +1433,7 @@ const ICONS={
  layers:'<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>',
  canvas:'<rect x="4" y="3" width="16" height="13" rx="1.5"/><path d="M8 21l4-5 4 5"/>',
  help:'<circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.8M12 17.2h0"/>',
- plus:'<path d="M12 5v14M5 12h14"/>',trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',minus:'<path d="M5 12h14"/>',rotl:'<path d="M4.5 9.5A8 8 0 1 1 4 13"/><path d="M4 4.5v5h5"/>',rotr:'<path d="M19.5 9.5A8 8 0 1 0 20 13"/><path d="M20 4.5v5h-5"/>',trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
  up:'<path d="M12 19V5M6 11l6-6 6 6"/>',down:'<path d="M12 5v14M6 13l6 6 6-6"/>',merge:'<path d="M7 4l5 5 5-5M12 9v11M6 20h12"/>',
  presets:'<rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><path d="M17.2 13.6l1.1 2.3 2.5.4-1.8 1.7.4 2.5-2.2-1.2-2.2 1.2.4-2.5-1.8-1.7 2.5-.4z"/>',
  trash:'<path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/><path d="M10 11v6M14 11v6"/>',
@@ -1481,7 +1505,14 @@ $('dMed').onclick=$('tMed').onclick=()=>mp.classList.contains('open')?closeMP():
 document.addEventListener('pointerdown',e=>{if(mp.classList.contains('open')&&!mp.contains(e.target)&&!e.target.closest('#dMed,#tMed'))closeMP();},true);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMP();});
 document.addEventListener('keydown',e=>{if(e.key!=='F2'||e.ctrlKey||e.metaKey||e.altKey)return;const tg=e.target&&e.target.tagName;if(tg==='INPUT'&&e.target.type!=='range'&&e.target.type!=='checkbox'||tg==='SELECT'||tg==='TEXTAREA')return;e.preventDefault();setPanel(true);const dt=$('layers').closest('details');if(dt)dt.open=true;requestAnimationFrame(()=>startRename(ai));});
-$('tNew').onclick=()=>$('bNew').click();$('tFit').onclick=()=>fit();
+$('tNew').onclick=()=>$('bNew').click();$('tFit').onclick=()=>homeView();
+$('vIn').onclick=()=>zoomStep(1.25);$('vOut').onclick=()=>zoomStep(1/1.25);$('vRL').onclick=()=>rotStep(15);$('vRR').onclick=()=>rotStep(-15);$('rotv').onclick=()=>rotReset();
+$('zoomv').onclick=()=>{if(document.body.classList.contains('m')||Math.abs(view.s-(devicePixelRatio||1))<.01)homeView();else zoom100();};
+// v0.27 view keys: Ctrl+0 fit (and straighten), Ctrl+1 100%, Ctrl+= / Ctrl+- zoom at the centre, R / Shift+R rotate 15 deg
+document.addEventListener('keydown',e=>{if(document.querySelector('dialog[open]')||typingIn(e.target))return;const k=e.key;
+ if((e.ctrlKey||e.metaKey)&&!e.altKey){if(k==='0'||e.code==='Digit0'||e.code==='Numpad0'){e.preventDefault();homeView();}else if(k==='1'||e.code==='Digit1'||e.code==='Numpad1'){e.preventDefault();zoom100();}
+  else if(k==='='||k==='+'||e.code==='NumpadAdd'){e.preventDefault();zoomStep(1.25);}else if(k==='-'||k==='_'||e.code==='NumpadSubtract'){e.preventDefault();zoomStep(1/1.25);}return;}
+ if(!e.altKey&&(k==='r'||k==='R')){e.preventDefault();rotStep(e.shiftKey?15:-15);}});
 $('bUndo').onclick=$('tUndo').onclick=()=>{undo();};$('bRedo').onclick=$('tRedo').onclick=()=>{redo();};
 document.addEventListener('keydown',e=>{const tg=e.target&&e.target.tagName;if(tg==='INPUT'&&e.target.type!=='range'&&e.target.type!=='checkbox'||tg==='SELECT'||e.ctrlKey||e.metaKey||e.altKey)return;
  const k=e.key.toLowerCase();if(k==='b'){setTool('brush');syncTB();}else if(k==='k'){setTool('knife');syncTB();}else if(k==='escape'){closeCP();}});
@@ -1505,7 +1536,7 @@ const _bNew=$('bNew').onclick;$('bNew').onclick=()=>{const m=document.body.class
   opts.reverse().forEach(([v,t])=>{const o=document.createElement('option');o.value=v;o.textContent=t;o.className='mob';ps.insertBefore(o,ps.firstChild);});ps.value=w+'x'+h;$('nw').value=w;$('nh').value=h;}
  _bNew();};
 // layout switching
-function fitInsets(){const m=document.body.classList.contains('m'),po=document.getElementById('panel').classList.contains('open');return m?{t:60,b:80,l:10,r:10}:{t:72,b:16,l:84,r:po?336:16};}
+function fitInsets(){const m=document.body.classList.contains('m'),po=document.getElementById('panel').classList.contains('open');return m?{t:60,b:80,l:10,r:10}:{t:72,b:52,l:84,r:po?336:16};}
 function setMobile(on){document.body.classList.toggle('m',on);closeCP();setPanel(!on&&innerWidth>=1100);requestAnimationFrame(()=>fit());}
 setMobile(MQ.matches);MQ.addEventListener&&MQ.addEventListener('change',e=>setMobile(e.matches));
 $('dSet').addEventListener('click',()=>{if(!document.body.classList.contains('m'))requestAnimationFrame(()=>{const s=view.s;fit();});});
@@ -1539,7 +1570,7 @@ if(DIAG){const d=document.createElement('div');d.id='diag';d.style.cssText='posi
  d.append(pre,cp,rf,cl);document.body.appendChild(d);setTimeout(upd,300);}
 window.paintAPI={resetPeak:()=>{gpuPeak=gpuBytes;},pause:v=>paused=v,setMedium,setMed,medium:()=>st.med,setSize,selectPig,setHex:h=>{st.ks=hexKS(h);},clear:clearAll,undo,redo,setLight,setRelief,
  step:n=>{for(let i=0;i<n;i++)step();render();},dryAll:()=>{st.dryAll=1;step();render();},
- L:L_,layers:()=>layers.map((l,i)=>({name:l.name,vis:l.vis,op:l.op,blend:l.blend,has:!!l.tex,active:i===ai})),setSurface,newCanvas,exportData,saveProjectBytes,openProjectBytes,fit,render:()=>render(),view,
+ L:L_,layers:()=>layers.map((l,i)=>({name:l.name,vis:l.vis,op:l.op,blend:l.blend,has:!!l.tex,active:i===ai})),setSurface,newCanvas,exportData,saveProjectBytes,openProjectBytes,fit,render:()=>render(),view,homeView,rotStep,zoom100,isHome:()=>isHome(),
 
  stroke(pts,pres=.55,o={}){beginStroke(o);let T=0;for(const q of pts){const pp=q[2]!=null?q[2]:pres;T+=q[3]!=null?q[3]:(o.dt||16);addPoint(q[0],q[1],o.mouse?null:pp,o.tl||{t:(o.tilt!=null?o.tilt:st.btilt)/80,phi:null,pen:false,mouse:!!o.mouse},T);}endStroke();},
  setDyn:v=>setDyn(v),setWLoad:v=>setWLoad(v),setFlick:v=>{st.flick=v;$('flick').checked=v;},setWobble:v=>{st.wobble=v;$('wob').checked=v;},
@@ -1701,6 +1732,10 @@ const HELP_KEYS=[
  {id:'layersel',keys:['[↑] / [↓]'],what:'Select the layer above or below, when the layer list has focus'},
  {id:'pan',keys:['hold [Space]','drag'],alt:['middle-button drag'],what:'Move the canvas'},
  {id:'zoom',keys:['mouse wheel'],what:'Zoom in or out at the pointer'},
+ {id:'zoomkey',keys:['['+MODK+']','[+] / [−]'],what:'Zoom in or out at the centre'},
+ {id:'fitkey',keys:['['+MODK+']','[0]'],what:'Fit the canvas to the screen and straighten it'},
+ {id:'actual',keys:['['+MODK+']','[1]'],what:'Zoom to 100% (one canvas pixel per screen pixel)'},
+ {id:'rotate',keys:['[R]'],alt:['[Shift]','[R]'],what:'Rotate the view 15° right or left (the painting itself is not changed)'},
  {id:'keep',keys:['hold [Shift]','paint'],what:'Keep painting with what is left on the brush (dry-brush)'},
  {id:'esc',keys:['[Esc]'],what:'Close the colour picker, the Medium menu, this help or a dialog'}];
 function keyHTML(ks){return ks.map(t=>t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])).replace(/\[([^\]]+)\]/g,'<kbd>$1</kbd>')).join(' + ');}
@@ -1755,6 +1790,8 @@ const BP=[
  {id:'oilImp',name:'Oil impasto round',hex:'#c8452a',d:'Thick glossy oil with ridges',v:{med:'oil',m:1,shape:'round',size:34,stiff:.72,wload:.95,dyn:.6,flick:true}},
  {id:'oilFan',name:'Oil fan blender',hex:'#6b8fb3',d:'Soft oil, light fan for blending',v:{med:'oil',m:.85,shape:'fan',size:52,stiff:.3,wload:.3,dyn:.5,flick:false}},
  {id:'knife',name:'Palette knife impasto',hex:'#e0a530',d:'Knife, load & lay thick oil',v:{med:'oil',m:1,tool:'knife',kmode:'lay',size:60,wload:1}},
+ {id:'oilRig',name:'Oil rigger',hex:'#2b2620',d:'Long thin line: branches, rigging, signatures',v:{med:'oil',m:.7,shape:'round',size:5,stiff:.55,wload:.9,dyn:.85,flick:true,wobble:false}},
+ {id:'acrLiner',name:'Acrylic liner',hex:'#b23a2e',d:'Fine opaque line: details, outlines, lettering',v:{med:'acrylic',m:.5,shape:'round',size:4,stiff:.7,wload:.8,dyn:.8,flick:true,wobble:false}},
  {id:'inkLine',name:'Ink liner',hex:'#1b1b24',d:'Fine, firm, pressure-sensitive line',v:{med:'ink',m:0,shape:'round',size:5,stiff:.9,wload:.5,dyn:.8,flick:true}},
  {id:'inkWash',name:'Ink wash',hex:'#2e3a46',d:'Wide wet ink wash',v:{med:'ink',m:0,shape:'round',size:64,stiff:.3,wload:1,dyn:.4,flick:false}}];
 const bpFull=v=>Object.assign({},BP_DEF,v);
