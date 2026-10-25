@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v0.28</title>
+<title>Medium — paint v0.29</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="app-version" content="medium-v0.28">
+<meta name="app-version" content="medium-v0.29">
 <meta name="theme-color" content="#161618">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -191,6 +191,17 @@ body.m .rseg span{min-height:46px}body.m .exn input{height:44px;font-size:16px}b
 .bpIn{margin:-2px 8px 6px;min-width:0;font:550 13px inherit;color:var(--ink);background:rgba(0,0,0,.35);border:1px solid var(--acc);border-radius:7px;padding:5px 7px}
 .bpNone{padding:4px 2px}
 body.m #bp{border-radius:20px;max-height:calc(72% - 40px)}body.m .bpC{min-height:44px}body.m .bpA .ib,body.m .bpLm .btn{min-width:44px;min-height:44px;height:44px}body.m .bpIn{font-size:16px;min-height:40px}
+/* v0.29 mobile canvas controls: View toggle in the top-right cluster opens a one-row bar under the top bar; clear confirm sheet */
+#mView{display:none}
+body.m.mv #mView{display:flex;position:fixed;z-index:11;top:calc(62px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);padding:2px;gap:0;max-width:calc(100vw - 12px);border-radius:14px}
+body.m #mView .ib{min-width:44px;height:44px;padding:0 4px;flex:0 1 44px}body.m #mView .ib svg{width:20px;height:20px}
+#mView .vsep{width:1px;align-self:stretch;margin:8px 1px;background:var(--line)}
+#mView #mvRot{font:600 12px/1 system-ui;font-variant-numeric:tabular-nums}#mView #mvRot:disabled{opacity:.4}
+#mView #mvClr{color:#f19b9b}
+body.m.mv #viewc{top:calc(116px + env(safe-area-inset-top))}
+body.m #tView.on{background:var(--accS)}
+#dlgClear .cbtn{display:flex;flex-direction:column;gap:8px;margin-top:14px}#dlgClear .cbtn button{min-height:48px;font-size:15px;border-radius:12px}
+#dlgClear .cbtn button{border:0;background:var(--card2);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line);cursor:pointer}#dlgClear .cbtn .dang{background:#7a2626;color:#fff;box-shadow:none}#dlgClear .cbtn .dang2{background:#4a2222;color:#fff;box-shadow:inset 0 0 0 1px #7a2626}
 /* v0.22 help sheet + first-run welcome (UI only) */
 #dlgHelp{width:min(820px,calc(100vw - 48px));max-height:min(880px,calc(100% - 48px));padding:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#48484f transparent}
 #dlgHelp .hHead{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:12px;padding:10px 10px 10px 22px;background:var(--card);border-bottom:1px solid var(--line)}
@@ -225,7 +236,7 @@ body.m .hCols,body.m .hSteps{grid-template-columns:1fr}
 body.m .hSec ul{font-size:14px;gap:8px}body.m .hSteps li{font-size:13.5px}body.m .hSteps li b{font-size:14px}
 body.m .hKeys{font-size:14px}body.m .hKeys tr{display:block;padding:9px 0;border-bottom:1px solid var(--line)}body.m .hKeys tr:last-child{border-bottom:0}body.m .hKeys td{display:block;padding:0;border:0;width:auto}body.m .hKeys td:first-child{white-space:normal;width:auto;padding:0 0 5px;font-size:12.5px}body.m .hKeys td:last-child{color:var(--ink)}
 body.m .hFoot .btn,body.m #bHelp{min-height:44px}
-.mo{display:none}body.m .mo{display:inline}
+.mo{display:none}body.m .mo{display:inline}body.m li.mo{display:list-item}
 #welcome{z-index:25;left:50%;bottom:24px;width:min(440px,calc(100vw - 24px));transform:translateX(-50%);padding:18px 18px 14px;border-radius:18px;border-color:var(--line2);box-shadow:0 18px 50px rgba(0,0,0,.55),0 1px 0 rgba(255,255,255,.05) inset}
 #welcome[hidden]{display:none}#welcome.on{animation:wcIn .24s cubic-bezier(.2,.8,.2,1)}
 @keyframes wcIn{from{opacity:0;transform:translate(-50%,12px)}}@keyframes wcInM{from{opacity:0;transform:translateY(-10px)}}
@@ -248,7 +259,7 @@ body.m #toast{bottom:calc(84px + env(safe-area-inset-bottom));width:calc(100vw -
 <div id="stage"><canvas id="c"></canvas><canvas id="cur" style="position:fixed;pointer-events:none"></canvas><div id="msg"></div></div>
 <div id="viewc" role="toolbar" aria-label="Canvas view"><button id="vOut" data-ic="minus" data-tip="Zoom out (Ctrl+−)" aria-label="Zoom out"></button><button id="zoomv" data-tip="Zoom: click for 100% (Ctrl+1), again to fit (Ctrl+0)" aria-label="Zoom level">100%</button><button id="vIn" data-ic="plus" data-tip="Zoom in (Ctrl++)" aria-label="Zoom in"></button><span class="vsep"></span><button id="vRL" data-ic="rotl" data-tip="Rotate view left 15° (Shift+R)" aria-label="Rotate view left"></button><button id="vRR" data-ic="rotr" data-tip="Rotate view right 15° (R)" aria-label="Rotate view right"></button><button id="rotv" hidden data-tip="Straighten the view" aria-label="Reset rotation">0°</button></div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.28</span></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.29</span></div>
  <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tFit" data-tip="Fit to screen" aria-label="Fit to screen" data-ic="fit"></button><button class="ib dk" id="tExp" data-tip="Export… (Ctrl+Shift+E)" aria-label="Export image" aria-haspopup="dialog" data-ic="download"></button><button class="ib dk" id="tHelp" data-tip="Help &amp; shortcuts (?)" aria-label="Help and keyboard shortcuts" aria-haspopup="dialog" data-ic="help"></button></div>
 <!-- top-right: tools -->
 <div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button>
@@ -260,7 +271,11 @@ body.m #toast{bottom:calc(84px + env(safe-area-inset-bottom));width:calc(100vw -
  <div class="vs" id="vsOp" data-t="lop" data-tip="Layer opacity" style="height:110px"></div><div class="vl">Opacity<b id="vlOp"></b></div>
  <button class="ib" id="bUndo" data-tip="Undo (Ctrl+Z)" aria-label="Undo" data-ic="undo"></button><button class="ib" id="bRedo" data-tip="Redo (Ctrl+Shift+Z)" aria-label="Redo" data-ic="redo"></button></div>
 <!-- mobile top-right -->
-<div id="mTop" class="fl"><button class="ib" id="tUndo" aria-label="Undo" data-ic="undo"></button><button class="ib" id="tRedo" aria-label="Redo" data-ic="redo"></button></div>
+<div id="mTop" class="fl"><button class="ib" id="tView" aria-label="Canvas view controls" aria-expanded="false" aria-controls="mView" data-ic="canvas"></button><button class="ib" id="tUndo" aria-label="Undo" data-ic="undo"></button><button class="ib" id="tRedo" aria-label="Redo" data-ic="redo"></button></div>
+<!-- v0.29 mobile canvas controls -->
+<div id="mView" class="fl" role="toolbar" aria-label="Canvas controls"><button class="ib" id="mvFit" aria-label="Fit to screen" data-ic="fit"></button><button class="ib" id="mv100" aria-label="Zoom to 100%" style="font:600 12px/1 system-ui">1:1</button><button class="ib" id="mvOut" aria-label="Zoom out" data-ic="minus"></button><button class="ib" id="mvIn" aria-label="Zoom in" data-ic="plus"></button><span class="vsep"></span><button class="ib" id="mvRL" aria-label="Rotate left 15°" data-ic="rotl"></button><button class="ib" id="mvRR" aria-label="Rotate right 15°" data-ic="rotr"></button><button class="ib" id="mvRot" aria-label="Straighten (reset rotation)">0°</button><span class="vsep"></span><button class="ib" id="mvClr" aria-label="Clear canvas" data-ic="trash"></button></div>
+<dialog id="dlgClear" aria-labelledby="clT"><h2 id="clT">Clear canvas?</h2><div class="sub2" id="clSub">You can undo this.</div>
+ <div class="cbtn"><button id="clLayer" class="dang">Clear this layer</button><button id="clAll" class="dang2">Clear all layers</button><button id="clCancel">Cancel</button></div></dialog>
 <!-- mobile bottom toolbar -->
 <div id="tb" class="fl"><button class="ib" id="tTool" aria-label="Brush / knife" data-ic="brush"></button><button class="ib" id="tMed" aria-label="Medium"><span data-ic="drop"></span></button><button class="ib" id="tPre" aria-label="Brush presets" aria-haspopup="true" data-ic="presets"></button><button class="ib" id="tCol" aria-label="Colour"><span class="cdot"></span></button>
  <div class="hs" id="tSize" data-t="size" aria-label="Size"></div><button class="ib" id="tSet" aria-label="Settings" data-ic="sliders"></button></div>
@@ -390,6 +405,7 @@ body.m #toast{bottom:calc(84px + env(safe-area-inset-bottom));width:calc(100vw -
   <li><b>Tilt</b> a pen to lay the brush on its side (Settings › Brush › Use pen tilt). Without one, use the Brush tilt slider.</li>
   <li><b>Flick:</b> lift while still moving for a tapered tail. Turn it off with Flick on lift.</li>
   <li><b>Touch:</b> one finger paints, a tap leaves a dab. Two fingers pinch to zoom and drag to move the canvas; twist them to rotate the view. A quick two-finger tap fits the canvas back to the screen, straight.</li>
+  <li class="mo"><b>Canvas buttons:</b> tap the frame button at the top right (next to Undo) to show a row of canvas controls: Fit, 1:1 (100%), zoom out / in, rotate left / right, the angle button to straighten, and the bin to clear. Clear asks first (this layer or all layers) and can be undone.</li>
   <li>While you use a pen, touches are ignored for a moment, so you can rest your palm on the screen.</li>
   <li><b>Mouse:</b> the wheel zooms; hold Space and drag, or drag with the middle button, to move the canvas. The bar at the bottom zooms, shows the zoom (click it for 100%, again to fit) and rotates the view; rotating only turns your view, not the painting.</li></ul></section>
  <section class="hSec" id="hsLayers"><h3><span data-ic="layers"></span>Layers</h3><ul>
@@ -1328,7 +1344,11 @@ $('medium').oninput=e=>setMedium(e.target.value);setMedium(0);
 const setSize=v=>{st.size=+v;$('sv').textContent=v+' px';};$('size').oninput=e=>setSize(e.target.value);setSize(34);
 const setLight=v=>{st.light=+v;$('lv').textContent=v+'°';};$('light').oninput=e=>setLight(e.target.value);setLight(135);
 const setRelief=v=>{st.relief=+v;$('rv').textContent=(+v).toFixed(2);};$('relief').oninput=e=>setRelief(e.target.value);setRelief(1.5);
-$('bClear').onclick=()=>{pushUndo(true);clearAll();belowDirty=true;layers[ai]=Object.assign({},layers[ai],{tex:null});gcTex();needRender=true;};$('bDry').onclick=()=>{pushUndo();st.dryAll=1;};
+function clearLayer(){pushUndo(true);clearAll();belowDirty=true;compFull=true;layers[ai]=Object.assign({},layers[ai],{tex:null});gcTex();needRender=true;}
+function clearAllLayers(){pushUndo(true);clearAll();belowDirty=true;compFull=true;layers=layers.map(l=>Object.assign({},l,{tex:null}));gcTex();needRender=true;uiLayers&&uiLayers();}
+// v0.29: Clear asks first (Clear this layer / Clear all layers / Cancel); both are one undo step
+function openClear(){const d=$('dlgClear'),n=layers.length;$('clAll').hidden=n<2;$('clSub').textContent=(n>1?'Layer: '+(layers[ai].name||('Layer '+(ai+1)))+'. ':'')+'You can undo this.';if(!d.open)d.showModal();$('clCancel').focus();}
+$('bClear').onclick=openClear;$('bDry').onclick=()=>{pushUndo();st.dryAll=1;};
 document.addEventListener('keydown',e=>{const k=e.key.toLowerCase();if((e.ctrlKey||e.metaKey)&&k==='z'){e.preventDefault();if(e.shiftKey)redo();else undo();}else if((e.ctrlKey||e.metaKey)&&k==='y'){e.preventDefault();redo();}});
 function segUI(id,key,cb){const el=$(id);el.querySelectorAll('button').forEach(b=>b.onclick=()=>{el.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));st[key]=b.dataset.v;cb&&cb();});}
 function setTool(v){st.tool=v;$('tool').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));$('brushOpts').style.display=v==='brush'?'':'none';$('dynOpts').style.display=v==='brush'?'':'none';$('knifeOpts').style.display=v==='knife'?'':'none';}
@@ -1539,6 +1559,15 @@ document.addEventListener('keydown',e=>{if(document.querySelector('dialog[open]'
  if((e.ctrlKey||e.metaKey)&&!e.altKey){if(k==='0'||e.code==='Digit0'||e.code==='Numpad0'){e.preventDefault();homeView();}else if(k==='1'||e.code==='Digit1'||e.code==='Numpad1'){e.preventDefault();zoom100();}
   else if(k==='='||k==='+'||e.code==='NumpadAdd'){e.preventDefault();zoomStep(1.25);}else if(k==='-'||k==='_'||e.code==='NumpadSubtract'){e.preventDefault();zoomStep(1/1.25);}return;}
  if(!e.altKey&&(k==='r'||k==='R')){e.preventDefault();rotStep(e.shiftKey?15:-15);}});
+// v0.29 mobile canvas controls (UI only)
+{const mvSet=on=>{document.body.classList.toggle('mv',on);$('tView').classList.toggle('on',on);$('tView').setAttribute('aria-expanded',on);try{localStorage.setItem('medium.mv',on?'1':'0');}catch(_){}};
+ let mv0=false;try{mv0=localStorage.getItem('medium.mv')==='1';}catch(_){}mvSet(mv0);
+ $('tView').onclick=()=>mvSet(!document.body.classList.contains('mv'));
+ $('mvFit').onclick=()=>homeView();$('mv100').onclick=()=>zoom100();$('mvIn').onclick=()=>zoomStep(1.25);$('mvOut').onclick=()=>zoomStep(1/1.25);
+ $('mvRL').onclick=()=>rotStep(15);$('mvRR').onclick=()=>rotStep(-15);$('mvRot').onclick=()=>rotReset();$('mvClr').onclick=openClear;
+ $('clLayer').onclick=()=>{$('dlgClear').close();clearLayer();};$('clAll').onclick=()=>{$('dlgClear').close();clearAllLayers();};$('clCancel').onclick=()=>$('dlgClear').close();
+ $('dlgClear').addEventListener('click',e=>{if(e.target===$('dlgClear'))$('dlgClear').close();});
+ setInterval(()=>{const d=rotDeg(),t=(-d)+'°';if($('mvRot').textContent!==t)$('mvRot').textContent=t;$('mvRot').disabled=!d;},250);}
 $('bUndo').onclick=$('tUndo').onclick=()=>{undo();};$('bRedo').onclick=$('tRedo').onclick=()=>{redo();};
 document.addEventListener('keydown',e=>{const tg=e.target&&e.target.tagName;if(tg==='INPUT'&&e.target.type!=='range'&&e.target.type!=='checkbox'||tg==='SELECT'||e.ctrlKey||e.metaKey||e.altKey)return;
  const k=e.key.toLowerCase();if(k==='b'){setTool('brush');syncTB();}else if(k==='k'){setTool('knife');syncTB();}else if(k==='escape'){closeCP();}});
@@ -1596,7 +1625,7 @@ if(DIAG){const d=document.createElement('div');d.id='diag';d.style.cssText='posi
  d.append(pre,cp,rf,cl);document.body.appendChild(d);setTimeout(upd,300);}
 window.paintAPI={resetPeak:()=>{gpuPeak=gpuBytes;},pause:v=>paused=v,setMedium,setMed,medium:()=>st.med,setSize,selectPig,setHex:h=>{st.ks=hexKS(h);},clear:clearAll,undo,redo,setLight,setRelief,
  step:n=>{for(let i=0;i<n;i++)step();render();},dryAll:()=>{st.dryAll=1;step();render();},
- L:L_,layers:()=>layers.map((l,i)=>({name:l.name,vis:l.vis,op:l.op,blend:l.blend,has:!!l.tex,active:i===ai})),setSurface,newCanvas,exportData,saveProjectBytes,openProjectBytes,fit,render:()=>render(),view,homeView,rotStep,zoom100,isHome:()=>isHome(),
+ L:L_,layers:()=>layers.map((l,i)=>({name:l.name,vis:l.vis,op:l.op,blend:l.blend,has:!!l.tex,active:i===ai})),setSurface,newCanvas,exportData,saveProjectBytes,openProjectBytes,fit,render:()=>render(),view,homeView,rotStep,zoom100,clearLayer,clearAllLayers,isHome:()=>isHome(),
 
  stroke(pts,pres=.55,o={}){beginStroke(o);let T=0;for(const q of pts){const pp=q[2]!=null?q[2]:pres;T+=q[3]!=null?q[3]:(o.dt||16);addPoint(q[0],q[1],o.mouse?null:pp,o.tl||{t:(o.tilt!=null?o.tilt:st.btilt)/80,phi:null,pen:false,mouse:!!o.mouse},T);}endStroke();},
  setDyn:v=>setDyn(v),setWLoad:v=>setWLoad(v),setFlick:v=>{st.flick=v;$('flick').checked=v;},setWobble:v=>{st.wobble=v;$('wob').checked=v;},
