@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v0.27</title>
+<title>Medium — paint v0.28</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="app-version" content="medium-v0.27">
+<meta name="app-version" content="medium-v0.28">
 <meta name="theme-color" content="#161618">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -248,7 +248,7 @@ body.m #toast{bottom:calc(84px + env(safe-area-inset-bottom));width:calc(100vw -
 <div id="stage"><canvas id="c"></canvas><canvas id="cur" style="position:fixed;pointer-events:none"></canvas><div id="msg"></div></div>
 <div id="viewc" role="toolbar" aria-label="Canvas view"><button id="vOut" data-ic="minus" data-tip="Zoom out (Ctrl+−)" aria-label="Zoom out"></button><button id="zoomv" data-tip="Zoom: click for 100% (Ctrl+1), again to fit (Ctrl+0)" aria-label="Zoom level">100%</button><button id="vIn" data-ic="plus" data-tip="Zoom in (Ctrl++)" aria-label="Zoom in"></button><span class="vsep"></span><button id="vRL" data-ic="rotl" data-tip="Rotate view left 15° (Shift+R)" aria-label="Rotate view left"></button><button id="vRR" data-ic="rotr" data-tip="Rotate view right 15° (R)" aria-label="Rotate view right"></button><button id="rotv" hidden data-tip="Straighten the view" aria-label="Reset rotation">0°</button></div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.27</span></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.28</span></div>
  <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tFit" data-tip="Fit to screen" aria-label="Fit to screen" data-ic="fit"></button><button class="ib dk" id="tExp" data-tip="Export… (Ctrl+Shift+E)" aria-label="Export image" aria-haspopup="dialog" data-ic="download"></button><button class="ib dk" id="tHelp" data-tip="Help &amp; shortcuts (?)" aria-label="Help and keyboard shortcuts" aria-haspopup="dialog" data-ic="help"></button></div>
 <!-- top-right: tools -->
 <div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button>
@@ -283,7 +283,8 @@ body.m #toast{bottom:calc(84px + env(safe-area-inset-bottom));width:calc(100vw -
   <div><div class="lab"><span>Bristle stiffness</span><span id="kv"></span></div><input id="stiff" type="range" min="0" max="1" step="0.01" value="0.5"></div>
   <label class="chk"><input type="checkbox" id="multi"> Multi-colour load <span style="color:var(--mute)">(pick 2–4)</span></label></div>
  <div class="sub" id="knifeOpts" style="display:none"><div class="seg" id="kmode"><button data-v="spread" class="on">Spread</button><button data-v="scrape">Scrape</button><button data-v="lay">Load &amp; lay</button></div>
-  <div><div class="lab"><span>Blade angle</span><span id="kav"></span></div><input id="kang" type="range" min="0" max="90" step="1" value="0" aria-label="Blade angle (0 = flat across the stroke, 90 = edge along it)"></div></div>
+  <div><div class="lab"><span>Blade angle</span><span id="kav"></span></div><input id="kang" type="range" min="0" max="90" step="1" value="0" aria-label="Blade angle (0 = flat across the stroke, 90 = edge along it)"></div>
+  <div><div class="lab"><span>Lift ridge</span><span id="klv"></span></div><input id="klift" type="range" min="0" max="200" step="5" value="100" aria-label="Lift ridge: how much paint the knife pulls up where it leaves the canvas"></div></div>
  <div><div class="lab"><span>Brush size</span><span id="sv"></span></div><input id="size" type="range" min="4" max="120" step="1" value="34"></div>
  <div id="dynOpts"><div class="lab"><span>Dynamics</span><span id="dv"></span></div><input id="dyn" type="range" min="0" max="1" step="0.01" value="0.6">
   <div class="ends"><span>Steady</span><span>Expressive</span></div>
@@ -590,6 +591,23 @@ knifeW:`uniform sampler2D uS,uF,uD;uniform vec2 uC,uB,uNrm;uniform float uLh,uWw
 void main(){vec4 s=texture(uS,vUv),f=texture(uF,vUv),d=texture(uD,vUv);vec2 r=FC.xy-uC;float un=dot(r,uNrm),vb=dot(r,uB);
 if(abs(un)<uWw*1.5&&abs(vb)<uLh){float k=1.-smoothstep(uLh*.85,uLh,abs(vb));s.x*=1.-.45*k;f*=1.-.35*k;d*=1.-.06*uPres*k*(.5+.5*vnoise(FC.xy*vec2(.2,.5)));}
 o0=s;o1=f;o2=d;}`,
+// v0.28 knife lift-off: when the blade leaves the surface, the wet paint under and just in front of its edge is pulled up into a crisp
+// ridge along the line where the blade lifted (gathered from a band either side, mass-conserving per line across the blade), with
+// suction peaks along the blade, plus what is left on the blade (Load & lay) dropped on the same line. Yield stress on the crest = the
+// medium's, so oil holds it and relax only softens it slightly.
+knifeLift:`uniform sampler2D uO0,uO1,uO2,uK0,uK2;uniform vec2 uC,uB,uNrm;uniform float uLh,uWw,uLift,uDrop,uTau,uDr,uTrav;${O3}
+float wsrc(float u,float w){return smoothstep(-1.6*w,-.4*w,u)*(1.-smoothstep(2.6*w,3.6*w,u));}
+void main(){vec4 a=texture(uO0,vUv),m=texture(uO1,vUv);o0=a;o1=m;o2=texture(uO2,vUv);
+vec2 p=FC.xy,r=p-uC;float un=dot(r,uNrm),vb=dot(r,uB);float w=uWw;
+if(abs(vb)>=uLh||un<-1.7*w||un>3.7*w)return;
+float sg=max(.5*w,.8),u0=1.15*w;float g=exp(-.5*(un-u0)*(un-u0)/(sg*sg))/(sg*2.5066);
+float pk=vnoise(vec2(vb*.32+uTrav*.01,4.7)),pk2=vnoise(vec2(vb*.9,9.1));float f=uLift*(.72+.38*pk+.14*pk2)*smoothstep(uLh,uLh*.8,abs(vb));
+float S=0.;vec4 M=vec4(0);const int NQ=24;float ds=5.2*w/float(NQ);
+for(int i=0;i<NQ;i++){float u=-1.6*w+(float(i)+.5)*ds;vec2 q=uC+uB*vb+uNrm*u;vec4 aq=texture(uO0,q*tx),mq=texture(uO1,q*tx);float ws=wsrc(u,w)*f;S+=aq.x*ws*ds;M+=mq*ws*ds;}
+float wh=wsrc(un,w)*f;ivec2 ks=ivec2(clamp(int((vb/uLh*.5+.5)*24.),0,23),0);vec4 K=texelFetch(uK0,ks,0),kc=texelFetch(uK2,ks,0);
+float seg=2.*uLh/24.;float dep=min(uDrop*K.x/seg,3.*S+.6*w)*(.8+.35*pk);
+o0.x=a.x*(1.-wh)+(S+dep)*g;o1=max(m*(1.-wh)+(M+dep*kc)*g,0.);
+if(dep*g>1e-4&&a.x<1e-3){o0.z=uTau;o0.w=uDr;}else if((S+dep)*g>a.x*.2){o0.z=max(a.z,uTau);}}`,
 relax:`uniform sampler2D uO0,uO1,uO2;uniform float uMu,uAll,uTilt;${O3}
 void main(){vec4 a=texture(uO0,vUv),m=texture(uO1,vUv),cd=texture(uO2,vUv);float h=a.x;
 float s=h+a.y-uTilt*FC.y*.004;vec4 mo=m;float ho=h;float vin=0.,tin=0.,win=0.;
@@ -857,7 +875,7 @@ function hexKS(hex){if(!hex)return[0,0,0,0];const n=parseInt(hex.slice(1),16);co
 // state
 const D2R=Math.PI/180;
 const st={m:0,med:'water',size:34,ks:hexKS(PIG[0][1]),tilt:0,dryAll:0,light:135,relief:1.5,
- granP:1,wload:.7,tool:'brush',shape:'round',dyn:.6,wobble:true,flick:true,stiff:.5,kmode:'spread',btilt:0,bang:0,follow:true,pen:true,multi:false,stripes:[],kang:0};
+ granP:1,wload:.7,tool:'brush',shape:'round',dyn:.6,wobble:true,flick:true,stiff:.5,kmode:'spread',btilt:0,bang:0,follow:true,pen:true,multi:false,stripes:[],kang:0,klift:1};
 const sm=(a,b,x)=>{const t=Math.min(Math.max((x-a)/(b-a),0),1);return t*t*(3-2*t);};
 const cl=(x,a=0,b=1)=>Math.min(Math.max(x,a),b);
 function params(){const m=st.m,body=sm(.08,.55,m);const p={
@@ -1044,7 +1062,7 @@ function brushDab(x,y,pres,stepPx,tl){const p=params();const D=dynE();const ff=d
    tilt, no 0.1 snap) or the stroke direction + 'Blade angle' (0 flat across the stroke = broad slab, 90 edge along it = thin line), smoothed
    by distance moved like the v0.21 tail fix. Load & lay: a finite lump; the laid layer thins as it runs out and breaks up into a dragged end. */
 let kAng=null,kRes0=1;
-function knifeBegin(){kTrav=Math.random()*50;kAng=null;const p=params();const Rp=st.size/800*1.05*.9*512;
+function knifeBegin(){kTrav=Math.random()*50;kAng=null;kLast=null;const p=params();const Rp=st.size/800*1.05*.9*512;
  const v=(st.kmode==='lay'?(2.3*Rp)*(Rp*12)*p.Hs*.95:0)/24;kRes0=Math.max(v,1e-5); // per blade segment
  gl.bindFramebuffer(gl.FRAMEBUFFER,KN.r.fb);
  gl.clearBufferfv(gl.COLOR,0,[v,0,0,1]);{const K=medKS(st.ks);gl.clearBufferfv(gl.COLOR,1,K.map(c=>c*v));gl.clearBufferfv(gl.COLOR,2,K);}}
@@ -1056,17 +1074,23 @@ function knifeGeom(x,y,pres,tl,stepPx){const Rb=st.size/800*1.05*.9*512;const t=
  let n=[Math.cos(kAng),Math.sin(kAng)];if(n[0]*dir[0]+n[1]*dir[1]<0)n=[-n[0],-n[1]];
  const flat=Math.abs(n[0]*dir[0]+n[1]*dir[1]); // 1 = blade across the stroke, 0 = edge along it
  return{C:[x*W,y*H],n,b:[-n[1],n[0]],Lh:Rb*1.15,ww:Math.max(1.,(3.4-2.2*t)*(.6+.9*pres)*(.45+.55*flat)),t,flat};}
-let kTrav=0;function knifeDab(x,y,pres,stepPx,tl){const p=params();const g=knifeGeom(x,y,pres,tl,stepPx);const m=st.kmode,t=g.t;kTrav+=stepPx;
+let kLast=null;let kTrav=0;function knifeDab(x,y,pres,stepPx,tl){const p=params();const g=knifeGeom(x,y,pres,tl,stepPx);const m=st.kmode,t=g.t;kTrav+=stepPx;
  const chat=1+.05*Math.sin(kTrav*.13)*Math.sin(kTrav*.047+1.)+.03*Math.sin(kTrav*.31+Math.sin(kTrav*.05)*3);
  const pr=cl(pres,0,1);
  const thick=chat*(m==='spread'?p.Hs*(.95-.8*pr)*(1-.6*t):m==='scrape'?p.Hs*.02*(1-t):p.Hs*(1.05-.75*pr)*(1-.4*t))*(.35+.65*g.flat);
  const beta=m==='spread'?.25+.45*pr:m==='scrape'?.12:.18+.35*pr,fillOn=m==='scrape'?0:1;
  const kv={uC:g.C,uB:g.b,uNrm:g.n,uLh:g.Lh,uWw:g.ww,uThick:thick,uBeta:beta,uFillOn:fillOn,uTau:p.tau,uDr:p.dryRate,uPres:pres,uRes0:m==='lay'?kRes0:0,uTrav:kTrav,uPick:m==='scrape'?0:1};
  const R=g.Lh+3*g.ww+4;const rect=[Math.max(0,Math.floor(g.C[0]-R)),Math.max(0,Math.floor(g.C[1]-R)),Math.ceil(2*R)+1,Math.ceil(2*R)+1];
+ kLast={kv,rect,pres:pr,mode:m,moved:kLast?kLast.moved+stepPx:stepPx};
  if(p.body>.01){run(P.kLevel,KN.w,{uK0:KN.r.t[0],uK1:KN.r.t[1],uO0:OL.r.t[0],uO1:OL.r.t[1]},kv);KN.swap();
   simPass(P.knifeO,OL,{uO0:OL.r.t[0],uO1:OL.r.t[1],uO2:OL.r.t[2],uK0:KN.r.t[0],uK2:KN.r.t[2]},kv,[rect]);
   simPass(P.wcBury,WT,{uS:WT.r.t[0],uF:WT.r.t[1],uD:WT.r.t[2],uO0:OL.r.t[0]},{},[rect]);}
  if(p.water>.02){ensureWater();simPass(P.knifeW,WT,{uS:WT.r.t[0],uF:WT.r.t[1],uD:WT.r.t[2]},kv,[rect]);}}
+/* v0.28 lift-off ridge: called once at the end of a knife stroke (pointer up / pen lift). Strength by mode and pressure: Load & lay and
+   Spread leave a raised lip where the blade came away, Scrape only a fine edge line. Skipped for taps (blade never travelled). */
+function knifeLift(){const k=kLast;kLast=null;if(!k||k.moved<4)return;const p=params();if(p.body<=.01)return;
+ const lift=(k.mode==='lay'?.42:k.mode==='spread'?.34:.12)*(.7+.5*k.pres)*st.klift,drop=k.mode==='lay'?.55*st.klift:0;if(lift<=0)return;
+ simPass(P.knifeLift,OL,{uO0:OL.r.t[0],uO1:OL.r.t[1],uO2:OL.r.t[2],uK0:KN.r.t[0],uK2:KN.r.t[2]},Object.assign({},k.kv,{uLift:lift,uDrop:drop}),[k.rect]);}
 /* v0.18 adaptive sim budget. The sim used to run 2 steps every animation frame whatever it cost (=240 steps/s on a 120 Hz screen) over
    whole tiles/the whole canvas, so a large wet area on a weak (integrated) GPU stretched every frame and the brush lagged. Now: 120 steps/s
    of sim time owed from the real frame dt; a pixel budget per frame (sim px = shaded + blitted px of all passes); brush dabs are charged
@@ -1166,6 +1190,7 @@ function penFlush(){const q=(PF&&PF.q)||[];PF&&(PF.q=[]);if(!q.length)return;
  // remaining tail: taper pressure gently from ref towards .6*ref, never below .2; tilt frozen
  for(let i=0;i<n;i++){const f=(i+1)/Math.max(n,1);addPoint(q[i].x,q[i].y,Math.max(.3,Math.min(q[i].p,ref*(1-.25*f))),tl,q[i].ts);}}
 function endStroke(){if(strokePen)penFlush();if(last&&last.pend)dab(last.x,last.y,last.p,0,last.tl);
+ if(st.tool==='knife')knifeLift();
  if(last&&!last.pend&&st.tool==='brush'&&st.flick&&st.dyn>0&&!strokePen){ // v11.3: not for pen — the pen has real lift data // lift-off: pressure falls to zero while the brush keeps moving, bristles spring back
   const D=dynE(),spN=cl(dyn.speed/1.6);const len=st.size*(.5+2.4*spN)*Math.min(1,D*1.4)/W;let x=last.x,y=last.y,d=dir.slice();const n=Math.max(6,Math.ceil(len*W/1.5));dyn.flick=1;
   const avL=.3/(1.05*len*W),av=cl(dyn.angVel||0,-avL,avL); // v0.21: the whole flick turns at most ~17 deg (was up to .08 rad/px over the flick length = several radians on fast strokes)
@@ -1313,6 +1338,7 @@ function setKMode(v){st.kmode=v;$('kmode').querySelectorAll('button').forEach(x=
 const setStiff=v=>{st.stiff=+v;$('stiff').value=v;$('kv').textContent=Math.round(v*100)+'%';};$('stiff').oninput=e=>setStiff(e.target.value);setStiff(.5);
 const setBTilt=v=>{st.btilt=+v;$('btilt').value=v;$('tv').textContent=v+'°';};$('btilt').oninput=e=>setBTilt(e.target.value);setBTilt(0);
 const setKAng=v=>{st.kang=+v;$('kang').value=v;$('kav').textContent=(+v)+'°'+(+v<15?' flat':+v>70?' edge':'');};$('kang').oninput=e=>setKAng(e.target.value);setKAng(0);
+const setKLift=v=>{st.klift=(+v)/100;$('klift').value=v;$('klv').textContent=(+v)===0?'off':(+v)+'%';};$('klift').oninput=e=>setKLift(e.target.value);setKLift(100);
 const setBAng=v=>{st.bang=+v;$('bang').value=v;$('av').textContent=v+'°';};$('bang').oninput=e=>setBAng(e.target.value);setBAng(0);
 const setWLoad=v=>{st.wload=+v;$('wload').value=v;$('wv').textContent=Math.round(v*100)+'%';};$('wload').oninput=e=>setWLoad(e.target.value);setWLoad(.7);
 const setDyn=v=>{st.dyn=+v;$('dyn').value=v;$('dv').textContent=Math.round(v*100)+'%';};$('dyn').oninput=e=>setDyn(e.target.value);setDyn(.6);
@@ -1577,7 +1603,7 @@ window.paintAPI={resetPeak:()=>{gpuPeak=gpuBytes;},pause:v=>paused=v,setMedium,s
  setTool,setShape,setKMode,setStiff,setBTilt,setBAng,setFollow:v=>{st.follow=v;$('follow').checked=v;},
  multi(hexes){st.multi=!!hexes;$('multi').checked=!!hexes;st.stripes=hexes?hexes.map(hexKS):[];},tilt:t=>st.tilt=t,
  zoom:(cx,cy,s)=>{fit();const f=view.s*s;view.ox=cv.width/2-cx*W*f;view.oy=cv.height/2-cy*H*f;view.s=f;render();},
- setKAng:v=>setKAng(v),olHeight(){const b=new Float32Array(W*H*4);gl.bindFramebuffer(gl.FRAMEBUFFER,OL.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);gl.readPixels(0,0,W,H,gl.RGBA,gl.FLOAT,b);const o=new Float32Array(W*H);let nan=0;for(let i=0;i<W*H;i++){const v=b[4*i]+b[4*i+1];if(!isFinite(v))nan++;o[i]=v;}return{h:Array.from(o),nan,W,H};},
+ setKAng:v=>setKAng(v),setKLift:v=>setKLift(v),olHeight(){const b=new Float32Array(W*H*4);gl.bindFramebuffer(gl.FRAMEBUFFER,OL.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);gl.readPixels(0,0,W,H,gl.RGBA,gl.FLOAT,b);const o=new Float32Array(W*H);let nan=0;for(let i=0;i<W*H;i++){const v=b[4*i]+b[4*i+1];if(!isFinite(v))nan++;o[i]=v;}return{h:Array.from(o),nan,W,H};},
  volume(){const pr=P.copy3;const b=new Float32Array(W*H*4);gl.bindFramebuffer(gl.FRAMEBUFFER,OL.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);
   gl.readPixels(0,0,W,H,gl.RGBA,gl.FLOAT,b);let v=0,mx=0;for(let i=0;i<W*H;i++){const t=b[4*i]+b[4*i+1];v+=t;if(t>mx)mx=t;}return{v,mx};},
  profile(y){const b=new Float32Array(W*4);gl.bindFramebuffer(gl.FRAMEBUFFER,OL.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);gl.readPixels(0,Math.round(y*H),W,1,gl.RGBA,gl.FLOAT,b);const o=[];for(let i=170;i<300;i+=2)o.push(b[4*i]+b[4*i+1]);return o;},
