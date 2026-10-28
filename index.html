@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v0.31</title>
+<title>Medium — paint v0.32</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="app-version" content="medium-v0.31">
+<meta name="app-version" content="medium-v0.32">
 <meta name="theme-color" content="#161618">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -264,14 +264,16 @@ body.m #toast{bottom:calc(84px + env(safe-area-inset-bottom));width:calc(100vw -
 #refC{position:absolute;inset:0;width:100%;height:100%;cursor:grab;touch-action:none;display:block}#refC:active{cursor:grabbing}
 #ref.pk #refC,body.picking #refC{cursor:crosshair}
 #refRs{position:absolute;right:0;bottom:0;width:24px;height:24px;cursor:nwse-resize;touch-action:none;background:linear-gradient(135deg,transparent 52%,rgba(255,255,255,.4) 52%,rgba(255,255,255,.4) 60%,transparent 60%,transparent 70%,rgba(255,255,255,.4) 70%,rgba(255,255,255,.4) 78%,transparent 78%)}
-body.m #refH .ib{min-width:44px;height:44px}body.m #refRs{width:34px;height:34px}
+#trace{display:none;z-index:1;pointer-events:none}#trace.on{display:block}
+#refTr.on,#tRefM.on{color:var(--acc,#8ab4ff)}
+body.m #refH .ib{min-width:44px;height:44px}body.m #refH{padding-left:6px;gap:1px}body.m #refRs{width:34px;height:34px}
 body.dropref::after{content:'Drop an image to use it as a reference';position:fixed;inset:12px;border:2px dashed var(--acc);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--ink);background:rgba(22,22,24,.7);z-index:60;pointer-events:none}
 </style></head>
 <body>
-<div id="stage"><canvas id="c"></canvas><canvas id="cur" style="position:fixed;pointer-events:none"></canvas><div id="msg"></div></div>
+<div id="stage"><canvas id="c"></canvas><canvas id="trace" style="position:fixed" aria-hidden="true"></canvas><canvas id="cur" style="position:fixed;pointer-events:none"></canvas><div id="msg"></div></div>
 <div id="viewc" role="toolbar" aria-label="Canvas view"><button id="vOut" data-ic="minus" data-tip="Zoom out (Ctrl+−)" aria-label="Zoom out"></button><button id="zoomv" data-tip="Zoom: click for 100% (Ctrl+1), again to fit (Ctrl+0)" aria-label="Zoom level">100%</button><button id="vIn" data-ic="plus" data-tip="Zoom in (Ctrl++)" aria-label="Zoom in"></button><span class="vsep"></span><button id="vRL" data-ic="rotl" data-tip="Rotate view left 15° (Shift+R)" aria-label="Rotate view left"></button><button id="vRR" data-ic="rotr" data-tip="Rotate view right 15° (R)" aria-label="Rotate view right"></button><button id="rotv" hidden data-tip="Straighten the view" aria-label="Reset rotation">0°</button></div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.31</span></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.32</span></div>
  <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tFit" data-tip="Fit to screen" aria-label="Fit to screen" data-ic="fit"></button><button class="ib dk" id="tExp" data-tip="Export… (Ctrl+Shift+E)" aria-label="Export image" aria-haspopup="dialog" data-ic="download"></button><button class="ib dk" id="tRef" data-tip="Reference image" aria-label="Reference image" data-ic="image"></button><button class="ib dk" id="tHelp" data-tip="Help &amp; shortcuts (?)" aria-label="Help and keyboard shortcuts" aria-haspopup="dialog" data-ic="help"></button></div>
 <!-- top-right: tools -->
 <div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button>
@@ -283,7 +285,7 @@ body.dropref::after{content:'Drop an image to use it as a reference';position:fi
  <div class="vs" id="vsOp" data-t="lop" data-tip="Layer opacity" style="height:110px"></div><div class="vl">Opacity<b id="vlOp"></b></div>
  <button class="ib" id="bUndo" data-tip="Undo (Ctrl+Z)" aria-label="Undo" data-ic="undo"></button><button class="ib" id="bRedo" data-tip="Redo (Ctrl+Shift+Z)" aria-label="Redo" data-ic="redo"></button></div>
 <!-- mobile top-right -->
-<div id="mTop" class="fl"><button class="ib" id="tView" aria-label="Canvas view controls" aria-expanded="false" aria-controls="mView" data-ic="canvas"></button><button class="ib" id="tUndo" aria-label="Undo" data-ic="undo"></button><button class="ib" id="tRedo" aria-label="Redo" data-ic="redo"></button></div>
+<div id="mTop" class="fl"><button class="ib" id="tRefM" aria-label="Reference image" data-ic="image"></button><button class="ib" id="tView" aria-label="Canvas view controls" aria-expanded="false" aria-controls="mView" data-ic="canvas"></button><button class="ib" id="tUndo" aria-label="Undo" data-ic="undo"></button><button class="ib" id="tRedo" aria-label="Redo" data-ic="redo"></button></div>
 <!-- v0.29 mobile canvas controls -->
 <div id="mView" class="fl" role="toolbar" aria-label="Canvas controls"><button class="ib" id="mvFit" aria-label="Fit to screen" data-ic="fit"></button><button class="ib" id="mv100" aria-label="Zoom to 100%" style="font:600 12px/1 system-ui">1:1</button><button class="ib" id="mvOut" aria-label="Zoom out" data-ic="minus"></button><button class="ib" id="mvIn" aria-label="Zoom in" data-ic="plus"></button><span class="vsep"></span><button class="ib" id="mvRL" aria-label="Rotate left 15°" data-ic="rotl"></button><button class="ib" id="mvRR" aria-label="Rotate right 15°" data-ic="rotr"></button><button class="ib" id="mvRot" aria-label="Straighten (reset rotation)">0°</button><span class="vsep"></span><button class="ib" id="mvClr" aria-label="Clear canvas" data-ic="trash"></button></div>
 <dialog id="dlgClear" aria-labelledby="clT"><h2 id="clT">Clear canvas?</h2><div class="sub2" id="clSub">You can undo this.</div>
@@ -292,7 +294,7 @@ body.dropref::after{content:'Drop an image to use it as a reference';position:fi
 <div id="tb" class="fl"><button class="ib" id="tTool" aria-label="Brush / knife" data-ic="brush"></button><button class="ib" id="tMed" aria-label="Medium"><span data-ic="drop"></span></button><button class="ib" id="tPre" aria-label="Brush presets" aria-haspopup="true" data-ic="presets"></button><button class="ib" id="tCol" aria-label="Colour"><span class="cdot"></span></button>
  <div class="hs" id="tSize" data-t="size" aria-label="Size"></div><button class="ib" id="tSet" aria-label="Settings" data-ic="sliders"></button></div>
 <!-- v0.31 reference image window -->
-<div id="ref" class="fl" role="dialog" aria-label="Reference image"><div id="refH"><span id="refT">Reference</span><button class="ib" id="refPk" data-ic="pipette" aria-label="Pick a colour from the reference" title="Pick a colour from the reference"></button><button class="ib" id="refFit" data-ic="fit" aria-label="Fit reference" title="Fit (double-click)"></button><button class="ib" id="refOpen" data-ic="image" aria-label="Replace reference image" title="Replace image"></button><button class="ib" id="refX" data-ic="x" aria-label="Hide reference" title="Hide (the image is kept)"></button></div><div id="refB"><canvas id="refC" aria-label="Reference image: drag to move, scroll or pinch to zoom"></canvas><div id="refRs" aria-hidden="true"></div></div></div>
+<div id="ref" class="fl" role="dialog" aria-label="Reference image"><div id="refH"><span id="refT">Reference</span><button class="ib" id="refPk" data-ic="pipette" aria-label="Pick a colour from the reference" title="Pick a colour from the reference"></button><button class="ib" id="refTr" data-ic="trace" aria-pressed="false" aria-label="Trace: show the reference over the canvas" title="Trace over the canvas (T)"></button><button class="ib" id="refFit" data-ic="fit" aria-label="Fit reference" title="Fit (double-click)"></button><button class="ib" id="refOpen" data-ic="image" aria-label="Replace reference image" title="Replace image"></button><button class="ib" id="refX" data-ic="x" aria-label="Hide reference" title="Hide (the image is kept)"></button></div><div id="refB"><canvas id="refC" aria-label="Reference image: drag to move, scroll or pinch to zoom"></canvas><div id="refRs" aria-hidden="true"></div></div></div>
 <!-- colour picker -->
 <div id="mp" class="fl" role="menu" aria-label="Medium"></div>
 <!-- v0.23 brush presets -->
@@ -352,6 +354,9 @@ body.dropref::after{content:'Drop an image to use it as a reference';position:fi
  <div class="hint" style="margin-bottom:10px">Keep a photo or sketch beside your painting and pick colours from it. It floats over the canvas, is never painted or exported, and stays in this browser. You can also drop or paste an image onto the page.</div>
  <div class="row2"><button id="bRefAdd">Add image…</button><button id="bRefShow" disabled>Show</button></div>
  <div class="row2" style="margin-top:8px"><button id="bRefDel" style="grid-column:span 2" disabled>Remove reference</button></div>
+ <label class="chk" style="display:flex;align-items:center;gap:8px;margin-top:10px"><input type="checkbox" id="refTrace" disabled> Trace over the canvas</label>
+ <div style="margin-top:6px"><div class="lab"><span>Tracing opacity</span><span id="refTrV">35%</span></div><input id="refTrOp" type="range" min="5" max="90" step="5" value="35" aria-label="Tracing opacity"></div>
+ <div class="hint" style="margin-top:6px">Tracing lays the reference over the whole canvas, fitted and see-through, so you can follow its shapes. It moves with zoom and rotation and is never painted or exported.</div>
  <div class="hint" id="refMsg" aria-live="polite" style="margin-top:8px">No reference image yet.</div>
  <input type="file" id="refFile" accept="image/*" style="display:none"></div></div></details>
 <details class="g"><summary><span data-ic="download"></span>Export &amp; projects</summary><div class="gb">
@@ -395,7 +400,7 @@ body.dropref::after{content:'Drop an image to use it as a reference';position:fi
  <nav class="hNav" aria-label="Help sections"><button type="button" data-go="hsStart"><span data-ic="brush"></span>Getting started</button><button type="button" data-go="hsPresets"><span data-ic="presets"></span>Brush presets</button><button type="button" data-go="hsWater"><span data-ic="drop"></span>Watercolour</button><button type="button" data-go="hsOil"><span data-ic="oil"></span>Oil &amp; impasto</button><button type="button" data-go="hsPen"><span data-ic="pencil"></span>Pen &amp; touch</button><button type="button" data-go="hsLayers"><span data-ic="layers"></span>Layers</button><button type="button" data-go="hsExport"><span data-ic="download"></span>Export</button><button type="button" data-go="hsKeys"><span data-ic="keys"></span>Shortcuts</button></nav>
  <section class="hSec" id="hsStart"><h3><span data-ic="brush"></span>Getting started</h3><ol class="hSteps">
   <li><b>Pick a medium</b>Open the Medium menu (<span class="dk">top right</span><span class="mo">bottom bar</span>) and choose Watercolour, Gouache, Acrylic, Oil or Ink.</li>
-  <li><b>Pick a colour</b>The colour dot opens the pigments, a custom colour picker and your recent colours. To reuse a colour already on the canvas, tap the pipette in the colour picker and touch the painting (on a keyboard: I, or hold Alt and click). To paint from a photo, open <b>Reference image</b> in Settings<span class="dk">, the picture button at the top left,</span> or drop or paste an image: it floats beside the canvas and its pipette picks colours from it.</li>
+  <li><b>Pick a colour</b>The colour dot opens the pigments, a custom colour picker and your recent colours. To reuse a colour already on the canvas, tap the pipette in the colour picker and touch the painting (on a keyboard: I, or hold Alt and click). To paint from a photo, open <b>Reference image</b> in Settings<span class="dk">, the picture button at the top left,</span><span class="mo">, the picture button at the top right,</span> or drop or paste an image: it floats beside the canvas and its pipette picks colours from it. Its trace button (or T) lays it see-through over the canvas so you can follow its shapes.</li>
   <li><b>Set up the brush</b>Choose brush or palette knife and set the size <span class="dk">on the left rail</span><span class="mo">with the Size slider</span>. Brush shape, stiffness and water load are in Settings.</li>
   <li><b>Paint</b>Drag on the paper. Made a mistake? Undo is <span class="dk">on the left rail, or <span class="kmod">Ctrl</span>+Z</span><span class="mo">at the top right</span>.</li></ol>
   <p class="hNote">Painting feels slow? Try Settings › Canvas &amp; surface › Quality: Low.</p></section>
@@ -1501,6 +1506,7 @@ const ICONS={
  help:'<circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.8M12 17.2h0"/>',
  plus:'<path d="M12 5v14M5 12h14"/>',minus:'<path d="M5 12h14"/>',rotl:'<path d="M4.5 9.5A8 8 0 1 1 4 13"/><path d="M4 4.5v5h5"/>',rotr:'<path d="M19.5 9.5A8 8 0 1 0 20 13"/><path d="M20 4.5v5h-5"/>',trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
  up:'<path d="M12 19V5M6 11l6-6 6 6"/>',down:'<path d="M12 5v14M6 13l6 6 6-6"/>',merge:'<path d="M7 4l5 5 5-5M12 9v11M6 20h12"/>',
+ trace:'<rect x="3" y="3" width="13" height="13" rx="2"/><rect x="8" y="8" width="13" height="13" rx="2" stroke-dasharray="2.2 2"/><path d="M11 17.5l3-5 2.5 3 1.5-1.5"/>',
  image:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/>',
  pipette:'<path d="M14.5 4.5l1.8-1.8a2.3 2.3 0 0 1 3.2 3.2l-1.8 1.8"/><path d="M12.2 6.8l5 5"/><path d="M15.4 8.6L6.6 17.4 4 20l-.5-.5 2.6-2.6"/><path d="M7 17l-1.6 1.6"/><path d="M13.6 5.4l5 5"/>',
  presets:'<rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><path d="M17.2 13.6l1.1 2.3 2.5.4-1.8 1.7.4 2.5-2.2-1.2-2.2 1.2.4-2.5-1.8-1.7 2.5-.4z"/>',
@@ -1815,6 +1821,7 @@ const HELP_KEYS=[
  {id:'rotate',keys:['[R]'],alt:['[Shift]','[R]'],what:'Rotate the view 15° right or left (the painting itself is not changed)'},
  {id:'keep',keys:['hold [Shift]','paint'],what:'Keep painting with what is left on the brush (dry-brush)'},
  {id:'pick',keys:['[I]'],alt:['hold [Alt]','click'],what:'Pick a colour from the painting (eyedropper)'},
+ {id:'trace',keys:['[T]'],what:'Show or hide the reference image traced over the canvas'},
  {id:'esc',keys:['[Esc]'],what:'Close the colour picker, the Medium menu, this help or a dialog'}];
 function keyHTML(ks){return ks.map(t=>t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])).replace(/\[([^\]]+)\]/g,'<kbd>$1</kbd>')).join(' + ');}
 $('hKeys').tBodies[0].innerHTML=HELP_KEYS.map(k=>'<tr data-k="'+k.id+'"><td>'+keyHTML(k.keys)+(k.alt?'<span class="or">or</span>'+keyHTML(k.alt):'')+'</td><td>'+k.what+'</td></tr>').join('');
@@ -2072,12 +2079,12 @@ drawCursor=(orig=>function(){if(!(PK.on||PK.alt)){orig();return;}const r=cvRect(
  cg.restore();})(drawCursor);
 Object.assign(window.paintAPI,{startPick,cancelPick,pickOn:()=>PK.on,pickAt:(u,v,r)=>sampleUV(u,v,r),pickApply:(u,v)=>pkApply(sampleUV(u,v)),colour:()=>$('col').value});
 // ---- v0.31 reference image: a floating window beside the painting (never painted or exported), pick colours from it, kept in this browser (IndexedDB 'refimg') ----
-const RF={src:null,cx:null,w:0,h:0,w0:0,h0:0,s:1,ox:0,oy:0,pick:false,box:null,name:'',blob:null,pts:new Map(),pid:null,pt:null,hex:null,pkGlobal:false};
+const RF={src:null,cx:null,w:0,h:0,w0:0,h0:0,s:1,ox:0,oy:0,pick:false,box:null,name:'',blob:null,pts:new Map(),pid:null,pt:null,hex:null,pkGlobal:false,trace:false,trOp:.35};
 const refEl=$('ref'),refC=$('refC'),refG=refC.getContext('2d');
 const REF_DB=!THUMBS;
 const refOpen=()=>refEl.classList.contains('open');
-function refDefBox(){if(document.body.classList.contains('m')){const w=Math.min(Math.round(innerWidth*.62),300);return{x:8,y:76,w,h:Math.round(w*.8)};}return{x:76,y:68,w:340,h:280};}
-function refClamp(){const b=RF.box||(RF.box=refDefBox());b.w=Math.round(Math.max(170,Math.min(b.w,innerWidth-8)));b.h=Math.round(Math.max(130,Math.min(b.h,innerHeight-8)));
+function refDefBox(){if(document.body.classList.contains('m')){const w=Math.min(Math.round(innerWidth*.7),320);return{x:8,y:76,w,h:Math.round(w*.8)};}return{x:76,y:68,w:340,h:280};}
+function refClamp(){const b=RF.box||(RF.box=refDefBox());b.w=Math.round(Math.max(document.body.classList.contains('m')?240:170,Math.min(b.w,innerWidth-8)));b.h=Math.round(Math.max(130,Math.min(b.h,innerHeight-8)));
  b.x=Math.round(Math.min(Math.max(b.x,80-b.w),innerWidth-80));b.y=Math.round(Math.min(Math.max(b.y,0),innerHeight-44));
  Object.assign(refEl.style,{left:b.x+'px',top:b.y+'px',width:b.w+'px',height:b.h+'px'});}
 function refSize(){const r=refC.getBoundingClientRect(),d=devicePixelRatio||1,w=Math.max(1,Math.round(r.width*d)),h=Math.max(1,Math.round(r.height*d));if(refC.width!==w||refC.height!==h){refC.width=w;refC.height=h;}return r;}
@@ -2101,30 +2108,49 @@ function refSample(ix,iy,r){r=r==null?2:r;if(!RF.cx)return null;ix=Math.floor(ix
 function refLocal(e){const r=refC.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top];}
 function refPkMove(e){const[x,y]=refLocal(e);RF.pt=[x,y,e.pointerType];RF.hex=refSample((x-RF.ox)/RF.s,(y-RF.oy)/RF.s);refDraw();}
 function refSetPick(on){RF.pick=!!on;refEl.classList.toggle('pk',RF.pick);$('refPk').classList.toggle('on',RF.pick);if(!RF.pick){RF.pt=null;refDraw();}}
-function refUI(){const has=!!RF.src,open=refOpen();$('bRefShow').disabled=!has;$('bRefShow').textContent=open?'Hide':'Show';$('bRefDel').disabled=!has;$('tRef').classList.toggle('on',open);
- $('refMsg').textContent=has?RF.name+' · '+RF.w0+'×'+RF.h0+' px'+(open?'':' (hidden)'):'No reference image yet.';$('refT').textContent=RF.name||'Reference';}
+function refUI(){const has=!!RF.src,open=refOpen();$('bRefShow').disabled=!has;$('bRefShow').textContent=open?'Hide':'Show';$('bRefDel').disabled=!has;$('tRef').classList.toggle('on',open);$('tRefM').classList.toggle('on',open);
+ trSync();$('refMsg').textContent=has?RF.name+' · '+RF.w0+'×'+RF.h0+' px'+(open?'':' (hidden)'):'No reference image yet.';$('refT').textContent=RF.name||'Reference';}
 function refShow(on){if(on&&!RF.src){refChoose();return;}refEl.classList.toggle('open',!!on);if(on){refClamp();refDraw();}else{refSetPick(false);RF.pts.clear();RF.pid=null;}refUI();refSave();}
 let refST=0;function refSave(){if(!REF_DB)return;clearTimeout(refST);refST=setTimeout(async()=>{try{const db=await asDB(),tx=db.transaction('kv','readwrite'),os=tx.objectStore('kv');
- if(RF.src)os.put({blob:RF.blob,name:RF.name,box:RF.box,view:{s:RF.s,ox:RF.ox,oy:RF.oy},shown:refOpen()},'refimg');else os.delete('refimg');}catch(_){}},250);}
+ if(RF.src)os.put({blob:RF.blob,name:RF.name,box:RF.box,view:{s:RF.s,ox:RF.ox,oy:RF.oy},shown:refOpen(),trace:RF.trace,trOp:RF.trOp},'refimg');else os.delete('refimg');}catch(_){}},250);}
 async function refDecode(blob){if(window.createImageBitmap){try{return await createImageBitmap(blob);}catch(_){}}
  return await new Promise((res,rej)=>{const u=URL.createObjectURL(blob),im=new Image();im.onload=()=>{res(im);setTimeout(()=>URL.revokeObjectURL(u),0);};im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('decode'));};im.src=u;});}
 async function refSet(blob,name,o){o=o||{};let bm;try{bm=await refDecode(blob);}catch(_){if(!o.silent)toast("Couldn't open that image",2400);return false;}
  const w0=bm.width,h0=bm.height;if(!w0||!h0){if(!o.silent)toast("Couldn't open that image",2400);return false;}const k=Math.min(1,3072/Math.max(w0,h0)),w=Math.max(1,Math.round(w0*k)),h=Math.max(1,Math.round(h0*k));
  const c=document.createElement('canvas');c.width=w;c.height=h;const cx=c.getContext('2d',{willReadFrequently:true});cx.drawImage(bm,0,0,w,h);try{bm.close&&bm.close();}catch(_){}
  if(blob.size>12e6){const b2=await new Promise(r=>c.toBlob(r,'image/jpeg',.92));if(b2)blob=b2;}
- Object.assign(RF,{src:c,cx,w,h,w0,h0,name:(name||'Reference').replace(/\.[a-z0-9]{2,5}$/i,'')||'Reference',blob});if(o.box)RF.box=Object.assign({},o.box);
+ Object.assign(RF,{src:c,cx,w,h,w0,h0,name:(name||'Reference').replace(/\.[a-z0-9]{2,5}$/i,'')||'Reference',blob});if(o.box)RF.box=Object.assign({},o.box);if(o.trace!=null)RF.trace=!!o.trace;if(o.trOp>0)RF.trOp=o.trOp;
  const show=o.shown!==false;refEl.classList.toggle('open',show);if(show)refClamp();
  if(show&&o.view&&o.view.s>0){refSize();Object.assign(RF,{s:o.view.s,ox:o.view.ox,oy:o.view.oy});refKeep();refDraw();}else if(show)refFit();
  refUI();if(!o.silent){refSave();if(document.body.classList.contains('m'))setPanel(false);}return true;}
 function refChoose(){$('refFile').value='';$('refFile').click();}
 $('refFile').onchange=e=>{const f=e.target.files&&e.target.files[0];if(f)refSet(f,f.name);};
-function refRemove(){if(!RF.src)return;const prev={blob:RF.blob,name:RF.name,box:RF.box&&Object.assign({},RF.box),view:{s:RF.s,ox:RF.ox,oy:RF.oy},shown:refOpen()};
- refEl.classList.remove('open');refSetPick(false);Object.assign(RF,{src:null,cx:null,blob:null,name:'',w:0,h:0,w0:0,h0:0});refUI();refSave();
+function refRemove(){if(!RF.src)return;const prev={blob:RF.blob,name:RF.name,box:RF.box&&Object.assign({},RF.box),view:{s:RF.s,ox:RF.ox,oy:RF.oy},shown:refOpen(),trace:RF.trace,trOp:RF.trOp};
+ refEl.classList.remove('open');refSetPick(false);Object.assign(RF,{src:null,cx:null,blob:null,name:'',w:0,h:0,w0:0,h0:0,trace:false});refUI();refSave();
  toast('Reference image removed',6000,[['Undo',()=>refSet(prev.blob,prev.name,prev)]]);}
 $('bRefAdd').onclick=refChoose;$('bRefShow').onclick=()=>refShow(!refOpen());$('bRefDel').onclick=refRemove;
-$('tRef').onclick=()=>RF.src?refShow(!refOpen()):refChoose();
+$('tRef').onclick=$('tRefM').onclick=()=>RF.src?refShow(!refOpen()):refChoose();
 $('refX').onclick=()=>refShow(false);$('refFit').onclick=refFit;$('refOpen').onclick=refChoose;
 $('refPk').onclick=()=>{refSetPick(!RF.pick);if(RF.pick)toast(document.body.classList.contains('m')?'Touch the reference and slide to choose a colour':'Click the reference to pick a colour',2600);};
+
+/* v0.32 tracing: the reference fitted over the whole canvas, see-through, following zoom / rotation. A separate screen layer (never painted, sampled or exported). */
+const trC=$('trace'),trG=trC.getContext('2d');let trKey='';
+function trOn(){return !!(RF.src&&RF.trace);}
+function trSync(){const on=trOn(),has=!!RF.src;trC.classList.toggle('on',on);trC.style.opacity=RF.trOp;$('refTr').classList.toggle('on',on);$('refTr').setAttribute('aria-pressed',on);
+ const cb=$('refTrace');cb.disabled=!has;cb.checked=on;const pc=Math.round(RF.trOp*100);$('refTrOp').value=pc;$('refTrV').textContent=pc+'%';trKey='';}
+function trBox(){const k=Math.min(W/RF.w,H/RF.h);return{k,x0:(W-RF.w*k)/2,y0:(H-RF.h*k)/2};}
+function trDraw(){if(!trOn())return;const r=cvRect(),d=cv.width/Math.max(1,r.width);
+ if(trC.width!==cv.width||trC.height!==cv.height){trC.width=cv.width;trC.height=cv.height;}
+ Object.assign(trC.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});
+ const b=trBox(),f=(u,v)=>{const q=v2s(b.x0+u*b.k,H-(b.y0+v*b.k));return[q[0],cv.height-q[1]];},P0=f(0,0),Pu=f(1,0),Pv=f(0,1);
+ trG.setTransform(1,0,0,1,0,0);trG.clearRect(0,0,trC.width,trC.height);trG.imageSmoothingEnabled=view.s*b.k<3;trG.imageSmoothingQuality='high';
+ trG.setTransform(Pu[0]-P0[0],Pu[1]-P0[1],Pv[0]-P0[0],Pv[1]-P0[1],P0[0],P0[1]);trG.drawImage(RF.src,0,0);trG.setTransform(1,0,0,1,0,0);}
+(function trLoop(){if(trOn()){const r=cvRect(),key=[view.s,view.ox,view.oy,view.r,cv.width,cv.height,W,H,r.left,r.top,r.width,RF.w,RF.h,RF.name].join();if(key!==trKey){trKey=key;trDraw();}}requestAnimationFrame(trLoop);})();
+function trSet(on,quiet){if(on&&!RF.src){if(!quiet)toast('Add a reference image first (Settings › Reference image)',2600);return;}RF.trace=!!on;trSync();refSave();
+ if(!quiet)toast(RF.trace?'Tracing on: the reference shows over the canvas (it is never painted or exported)':'Tracing off',2000);}
+$('refTr').onclick=()=>trSet(!RF.trace);$('refTrace').onchange=e=>trSet(e.target.checked,true);
+$('refTrOp').addEventListener('input',e=>{RF.trOp=+e.target.value/100;trC.style.opacity=RF.trOp;$('refTrV').textContent=e.target.value+'%';refSave();});
+addEventListener('keydown',e=>{if((e.key==='t'||e.key==='T')&&!e.shiftKey&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!typingIn(e.target)&&!document.querySelector('dialog[open]')){e.preventDefault();trSet(!RF.trace);}});
 /* window: drag by the title bar, resize from the corner */
 function refGrab(h,mode){h.addEventListener('pointerdown',e=>{if(mode==='move'&&e.target.closest('button'))return;if(e.button>0)return;e.preventDefault();e.stopPropagation();try{h.setPointerCapture(e.pointerId);}catch(_){}
  const b0=Object.assign({},RF.box),x0=e.clientX,y0=e.clientY;
@@ -2165,9 +2191,9 @@ addEventListener('drop',e=>{if(!refDragHas(e))return;e.preventDefault();document
 addEventListener('paste',e=>{if(typingIn(e.target))return;const it=[...((e.clipboardData&&e.clipboardData.items)||[])].find(i=>i.kind==='file'&&/^image\//.test(i.type));const f=it&&it.getAsFile();if(f){e.preventDefault();refSet(f,f.name&&f.name!=='image.png'?f.name:'Pasted image');}});
 /* restore from the last visit */
 if(REF_DB)(async()=>{try{const db=await asDB();const d=await new Promise((res,rej)=>{const q=db.transaction('kv').objectStore('kv').get('refimg');q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error);});
- if(d&&d.blob)await refSet(d.blob,d.name,{box:d.box,view:d.view,shown:d.shown,silent:true});}catch(_){}refUI();})();
+ if(d&&d.blob)await refSet(d.blob,d.name,{box:d.box,view:d.view,shown:d.shown,trace:d.trace,trOp:d.trOp,silent:true});}catch(_){}refUI();})();
 refUI();
 Object.assign(window.paintAPI,{refLoad:async(url,name)=>{const b=await (await fetch(url)).blob();return refSet(b,name||'Reference');},refShow,refOpen,refFit,refRemove,refPickMode:refSetPick,
- refInfo:()=>({has:!!RF.src,open:refOpen(),w:RF.w,h:RF.h,w0:RF.w0,h0:RF.h0,s:RF.s,ox:RF.ox,oy:RF.oy,box:RF.box&&Object.assign({},RF.box),pick:RF.pick,name:RF.name}),
- refSampleImg:(x,y,r)=>refSample(x,y,r)});
+ refInfo:()=>({has:!!RF.src,open:refOpen(),trace:trOn(),trOp:RF.trOp,w:RF.w,h:RF.h,w0:RF.w0,h0:RF.h0,s:RF.s,ox:RF.ox,oy:RF.oy,box:RF.box&&Object.assign({},RF.box),pick:RF.pick,name:RF.name}),
+ refSampleImg:(x,y,r)=>refSample(x,y,r),refTrace:(on,op)=>{if(op!=null){RF.trOp=op;}trSet(on,true);return trOn();},refTraceOn:trOn,traceAt:(u,v)=>{const r=cvRect(),d=cv.width/r.width,b=trBox(),q=v2s(b.x0+u*b.k,H-(b.y0+v*b.k));return[r.left+q[0]/d,r.top+(cv.height-q[1])/d];}});
 </script></body></html>
