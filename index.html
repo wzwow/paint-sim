@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v0.34</title>
+<title>Medium — paint v0.35</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="app-version" content="medium-v0.34">
+<meta name="app-version" content="medium-v0.35">
 <meta name="theme-color" content="#161618">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -275,10 +275,10 @@ body.dropref::after{content:'Drop an image to use it as a reference';position:fi
 <div id="stage"><canvas id="c"></canvas><canvas id="trace" style="position:fixed" aria-hidden="true"></canvas><canvas id="cur" style="position:fixed;pointer-events:none"></canvas><div id="msg"></div></div>
 <div id="viewc" role="toolbar" aria-label="Canvas view"><button id="vOut" data-ic="minus" data-tip="Zoom out (Ctrl+−)" aria-label="Zoom out"></button><button id="zoomv" data-tip="Zoom: click for 100% (Ctrl+1), again to fit (Ctrl+0)" aria-label="Zoom level">100%</button><button id="vIn" data-ic="plus" data-tip="Zoom in (Ctrl++)" aria-label="Zoom in"></button><span class="vsep"></span><button id="vRL" data-ic="rotl" data-tip="Rotate view left 15° (Shift+R)" aria-label="Rotate view left"></button><button id="vRR" data-ic="rotr" data-tip="Rotate view right 15° (R)" aria-label="Rotate view right"></button><button id="rotv" hidden data-tip="Straighten the view" aria-label="Reset rotation">0°</button></div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.34</span></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.35</span></div>
  <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tClr" data-tip="Clear layer… (Shift+Delete)" aria-label="Clear layer" aria-haspopup="dialog" data-ic="trash"></button><button class="ib dk" id="tFit" data-tip="Fit to screen" aria-label="Fit to screen" data-ic="fit"></button><button class="ib dk" id="tExp" data-tip="Export… (Ctrl+Shift+E)" aria-label="Export image" aria-haspopup="dialog" data-ic="download"></button><button class="ib dk" id="tRef" data-tip="Reference image" aria-label="Reference image" data-ic="image"></button><button class="ib dk" id="tHelp" data-tip="Help &amp; shortcuts (?)" aria-label="Help and keyboard shortcuts" aria-haspopup="dialog" data-ic="help"></button></div>
 <!-- top-right: tools -->
-<div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button>
+<div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button><button class="ib" id="dPencil" data-tip="Pencil (G)" aria-label="Pencil" data-ic="pencil"></button>
  <span class="sep"></span><button class="ib" id="dPre" data-tip="Brush presets (P)" aria-label="Brush presets" aria-haspopup="true"><span data-ic="presets"></span><span class="t" id="dPreT">Presets</span></button><button class="ib" id="dMed" data-tip="Choose medium" aria-label="Medium" aria-haspopup="true"><span data-ic="drop"></span><span class="t">Water</span></button>
  <span class="sep"></span><button class="ib" id="dCol" data-tip="Colour (I or Alt+click picks from the painting)" aria-label="Colour"><span class="cdot"></span></button><button class="ib" id="dSet" data-tip="Settings & layers" aria-label="Settings" data-ic="sliders"></button></div>
 <!-- left rail -->
@@ -293,7 +293,7 @@ body.dropref::after{content:'Drop an image to use it as a reference';position:fi
 <dialog id="dlgClear" aria-labelledby="clT"><h2 id="clT">Clear canvas?</h2><div class="sub2" id="clSub">You can undo this.</div>
  <div class="cbtn"><button id="clLayer" class="dang">Clear this layer</button><button id="clAll" class="dang2">Clear all layers</button><button id="clCancel">Cancel</button></div></dialog>
 <!-- mobile bottom toolbar -->
-<div id="tb" class="fl"><button class="ib" id="tTool" aria-label="Brush / knife" data-ic="brush"></button><button class="ib" id="tMed" aria-label="Medium"><span data-ic="drop"></span></button><button class="ib" id="tPre" aria-label="Brush presets" aria-haspopup="true" data-ic="presets"></button><button class="ib" id="tCol" aria-label="Colour"><span class="cdot"></span></button>
+<div id="tb" class="fl"><button class="ib" id="tTool" aria-label="Brush / knife" data-ic="brush"></button><button class="ib" id="tPencil" aria-label="Pencil" data-ic="pencil"></button><button class="ib" id="tMed" aria-label="Medium"><span data-ic="drop"></span></button><button class="ib" id="tPre" aria-label="Brush presets" aria-haspopup="true" data-ic="presets"></button><button class="ib" id="tCol" aria-label="Colour"><span class="cdot"></span></button>
  <div class="hs" id="tSize" data-t="size" aria-label="Size"></div><button class="ib" id="tSet" aria-label="Settings" data-ic="sliders"></button></div>
 <!-- v0.31 reference image window -->
 <div id="ref" class="fl" role="dialog" aria-label="Reference image"><div id="refH"><span id="refT">Reference</span><button class="ib" id="refPk" data-ic="pipette" aria-label="Pick a colour from the reference" title="Pick a colour from the reference"></button><button class="ib" id="refTr" data-ic="trace" aria-pressed="false" aria-label="Trace: show the reference over the canvas" title="Trace over the canvas (T)"></button><button class="ib" id="refFit" data-ic="fit" aria-label="Fit reference" title="Fit (double-click)"></button><button class="ib" id="refOpen" data-ic="image" aria-label="Replace reference image" title="Replace image"></button><button class="ib" id="refX" data-ic="x" aria-label="Hide reference" title="Hide (the image is kept)"></button></div><div id="refB"><canvas id="refC" aria-label="Reference image: drag to move, scroll or pinch to zoom"></canvas><div id="refRs" aria-hidden="true"></div></div></div>
@@ -311,14 +311,17 @@ body.dropref::after{content:'Drop an image to use it as a reference';position:fi
 <div id="panel" class="fl"><div id="pHead"><span class="grab"></span><div class="hrow" style="display:flex;justify-content:space-between;align-items:center;flex:1"><span>Settings</span><button class="ib" id="dClose" aria-label="Close" data-ic="x"></button></div></div>
 <div id="pBody">
 <details class="g" open><summary><span data-ic="brush"></span>Brush</summary><div class="gb">
- <div><div class="lab"><span>Tool</span></div><div class="seg" id="tool"><button data-v="brush" class="on">Brush</button><button data-v="knife">Palette knife</button></div></div>
+ <div><div class="lab"><span>Tool</span></div><div class="seg" id="tool"><button data-v="brush" class="on">Brush</button><button data-v="knife">Palette knife</button><button data-v="pencil">Pencil</button></div></div>
  <div class="sub" id="brushOpts"><div class="seg" id="shape"><button data-v="round" class="on">Round</button><button data-v="flat">Flat</button><button data-v="filbert">Filbert</button><button data-v="fan">Fan</button></div>
   <div><div class="lab"><span>Bristle stiffness</span><span id="kv"></span></div><input id="stiff" type="range" min="0" max="1" step="0.01" value="0.5"></div>
   <label class="chk"><input type="checkbox" id="multi"> Multi-colour load <span style="color:var(--mute)">(pick 2–4)</span></label></div>
  <div class="sub" id="knifeOpts" style="display:none"><div class="seg" id="kmode"><button data-v="spread" class="on">Spread</button><button data-v="scrape">Scrape</button><button data-v="lay">Load &amp; lay</button></div>
   <div><div class="lab"><span>Blade angle</span><span id="kav"></span></div><input id="kang" type="range" min="0" max="90" step="1" value="0" aria-label="Blade angle (0 = flat across the stroke, 90 = edge along it)"></div>
   <div><div class="lab"><span>Lift ridge</span><span id="klv"></span></div><input id="klift" type="range" min="0" max="200" step="5" value="100" aria-label="Lift ridge: how much paint the knife pulls up where it leaves the canvas"></div></div>
- <div><div class="lab"><span>Brush size</span><span id="sv"></span></div><input id="size" type="range" min="4" max="120" step="1" value="34"></div>
+ <div class="sub" id="pencilOpts" style="display:none"><div class="seg" id="pcolSeg"><button data-v="g" class="on">Graphite</button><button data-v="c">Coloured (current colour)</button></div>
+  <div><div class="lab"><span>Softness / darkness</span><span id="phv"></span></div><input id="phard" type="range" min="0" max="1" step="0.01" value="0.5" aria-label="Pencil softness: left = hard light (2H), right = soft dark (6B)"><div class="ends"><span>Hard (2H)</span><span>Soft (6B)</span></div></div>
+  <div><div class="lab"><span>Paper grain</span><span id="pgv"></span></div><input id="pgrain" type="range" min="0" max="1" step="0.01" value="0.5" aria-label="How much the paper texture breaks up the pencil line"></div></div>
+ <div><div class="lab"><span id="sizeLab">Brush size</span><span id="sv"></span></div><input id="size" type="range" min="4" max="120" step="1" value="34"></div>
  <div id="dynOpts"><div class="lab"><span>Dynamics</span><span id="dv"></span></div><input id="dyn" type="range" min="0" max="1" step="0.01" value="0.6">
   <div class="ends"><span>Steady</span><span>Expressive</span></div>
   <div style="display:flex;gap:16px"><label class="chk"><input type="checkbox" id="wob" checked> Wobble</label><label class="chk"><input type="checkbox" id="flick" checked> Flick on lift</label></div></div>
@@ -426,6 +429,7 @@ body.dropref::after{content:'Drop an image to use it as a reference';position:fi
  <section class="hSec" id="hsOil"><h3><span data-ic="oil"></span>Oil &amp; impasto tips</h3><ul>
   <li>Choose <b>Oil</b> in the Medium menu. The Medium slider (Settings › Paint) goes from soft to thick impasto at the far right.</li>
   <li>Oil stays wet: drag through it to blend, plough ridges and pick up colour.</li>
+  <li><b>Pencil</b> (G, or the pencil button): a dry graphite or coloured pencil. Press harder for darker lines, tilt the S Pen for broad soft shading; it catches the paper grain (Rough paper shows it most). Passes build up darker. Settings › Brush › Pencil sets graphite or coloured, softness and grain.</li>
   <li><b>Palette knife:</b> Spread, Scrape, or Load &amp; lay thick paint.</li>
   <li><b>Multi-colour load</b> (Settings › Brush): pick 2–4 colours for streaky, loaded strokes.</li>
   <li><b>Light &amp; relief</b> changes where the light comes from and how strongly ridges show.</li>
@@ -544,6 +548,15 @@ uniform vec4 uSeg[64];uniform vec4 uBr[64];uniform float uN;uniform vec2 uSz;
 vec3 cap(vec2 p,vec4 s){vec2 ab=s.zw-s.xy;float L2=dot(ab,ab);float tr=L2>1e-6?dot(p-s.xy,ab)/L2:0.;
  if(L2>.04&&(tr<0.||tr>=1.))return vec3(0,0,1e4);float t=clamp(tr,0.,1.);vec2 d=p-s.xy-ab*t;return vec3(d,length(d));}
 `;
+const PENC=`uniform vec2 uPa,uPb,uTd;uniform vec4 uPn,uPq,uPks;uniform float uPsd,uPgl;
+vec2 penDH(vec2 p,float hd){vec2 td=uTd,tn=vec2(-td.y,td.x);float r0=uPn.x,t=uPn.y,pr=uPn.z;
+ float ma=r0*(1.+7.*t),mi=r0*(1.+4.*t);vec2 off=td*r0*3.*t;vec2 q=p-uPa-off,ab=uPb-uPa;
+ q=vec2(dot(q,td)/ma,dot(q,tn)/mi);ab=vec2(dot(ab,td)/ma,dot(ab,tn)/mi);float L2=dot(ab,ab);float tr=L2>1e-8?dot(q,ab)/L2:0.;
+ if(uPn.w<.5&&tr<0.)return vec2(0);float d=length(q-ab*clamp(tr,0.,1.));float sf=mix(.45,.85,t);float cov=1.-smoothstep(1.-sf,1.,d);if(cov<=0.)return vec2(0);
+ vec2 ps=6./vec2(textureSize(uP,0));float h0=texture(uP,vUv).r;float hm=(texture(uP,vUv+vec2(ps.x,0)).r+texture(uP,vUv-vec2(ps.x,0)).r+texture(uP,vUv+vec2(0,ps.y)).r+texture(uP,vUv-vec2(0,ps.y)).r)*.25;float h=clamp(.5+(h0-hm)*1.6,0.,1.);float n1=vnoise(p*.7+17.)-.5,n2=ihashS(p,7.,uPsd)-.5,n3=ihashS(p,3.,0.)-.5;
+ float bite=(.4+.4*pr+.15*uPq.w)*(1.-.3*t);float thr=1.-bite;
+ float gw=.07+.1*(1.-uPq.z);float g=smoothstep(thr-gw,thr+gw,h+uPq.z*(.2*n1+.1*n2+.12*n3)*(1.+.6*t)+ .3*(1.-uPq.z)*(bite-.5));
+ float raw=uPq.x*cov*g;return vec2(min(raw,max(uPq.y-hd,0.)),raw);}`;
 const O3=`layout(location=0) out vec4 o0;layout(location=1) out vec4 o1;layout(location=2) out vec4 o2;`;
 const FS={
 paper:`uniform float uType,uScale;out vec4 o;
@@ -757,6 +770,15 @@ for(int i=0;i<4;i++){vec2 off=i==0?vec2(tx.x,0):i==1?vec2(-tx.x,0):i==2?vec2(0,t
  float g=smoothstep(.2,.8,min(s.y,sn.y))+.03;float F=uCap*cond*g*(w-sn.x);F=clamp(F,-.2*sn.x,.2*w);
  dw-=F;dfv-=F>0.?F*f/max(w,1e-6):F*fn/max(sn.x,1e-6);dsat=max(dsat,(sn.y-.15)*cond*.12);}
 o0.x=max(w+dw,0.);o1=max(f+dfv,0.);o0.y=max(s.y,min(dsat+s.y*.0,.95)*step(.001,o0.x));}`,
+pencil:`uniform sampler2D uO0,uO1,uO2,uP,uBA;${PENC}${O3}
+void main(){vec4 a=texture(uO0,vUv),m=texture(uO1,vUv),cd=texture(uO2,vUv);o0=a;o1=m;o2=cd;float hb=texture(uBA,vUv).x,hd=max(a.y-hb,0.);
+vec2 r=penDH(FC.xy,hd);if(r.y<=0.)return;float dh=r.x,hn=hd+dh;
+float w=hd<1e-5?1.:clamp(dh/max(hn,1e-5)+(hd>uPq.y*.9?r.y*5.:0.),0.,.7);o2=mix(cd,uPks,w);o0.y=a.y+dh;
+if(hd<.02)o0.z=max(a.z,uPgl);
+if(a.x>1e-3){o1=m+uPks*r.y*.25;}}`,
+pencilW:`uniform sampler2D uS,uF,uD,uO0,uP,uBA;${PENC}${O3}
+void main(){vec4 s=texture(uS,vUv),f=texture(uF,vUv),d=texture(uD,vUv);o0=s;o1=f;o2=d;vec4 a=texture(uO0,vUv);float hb=texture(uBA,vUv).x,hd=max(a.y-hb,0.);
+vec2 r=penDH(FC.xy,hd);if(r.y<=0.)return;float cv=clamp(1.-exp(-14.*r.y),0.,.85);o2=d*(1.-cv);}`,
 wcBury:`uniform sampler2D uS,uF,uD,uO0;${O3}
 void main(){vec4 s=texture(uS,vUv),f=texture(uF,vUv),d=texture(uD,vUv);float k=1.-smoothstep(.03,.2,texture(uO0,vUv).x);o0=vec4(s.x*k,s.yzw);o1=f*k;o2=d*k;}`,
 // ---------- layers / compositing ----------
@@ -920,7 +942,7 @@ function hexKS(hex){if(!hex)return[0,0,0,0];const n=parseInt(hex.slice(1),16);co
  const white=rgb.every(v=>v>.85);const S=white?3:1;return[...rgb.map(R=>(1-R)*(1-R)/(2*R)*S),S];}
 // state
 const D2R=Math.PI/180;
-const st={m:0,med:'water',size:34,ks:hexKS(PIG[0][1]),tilt:0,dryAll:0,light:135,relief:1.5,
+const st={phard:.5,pgrain:.5,pcol:'g',m:0,med:'water',size:34,ks:hexKS(PIG[0][1]),tilt:0,dryAll:0,light:135,relief:1.5,
  granP:1,wload:.7,tool:'brush',shape:'round',dyn:.6,wobble:true,flick:true,stiff:.5,kmode:'spread',btilt:0,bang:0,follow:true,pen:true,multi:false,stripes:[],kang:0,klift:1};
 const sm=(a,b,x)=>{const t=Math.min(Math.max((x-a)/(b-a),0),1);return t*t*(3-2*t);};
 const cl=(x,a=0,b=1)=>Math.min(Math.max(x,a),b);
@@ -1102,6 +1124,27 @@ function brushDab(x,y,pres,stepPx,tl){const p=params();const D=dynE();const ff=d
   simPass(P.wcBury,WT,{uS:WT.r.t[0],uF:WT.r.t[1],uD:WT.r.t[2],uO0:OL.r.t[0]},{},[rect]);
   const spd=Math.min(1,stepPx/1.5);
   for(let i=0;i<2;i++){simPass(P.ploughB,OL,{uO0:OL.r.t[0],uO1:OL.r.t[1],uO2:OL.r.t[2]},Object.assign({uDrag:p.drag*spd*dragK,uLat:p.lat*spd*dragK},u),[rect]);}}}
+// ---- v0.35 pencil: dry medium. Deposits straight into the active layer's DRIED paint (OL o0.y height + o2 colour), never into the wet sim,
+// so it costs one small pass per 2 px of stroke and cannot smear wet paint. Each dab is a capsule from the previous dab (no gaps at any speed),
+// half-open so joints are not counted twice. Paper tooth (PAPER .r) decides which pixels the lead touches; pressure lowers the threshold
+// (fills valleys) and raises darkness; tilt widens the mark along the pen azimuth with a softer, grainier edge. Darkness per pixel is capped.
+let pnLast=null,pnSeed=0;
+function pencilKS(){const soft=st.phard;let q;
+ if(st.pcol==='c'&&st.ks&&st.ks[3]>0){q=[0,1,2].map(i=>st.ks[i]/st.ks[3]);}
+ else{const R=.15-.1*soft;q=[1,1,1].map((_,i)=>{const r=R*(i===2?1.08:1);return(1-r)*(1-r)/(2*r);});}
+ const aq=(q[0]+q[1]+q[2])/3,S=3.4/(1+aq);return[q[0]*S,q[1]*S,q[2]*S,S];}
+function pencilDab(x,y,pres,stepPx,tl){const C=[x*W,y*H],A=pnLast||C,first=!pnLast;pnLast=C;
+ const soft=st.phard,pr=cl(pres,0,1),t=cl(tl.t||0,0,1);
+ const r0=Math.max(.6,st.size*.075)*(.85+.3*pr);
+ const phi=tl.phi!=null?tl.phi:Math.atan2(dir[1],dir[0])+1.2;const td=[Math.cos(phi),Math.sin(phi)];
+ const alCap=Math.min(.96,(.62+.36*pr)*(.82+.2*soft))*(st.pcol==='c'?.92:1),capH=-Math.log(1-alCap)/10.2;
+ const dep=capH*(.35+.6*pr)*(.7+.5*soft)*(1-.3*t);
+ const R=r0*(1+7*t)+r0*3*t+3;const rect=[Math.max(0,Math.floor(Math.min(A[0],C[0])-R)),Math.max(0,Math.floor(Math.min(A[1],C[1])-R)),0,0];
+ rect[2]=Math.min(W,Math.ceil(Math.max(A[0],C[0])+R))-rect[0];rect[3]=Math.min(H,Math.ceil(Math.max(A[1],C[1])+R))-rect[1];if(rect[2]<=0||rect[3]<=0)return;
+ const u={uPa:A,uPb:C,uTd:td,uPn:[r0,t,pr,first?1:0],uPq:[dep,capH,st.pgrain,soft],uPks:pencilKS(),uPsd:pnSeed+dyn.dist*.01,uPgl:st.pcol==='c'?.05:.32};dyn.dist+=stepPx;
+ const b=baseOf(layers[ai]);
+ if(hasWater)simPass(P.pencilW,WT,{uS:WT.r.t[0],uF:WT.r.t[1],uD:WT.r.t[2],uO0:OL.r.t[0],uP:PAPER.t[0],uBA:b.t[1]},u,[rect]);
+ simPass(P.pencil,OL,{uO0:OL.r.t[0],uO1:OL.r.t[1],uO2:OL.r.t[2],uP:PAPER.t[0],uBA:b.t[1]},u,[rect]);}
 // ---- palette knife ----
 /* v0.24 knife dynamics. The blade is rigid: its length no longer grows with pressure. Pressure flattens it (wider contact strip, lower
    level => thinner scrape, more paint pushed aside); light pressure rides on top (fat layer). Blade orientation = pen azimuth (blended in by
@@ -1213,7 +1256,7 @@ function zoomAt(px,py,f){const s2=Math.min(Math.max(view.s*f,.05),32);view.ox=px
 function genPaper(){run(P.paper,PAPER,{},{uType:surface.type,uScale:surface.scale});belowDirty=true;needRender=true;}
 // ---- strokes ----
 let last=null,keepLoad=false,strokePen=false,PF=null;
-function dab(x,y,pres,stepPx,tl){touchPx(x*W,y*H,8);inDab=true;try{if(st.tool==='knife')knifeDab(x,y,pres,stepPx,tl);else brushDab(x,y,pres,stepPx,tl);}finally{inDab=false;}}
+function dab(x,y,pres,stepPx,tl){touchPx(x*W,y*H,8);inDab=true;try{if(st.tool==='knife')knifeDab(x,y,pres,stepPx,tl);else if(st.tool==='pencil')pencilDab(x,y,pres,stepPx,tl);else brushDab(x,y,pres,stepPx,tl);}finally{inDab=false;}}
 let lastT=0;
 function addPoint(x,y,pres,tl,tms){tl=tl||{t:st.btilt/80,phi:null,pen:false};if(tms==null)tms=performance.now();
  if(pres==null)pres=.55; // mouse: simulated below from speed
@@ -1226,7 +1269,7 @@ function addPoint(x,y,pres,tl,tms){tl=tl||{t:st.btilt/80,phi:null,pen:false};if(
  {const da=wrapA(Math.atan2(nd[1],nd[0])-Math.atan2(dir[1],dir[0]));const w=dist/(dist+24);dyn.angVel=(dyn.angVel||0)*(1-w)+w*cl(da/dist*1.6,-.08,.08);}/* v0.21: turn rate averaged over ~24 px of path, not just the last segment */
  const da2=last.moved?.4*Math.min(1,dist/6):1;dir=[dir[0]*(1-da2)+nd[0]*da2,dir[1]*(1-da2)+nd[1]*da2]; /* v0.21: blend weighted by segment length, so a tiny last move (lift jitter) cannot swing the direction */const dl=Math.hypot(dir[0],dir[1])||1;dir=[dir[0]/dl,dir[1]/dl];
  const Rp=st.size/800*(0.5+pres)*.9*512;
- const sp=st.tool==='knife'?Math.max(.9,Math.min(2.5,(3.4-2.2*tl.t)*.7)):Math.min(Math.max(Rp*.08,1),3);const n=Math.max(1,Math.ceil(dist/sp));
+ const sp=st.tool==='pencil'?2:st.tool==='knife'?Math.max(.9,Math.min(2.5,(3.4-2.2*tl.t)*.7)):Math.min(Math.max(Rp*.08,1),3);const n=Math.max(1,Math.ceil(dist/sp));
  for(let i=1;i<=n;i++){const f=i/n;const tt={t:last.tl.t+(tl.t-last.tl.t)*f,phi:tl.phi,pen:tl.pen};dab(last.x+(x-last.x)*f,last.y+(y-last.y)*f,last.p+(pres-last.p)*f,dist/n,tt);}
  last={x,y,p:pres,moved:true,tl};}
 function penFlush(){const q=(PF&&PF.q)||[];PF&&(PF.q=[]);if(!q.length)return;
@@ -1235,16 +1278,16 @@ function penFlush(){const q=(PF&&PF.q)||[];PF&&(PF.q=[]);if(!q.length)return;
  let n=q.length;while(n>0&&(q[n-1].raw<Math.max(.12,ref*.45)||(n>1&&q[n-1].raw<q[n-2].raw*.7)))n--;
  // remaining tail: taper pressure gently from ref towards .6*ref, never below .2; tilt frozen
  for(let i=0;i<n;i++){const f=(i+1)/Math.max(n,1);addPoint(q[i].x,q[i].y,Math.max(.3,Math.min(q[i].p,ref*(1-.25*f))),tl,q[i].ts);}}
-function endStroke(){if(strokePen)penFlush();if(last&&last.pend)dab(last.x,last.y,last.p,0,last.tl);
+function endStroke(){pnLast=null;if(strokePen)penFlush();if(last&&last.pend)dab(last.x,last.y,last.p,0,last.tl);
  if(st.tool==='knife')knifeLift();
  if(last&&!last.pend&&st.tool==='brush'&&st.flick&&st.dyn>0&&!strokePen){ // v11.3: not for pen — the pen has real lift data // lift-off: pressure falls to zero while the brush keeps moving, bristles spring back
   const D=dynE(),spN=cl(dyn.speed/1.6);const len=st.size*(.5+2.4*spN)*Math.min(1,D*1.4)/W;let x=last.x,y=last.y,d=dir.slice();const n=Math.max(6,Math.ceil(len*W/1.5));dyn.flick=1;
   const avL=.3/(1.05*len*W),av=cl(dyn.angVel||0,-avL,avL); // v0.21: the whole flick turns at most ~17 deg (was up to .08 rad/px over the flick length = several radians on fast strokes)
   for(let i=1;i<=n;i++){const f=i/n;dyn.flickF=f;const rot=av*len*W/n*1.4*(1-.5*f);const c=Math.cos(rot),s_=Math.sin(rot);d=[d[0]*c-d[1]*s_,d[0]*s_+d[1]*c];dir=d.slice();x+=d[0]*len/n;y+=d[1]*len/n*W/H;const pp=Math.max(last.p*(1-.55*f),.2);dab(x,y,pp,len*W/n,last.tl);}dyn.flickF=0;}
  last=null;}
-function beginStroke(opts={}){pushUndo();strokePen=false;PF=null;last=null;resetTips();resetDyn();
+function beginStroke(opts={}){pushUndo();strokePen=false;PF=null;last=null;pnLast=null;pnSeed=Math.random()*999;resetTips();resetDyn();
  if(opts.dir)dir=opts.dir;
- if(st.tool==='knife')knifeBegin();else if(!opts.keep)loadBristles(opts.load==null?1:opts.load);}
+ if(st.tool==='pencil'){}else if(st.tool==='knife')knifeBegin();else if(!opts.keep)loadBristles(opts.load==null?1:opts.load);}
 function toUV(e){const r=cvRect(),d=cv.width/r.width;const px=(e.clientX-r.left)*d,py=(r.bottom-e.clientY)*d,c=s2v(px,py);return[c[0]/W,c[1]/H];}
 function devXY(e){const r=cvRect(),d=cv.width/r.width;return[(e.clientX-r.left)*d,(r.bottom-e.clientY)*d];}
 // v11.2: pen stroke-start filter. Android Chrome (S Pen) reports pressure 0/spikes and garbage tilt for the first events after contact:
@@ -1305,6 +1348,7 @@ let curKey='';function drawCursor(){const r=cvRect();
  if(cur.width!==cv.width||cur.height!==cv.height){cur.width=cv.width;cur.height=cv.height;}
  const ck=r.left+','+r.top+','+r.width+','+r.height;if(ck!==curKey){curKey=ck;Object.assign(cur.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});}cg.clearRect(0,0,cur.width,cur.height);
  const sx=view.s,sy=view.s;const P2=(px,py)=>{const q=v2s(px,py);return[q[0],cur.height-q[1]];};cg.lineWidth=devicePixelRatio||1;
+ if(st.tool==='pencil'){if(drawing==null&&hover){const q=P2(hover.uv[0]*W,hover.uv[1]*H);cg.strokeStyle='rgba(40,30,20,.6)';cg.beginPath();cg.arc(q[0],q[1],Math.max(3,Math.max(.55,st.size*.075)*sx*1.3),0,6.283);cg.stroke();}return;}
  if(st.tool!=='brush')return; 
  if(drawing!=null){cg.fillStyle='rgba(40,30,20,.35)';for(const b of BRS){if(!b.tip)continue;const[a,c]=P2(b.tip[0],b.tip[1]);cg.beginPath();cg.arc(a,c,Math.max(1,b.rb*6*sx*.5),0,6.283);cg.fill();}return;}
  if(!hover)return;const pres=hover.p,tl=hover.tl,t=tl.t;const Rp=st.size/800*(0.5+pres)*.9*512;const C=[hover.uv[0]*W,hover.uv[1]*H];
@@ -1382,14 +1426,17 @@ $('bClear').onclick=openClear;$('tClr').onclick=openClear;
 // v0.34 [ / ] brush (or knife) size: ~12% per press, Shift = ~35%
 function sizeStep(dir,big){const t=$('size'),mn=+t.min,mx=+t.max,v=+t.value,f=big?1.35:1.12;let n=Math.round(dir>0?v*f:v/f);if(n===v)n=v+dir;n=Math.max(mn,Math.min(mx,n));t.value=n;t.dispatchEvent(new Event('input',{bubbles:true}));
  let o=$('szRead');if(!o){o=document.createElement('div');o.id='szRead';o.setAttribute('role','status');o.setAttribute('aria-live','polite');o.style.cssText='position:fixed;left:50%;top:72px;transform:translateX(-50%);z-index:55;background:#000c;color:#fff;font:600 13px/1 system-ui;padding:8px 12px;border-radius:10px;pointer-events:none;transition:opacity .2s;opacity:0';document.body.appendChild(o);}
- o.textContent=(st.tool==='knife'?'Knife':'Brush')+' size '+n;o.style.opacity=1;clearTimeout(o._t);o._t=setTimeout(()=>{o.style.opacity=0;},900);try{needRender=true;}catch(_){}return n;}
+ o.textContent=(st.tool==='knife'?'Knife':st.tool==='pencil'?'Pencil':'Brush')+' size '+n;o.style.opacity=1;clearTimeout(o._t);o._t=setTimeout(()=>{o.style.opacity=0;},900);try{needRender=true;}catch(_){}return n;}
 document.addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey||(e.code!=='BracketLeft'&&e.code!=='BracketRight'))return;const t=e.target;if(t&&(t.isContentEditable||t.tagName==='TEXTAREA'||t.tagName==='SELECT'||t.tagName==='INPUT'&&!/^(range|checkbox|radio|button|submit|color)$/.test(t.type)))return;if(document.querySelector('dialog[open]'))return;e.preventDefault();sizeStep(e.code==='BracketRight'?1:-1,e.shiftKey);});
 // v0.34 Shift+Delete (or Shift+Backspace) opens the clear-layer confirm
 document.addEventListener('keydown',e=>{if(!e.shiftKey||e.ctrlKey||e.metaKey||e.altKey||(e.key!=='Delete'&&e.key!=='Backspace'))return;const t=e.target;if(t&&(t.isContentEditable||t.tagName==='TEXTAREA'||t.tagName==='SELECT'||t.tagName==='INPUT'&&!/^(range|checkbox|radio|button|submit|color)$/.test(t.type)))return;if(document.querySelector('dialog[open]'))return;e.preventDefault();openClear();});$('bDry').onclick=()=>{pushUndo();st.dryAll=1;};
 document.addEventListener('keydown',e=>{const k=e.key.toLowerCase();if((e.ctrlKey||e.metaKey)&&k==='z'){e.preventDefault();if(e.shiftKey)redo();else undo();}else if((e.ctrlKey||e.metaKey)&&k==='y'){e.preventDefault();redo();}});
 function segUI(id,key,cb){const el=$(id);el.querySelectorAll('button').forEach(b=>b.onclick=()=>{el.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));st[key]=b.dataset.v;cb&&cb();});}
-function setTool(v){st.tool=v;$('tool').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));$('brushOpts').style.display=v==='brush'?'':'none';$('dynOpts').style.display=v==='brush'?'':'none';$('knifeOpts').style.display=v==='knife'?'':'none';}
-segUI('tool','tool',()=>{setTool(st.tool);curDirty=true;});segUI('shape','shape',makeBristles);segUI('kmode','kmode');
+function setTool(v){st.tool=v;$('tool').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));$('brushOpts').style.display=v==='brush'?'':'none';$('dynOpts').style.display=v==='brush'?'':'none';$('knifeOpts').style.display=v==='knife'?'':'none';$('pencilOpts').style.display=v==='pencil'?'':'none';$('sizeLab').textContent=v==='pencil'?'Pencil size':v==='knife'?'Knife size':'Brush size';}
+segUI('tool','tool',()=>{setTool(st.tool);curDirty=true;});segUI('pcolSeg','pcol');
+const setPHard=v=>{st.phard=+v;$('phard').value=v;$('phv').textContent=['2H','H','HB','B','2B','4B','6B'][Math.round(v*6)];};$('phard').oninput=e=>setPHard(e.target.value);setPHard(.5);
+const setPGrain=v=>{st.pgrain=+v;$('pgrain').value=v;$('pgv').textContent=Math.round(v*100)+'%';};$('pgrain').oninput=e=>setPGrain(e.target.value);setPGrain(.5);
+const setPCol=v=>{st.pcol=v==='c'?'c':'g';$('pcolSeg').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.v===st.pcol));};segUI('shape','shape',makeBristles);segUI('kmode','kmode');
 function setShape(v){st.shape=v;$('shape').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));makeBristles();}
 function setKMode(v){st.kmode=v;$('kmode').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));}
 const setStiff=v=>{st.stiff=+v;$('stiff').value=v;$('kv').textContent=Math.round(v*100)+'%';};$('stiff').oninput=e=>setStiff(e.target.value);setStiff(.5);
@@ -1579,6 +1626,7 @@ drawHue();drawRecent();
 // tools / medium / doc actions
 $('dBrush').onclick=()=>{setTool('brush');curDirty=true;syncTB();};$('dKnife').onclick=()=>{setTool('knife');curDirty=true;syncTB();};
 $('tTool').onclick=()=>{setTool(st.tool==='brush'?'knife':'brush');curDirty=true;syncTB();};
+$('dPencil').onclick=$('tPencil').onclick=()=>{setTool('pencil');curDirty=true;syncTB();};
 // v12: media picker (desktop rail button + mobile toolbar button open the same popover)
 const mp=$('mp');Object.keys(MEDS).forEach(k=>{const b=document.createElement('button');b.className='ib';b.dataset.med=k;b.setAttribute('aria-label',MEDS[k].name);b.innerHTML=ic(MEDS[k].ic)+'<span class="t">'+MEDS[k].lab+'</span>';
  b.onclick=()=>{setMed(k);closeMP();};mp.appendChild(b);});
@@ -1610,13 +1658,13 @@ document.addEventListener('keydown',e=>{if(document.querySelector('dialog[open]'
  setInterval(()=>{const d=rotDeg(),t=(-d)+'°';if($('mvRot').textContent!==t)$('mvRot').textContent=t;$('mvRot').disabled=!d;},250);}
 $('bUndo').onclick=$('tUndo').onclick=()=>{undo();};$('bRedo').onclick=$('tRedo').onclick=()=>{redo();};
 document.addEventListener('keydown',e=>{const tg=e.target&&e.target.tagName;if(tg==='INPUT'&&e.target.type!=='range'&&e.target.type!=='checkbox'||tg==='SELECT'||e.ctrlKey||e.metaKey||e.altKey)return;
- const k=e.key.toLowerCase();if(k==='b'){setTool('brush');syncTB();}else if(k==='k'){setTool('knife');syncTB();}else if(k==='escape'){closeCP();}});
+ const k=e.key.toLowerCase();if(k==='b'){setTool('brush');syncTB();}else if(k==='k'){setTool('knife');syncTB();}else if(k==='g'&&!e.shiftKey){setTool('pencil');curDirty=true;syncTB();}else if(k==='escape'){closeCP();}});
 cv.addEventListener('pointerdown',()=>{closeCP();if(document.body.classList.contains('m'))setPanel(false);});
 let lastTB='';
 let tbSig='';function syncTB(){const sig=[$('pn').textContent,$('col').value,st.tool,st.med,$('size').value,$('wload').value,$('lop').value,SNAP.length,REDO.length,[...sw.children].findIndex(b=>b.classList.contains('on'))].join('|');if(sig===tbSig)return;tbSig=sig;const water=$('pn').textContent==='Clear water',c=water?'radial-gradient(circle at 35% 35%,#fff,#cfe3ee)':$('col').value;
  document.querySelectorAll('.cdot').forEach(d=>d.style.background=c);
- $('dBrush').classList.toggle('on',st.tool==='brush');$('dKnife').classList.toggle('on',st.tool==='knife');
- const key=st.tool+'|'+st.med;if(key!==lastTB){lastTB=key;$('tTool').innerHTML=ic(st.tool==='brush'?'brush':'knife');$('tTool').setAttribute('aria-label',st.tool==='brush'?'Brush (tap for knife)':'Knife (tap for brush)');
+ $('dBrush').classList.toggle('on',st.tool==='brush');$('dKnife').classList.toggle('on',st.tool==='knife');$('dPencil').classList.toggle('on',st.tool==='pencil');$('tPencil').classList.toggle('on',st.tool==='pencil');
+ const key=st.tool+'|'+st.med;if(key!==lastTB){lastTB=key;$('tTool').innerHTML=ic(st.tool==='knife'?'knife':'brush');$('tTool').classList.toggle('on',st.tool!=='pencil'&&false);$('tTool').setAttribute('aria-label',st.tool==='brush'?'Brush (tap for knife)':st.tool==='knife'?'Knife (tap for brush)':'Brush');
   $('dMed').innerHTML=ic(MEDS[st.med].ic)+'<span class="t">'+MEDS[st.med].lab+'</span>';$('tMed').innerHTML=ic(MEDS[st.med].ic);$('tMed').setAttribute('aria-label','Medium: '+MEDS[st.med].name);}
  vlSize.textContent=$('size').value;vlLoad.textContent=Math.round($('wload').value*100)+'%';vlOp.textContent=Math.round($('lop').value*100)+'%';
  $('cpPn').textContent=$('pn').textContent;[...$('cpPig').children].forEach((b,j)=>b.classList.toggle('on',!!(sw.children[j]&&sw.children[j].classList.contains('on'))));
@@ -1817,6 +1865,7 @@ const HELP_KEYS=[
  {id:'brush',keys:['[B]'],what:'Brush'},
  {id:'presets',keys:['[P]'],what:'Brush presets'},
  {id:'knife',keys:['[K]'],what:'Palette knife'},
+ {id:'pencil',keys:['[G]'],what:'Pencil (graphite or coloured)'},
  {id:'undo',keys:['['+MODK+']','[Z]'],what:'Undo'},
  {id:'redo',keys:['['+MODK+']','[Shift]','[Z]'],alt:['['+MODK+']','[Y]'],what:'Redo'},
  {id:'export',keys:['['+MODK+']','[Shift]','[E]'],what:'Export image…'},
@@ -1835,7 +1884,7 @@ const HELP_KEYS=[
  {id:'pick',keys:['[I]'],alt:['hold [Alt]','click'],what:'Pick a colour from the painting (eyedropper)'},
  {id:'trace',keys:['[T]'],what:'Show or hide the reference image traced over the canvas'},
  {id:'traceadj',keys:['[Shift]','[T]'],what:'Move, resize or turn the trace (drag, scroll, Shift+scroll; Esc or Enter when done)'},
- {id:'size',keys:['[LB] / [RB]'],alt:['[Shift]','[LB] / [RB]'],what:'Brush or knife size smaller / bigger (Shift for bigger steps)'},
+ {id:'size',keys:['[LB] / [RB]'],alt:['[Shift]','[LB] / [RB]'],what:'Brush, knife or pencil size smaller / bigger (Shift for bigger steps)'},
  {id:'clear',keys:['[Shift]','[Delete]'],alt:['[Shift]','[Backspace]'],what:'Clear the current layer (asks first; you can undo it)'},
  {id:'esc',keys:['[Esc]'],what:'Close the colour picker, the Medium menu, this help or a dialog'}];
 function keyHTML(ks){return ks.map(t=>t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])).replace(/\[([^\]]+)\]/g,'<kbd>$1</kbd>').replace(/<kbd>LB<\/kbd>/g,'<kbd>[</kbd>').replace(/<kbd>RB<\/kbd>/g,'<kbd>]</kbd>')).join(' + ');}
@@ -1878,8 +1927,8 @@ Object.assign(window.paintAPI,{openHelp:s=>openHelp(s),closeHelp,helpOpen:()=>dl
 // Built-ins in BP; custom presets in localStorage 'brushPresets'; active preset id in 'brushPresetActive' (re-applied at start-up).
 // Thumbnails are painted by the real engine in a hidden same-page iframe (?thumbs=1: own GL context, storage writes disabled) and cached
 // in localStorage 'presetThumbs' keyed by app version + preset values + preview colour.
-const BP_KEYS=['med','m','tool','shape','size','stiff','wload','dyn','wobble','flick','follow','kmode','btilt','bang','kang'];
-const BP_DEF={med:'water',m:0,tool:'brush',shape:'round',size:34,stiff:.5,wload:.7,dyn:.6,wobble:true,flick:true,follow:true,kmode:'spread',btilt:0,bang:0,kang:0};
+const BP_KEYS=['med','m','tool','shape','size','stiff','wload','dyn','wobble','flick','follow','kmode','btilt','bang','kang','phard','pgrain','pcol'];
+const BP_DEF={med:'water',m:0,tool:'brush',shape:'round',size:34,stiff:.5,wload:.7,dyn:.6,wobble:true,flick:true,follow:true,kmode:'spread',btilt:0,bang:0,kang:0,phard:.5,pgrain:.5,pcol:'g'};
 const BP=[
  {id:'wcWash',name:'Watercolour round wash',hex:'#1f3a93',d:'Big soft round, lots of water',v:{med:'water',m:0,shape:'round',size:72,stiff:.22,wload:.95,dyn:.45,flick:false}},
  {id:'wcBloom',name:'Wet-on-wet bloom',hex:'#9b1b30',wet:1,d:'Very wet, soft; best into wet paper',v:{med:'water',m:0,shape:'round',size:58,stiff:.12,wload:1,dyn:.35,flick:false,wobble:true}},
@@ -1893,11 +1942,14 @@ const BP=[
  {id:'oilRig',name:'Oil rigger',hex:'#2b2620',d:'Long thin line: branches, rigging, signatures',v:{med:'oil',m:.7,shape:'round',size:5,stiff:.55,wload:.9,dyn:.85,flick:true,wobble:false}},
  {id:'acrLiner',name:'Acrylic liner',hex:'#b23a2e',d:'Fine opaque line: details, outlines, lettering',v:{med:'acrylic',m:.5,shape:'round',size:4,stiff:.7,wload:.8,dyn:.8,flick:true,wobble:false}},
  {id:'inkLine',name:'Ink liner',hex:'#1b1b24',d:'Fine, firm, pressure-sensitive line',v:{med:'ink',m:0,shape:'round',size:5,stiff:.9,wload:.5,dyn:.8,flick:true}},
+ {id:'pencilHB',name:'Graphite pencil (HB/2B)',hex:'#2b2b30',d:'Dry graphite: press for darker, tilt to shade',v:{tool:'pencil',size:20,phard:.55,pgrain:.55,pcol:'g'}},
+ {id:'pencilCol',name:'Coloured pencil',hex:'#c0392b',d:'Waxy coloured pencil in the current colour',v:{tool:'pencil',size:24,phard:.6,pgrain:.6,pcol:'c'}},
  {id:'inkWash',name:'Ink wash',hex:'#2e3a46',d:'Wide wet ink wash',v:{med:'ink',m:0,shape:'round',size:64,stiff:.3,wload:1,dyn:.4,flick:false}}];
 const bpFull=v=>Object.assign({},BP_DEF,v);
-const bpSig=v=>{const f=bpFull(v);return BP_KEYS.map(k=>typeof f[k]==='number'?(+f[k]).toFixed(2):String(f[k])).join('|');};
-function bpCur(){return{med:st.med,m:+st.m,tool:st.tool,shape:st.shape,size:+st.size,stiff:+st.stiff,wload:+st.wload,dyn:+st.dyn,wobble:!!st.wobble,flick:!!st.flick,follow:!!st.follow,kmode:st.kmode,btilt:+st.btilt,bang:+st.bang,kang:+st.kang};}
-function bpApplyVals(v){v=bpFull(v);setMedium(v.m,v.med);setTool(v.tool);setShape(v.shape);$('size').value=v.size;setSize(v.size);setStiff(v.stiff);setWLoad(v.wload);setDyn(v.dyn);
+Object.assign(window.paintAPI,{setPencil:o=>{if(o.phard!=null)setPHard(o.phard);if(o.pgrain!=null)setPGrain(o.pgrain);if(o.pcol!=null)setPCol(o.pcol);},pencil:()=>({phard:st.phard,pgrain:st.pgrain,pcol:st.pcol,tool:st.tool})});
+const BP_PENK=['tool','size','btilt','phard','pgrain','pcol'];const bpSig=v=>{const f=bpFull(v);return(f.tool==='pencil'?BP_PENK:BP_KEYS).map(k=>typeof f[k]==='number'?(+f[k]).toFixed(2):String(f[k])).join('|');};
+function bpCur(){return{med:st.med,m:+st.m,tool:st.tool,shape:st.shape,size:+st.size,stiff:+st.stiff,wload:+st.wload,dyn:+st.dyn,wobble:!!st.wobble,flick:!!st.flick,follow:!!st.follow,kmode:st.kmode,btilt:+st.btilt,bang:+st.bang,kang:+st.kang,phard:+st.phard,pgrain:+st.pgrain,pcol:st.pcol};}
+function bpApplyVals(v){const pv=v;v=bpFull(v);if(pv.med!=null||v.tool!=='pencil')setMedium(v.m,v.med);setPHard(v.phard);setPGrain(v.pgrain);setPCol(v.pcol);setTool(v.tool);setShape(v.shape);$('size').value=v.size;setSize(v.size);setStiff(v.stiff);setWLoad(v.wload);setDyn(v.dyn);
  st.wobble=!!v.wobble;$('wob').checked=st.wobble;st.flick=!!v.flick;$('flick').checked=st.flick;st.follow=!!v.follow;$('follow').checked=st.follow;setKMode(v.kmode);setBTilt(v.btilt);setBAng(v.bang);setKAng(v.kang);
  if(st.multi){st.multi=false;$('multi').checked=false;st.stripes=[];}curDirty=true;tbSig='';syncTB();SL.forEach(s=>s.draw());}
 const bpLS={get(k,d){try{const s=localStorage.getItem(k);return s?JSON.parse(s):d;}catch(_){return d;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(_){return false;}}};
@@ -1933,7 +1985,8 @@ async function bpRender(d){const A=paintAPI;A.pause(true);A.newCanvas(720,240);b
  bpApplyVals(d.v);st.ks=hexKS(d.hex);st.granP=.4;
  const v=bpFull(d.v),big=v.size>45;
  A.stroke(ln(48,t=>[.1+.8*t,.5+(big?.12:.2)*Math.sin(t*Math.PI*1.6+.4),.25+.6*Math.sin(Math.PI*Math.min(1,t*1.15))]),.6,{dt:14});
- const wet=v.med==='water'||v.med==='ink';A.step(wet?150:30);if(wet)A.dryAll();A.step(2);
+ if(v.tool==='pencil')for(let k=0;k<9;k++)A.stroke(ln(8,t=>[.55+.3*t,.82-k*.07,.6]),.6,{tl:{t:.8,phi:-.3,pen:true}});
+ const wet=v.tool!=='pencil'&&(v.med==='water'||v.med==='ink');A.step(wet?150:30);if(wet)A.dryAll();A.step(2);
  const src=A.exportData('lit')[0][1];const c=document.createElement('canvas');c.width=360;c.height=120;const x=c.getContext('2d');x.imageSmoothingQuality='high';x.drawImage(src,0,0,360,120);
  return c.toDataURL('image/jpeg',.82);}
 if(THUMBS){window.addEventListener('message',async e=>{const d=e.data;if(!d||d.type!=='bpThumb'||e.source!==parent)return;let url=null;try{url=await bpRender(d);}catch(err){url=null;}parent.postMessage({type:'bpThumbDone',key:d.key,url},'*');});
