@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v0.32</title>
+<title>Medium — paint v0.33</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="app-version" content="medium-v0.32">
+<meta name="app-version" content="medium-v0.33">
 <meta name="theme-color" content="#161618">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -273,7 +273,7 @@ body.dropref::after{content:'Drop an image to use it as a reference';position:fi
 <div id="stage"><canvas id="c"></canvas><canvas id="trace" style="position:fixed" aria-hidden="true"></canvas><canvas id="cur" style="position:fixed;pointer-events:none"></canvas><div id="msg"></div></div>
 <div id="viewc" role="toolbar" aria-label="Canvas view"><button id="vOut" data-ic="minus" data-tip="Zoom out (Ctrl+−)" aria-label="Zoom out"></button><button id="zoomv" data-tip="Zoom: click for 100% (Ctrl+1), again to fit (Ctrl+0)" aria-label="Zoom level">100%</button><button id="vIn" data-ic="plus" data-tip="Zoom in (Ctrl++)" aria-label="Zoom in"></button><span class="vsep"></span><button id="vRL" data-ic="rotl" data-tip="Rotate view left 15° (Shift+R)" aria-label="Rotate view left"></button><button id="vRR" data-ic="rotr" data-tip="Rotate view right 15° (R)" aria-label="Rotate view right"></button><button id="rotv" hidden data-tip="Straighten the view" aria-label="Reset rotation">0°</button></div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.32</span></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.33</span></div>
  <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tFit" data-tip="Fit to screen" aria-label="Fit to screen" data-ic="fit"></button><button class="ib dk" id="tExp" data-tip="Export… (Ctrl+Shift+E)" aria-label="Export image" aria-haspopup="dialog" data-ic="download"></button><button class="ib dk" id="tRef" data-tip="Reference image" aria-label="Reference image" data-ic="image"></button><button class="ib dk" id="tHelp" data-tip="Help &amp; shortcuts (?)" aria-label="Help and keyboard shortcuts" aria-haspopup="dialog" data-ic="help"></button></div>
 <!-- top-right: tools -->
 <div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button>
@@ -356,7 +356,10 @@ body.dropref::after{content:'Drop an image to use it as a reference';position:fi
  <div class="row2" style="margin-top:8px"><button id="bRefDel" style="grid-column:span 2" disabled>Remove reference</button></div>
  <label class="chk" style="display:flex;align-items:center;gap:8px;margin-top:10px"><input type="checkbox" id="refTrace" disabled> Trace over the canvas</label>
  <div style="margin-top:6px"><div class="lab"><span>Tracing opacity</span><span id="refTrV">35%</span></div><input id="refTrOp" type="range" min="5" max="90" step="5" value="35" aria-label="Tracing opacity"></div>
- <div class="hint" style="margin-top:6px">Tracing lays the reference over the whole canvas, fitted and see-through, so you can follow its shapes. It moves with zoom and rotation and is never painted or exported.</div>
+ <div style="margin-top:6px"><div class="lab"><span>Trace size</span><span id="refTrSV">100%</span></div><input id="refTrS" type="range" min="10" max="400" step="1" value="100" aria-label="Trace size" disabled></div>
+ <div style="margin-top:6px"><div class="lab"><span>Trace angle</span><span id="refTrAV">0°</span></div><input id="refTrA" type="range" min="-180" max="180" step="1" value="0" aria-label="Trace angle" disabled></div>
+ <div class="row2" style="margin-top:8px"><button id="bTrAdj" disabled>Move / resize…</button><button id="bTrRst" disabled>Reset position</button></div>
+ <div class="hint" style="margin-top:6px">Tracing lays the reference over the canvas, see-through, so you can follow its shapes. Use Move / resize (or Shift+T) to drag it into place, pinch or scroll to resize and twist or Shift+scroll to turn it; painting pauses until you tap Done. It moves with zoom and rotation and is never painted or exported.</div>
  <div class="hint" id="refMsg" aria-live="polite" style="margin-top:8px">No reference image yet.</div>
  <input type="file" id="refFile" accept="image/*" style="display:none"></div></div></details>
 <details class="g"><summary><span data-ic="download"></span>Export &amp; projects</summary><div class="gb">
@@ -400,7 +403,7 @@ body.dropref::after{content:'Drop an image to use it as a reference';position:fi
  <nav class="hNav" aria-label="Help sections"><button type="button" data-go="hsStart"><span data-ic="brush"></span>Getting started</button><button type="button" data-go="hsPresets"><span data-ic="presets"></span>Brush presets</button><button type="button" data-go="hsWater"><span data-ic="drop"></span>Watercolour</button><button type="button" data-go="hsOil"><span data-ic="oil"></span>Oil &amp; impasto</button><button type="button" data-go="hsPen"><span data-ic="pencil"></span>Pen &amp; touch</button><button type="button" data-go="hsLayers"><span data-ic="layers"></span>Layers</button><button type="button" data-go="hsExport"><span data-ic="download"></span>Export</button><button type="button" data-go="hsKeys"><span data-ic="keys"></span>Shortcuts</button></nav>
  <section class="hSec" id="hsStart"><h3><span data-ic="brush"></span>Getting started</h3><ol class="hSteps">
   <li><b>Pick a medium</b>Open the Medium menu (<span class="dk">top right</span><span class="mo">bottom bar</span>) and choose Watercolour, Gouache, Acrylic, Oil or Ink.</li>
-  <li><b>Pick a colour</b>The colour dot opens the pigments, a custom colour picker and your recent colours. To reuse a colour already on the canvas, tap the pipette in the colour picker and touch the painting (on a keyboard: I, or hold Alt and click). To paint from a photo, open <b>Reference image</b> in Settings<span class="dk">, the picture button at the top left,</span><span class="mo">, the picture button at the top right,</span> or drop or paste an image: it floats beside the canvas and its pipette picks colours from it. Its trace button (or T) lays it see-through over the canvas so you can follow its shapes.</li>
+  <li><b>Pick a colour</b>The colour dot opens the pigments, a custom colour picker and your recent colours. To reuse a colour already on the canvas, tap the pipette in the colour picker and touch the painting (on a keyboard: I, or hold Alt and click). To paint from a photo, open <b>Reference image</b> in Settings<span class="dk">, the picture button at the top left,</span><span class="mo">, the picture button at the top right,</span> or drop or paste an image: it floats beside the canvas and its pipette picks colours from it. Its trace button (or T) lays it see-through over the canvas so you can follow its shapes; Move / resize in Settings (or Shift+T) lets you drag, resize and turn it into place.</li>
   <li><b>Set up the brush</b>Choose brush or palette knife and set the size <span class="dk">on the left rail</span><span class="mo">with the Size slider</span>. Brush shape, stiffness and water load are in Settings.</li>
   <li><b>Paint</b>Drag on the paper. Made a mistake? Undo is <span class="dk">on the left rail, or <span class="kmod">Ctrl</span>+Z</span><span class="mo">at the top right</span>.</li></ol>
   <p class="hNote">Painting feels slow? Try Settings › Canvas &amp; surface › Quality: Low.</p></section>
@@ -1822,6 +1825,7 @@ const HELP_KEYS=[
  {id:'keep',keys:['hold [Shift]','paint'],what:'Keep painting with what is left on the brush (dry-brush)'},
  {id:'pick',keys:['[I]'],alt:['hold [Alt]','click'],what:'Pick a colour from the painting (eyedropper)'},
  {id:'trace',keys:['[T]'],what:'Show or hide the reference image traced over the canvas'},
+ {id:'traceadj',keys:['[Shift]','[T]'],what:'Move, resize or turn the trace (drag, scroll, Shift+scroll; Esc or Enter when done)'},
  {id:'esc',keys:['[Esc]'],what:'Close the colour picker, the Medium menu, this help or a dialog'}];
 function keyHTML(ks){return ks.map(t=>t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])).replace(/\[([^\]]+)\]/g,'<kbd>$1</kbd>')).join(' + ');}
 $('hKeys').tBodies[0].innerHTML=HELP_KEYS.map(k=>'<tr data-k="'+k.id+'"><td>'+keyHTML(k.keys)+(k.alt?'<span class="or">or</span>'+keyHTML(k.alt):'')+'</td><td>'+k.what+'</td></tr>').join('');
@@ -2079,7 +2083,8 @@ drawCursor=(orig=>function(){if(!(PK.on||PK.alt)){orig();return;}const r=cvRect(
  cg.restore();})(drawCursor);
 Object.assign(window.paintAPI,{startPick,cancelPick,pickOn:()=>PK.on,pickAt:(u,v,r)=>sampleUV(u,v,r),pickApply:(u,v)=>pkApply(sampleUV(u,v)),colour:()=>$('col').value});
 // ---- v0.31 reference image: a floating window beside the painting (never painted or exported), pick colours from it, kept in this browser (IndexedDB 'refimg') ----
-const RF={src:null,cx:null,w:0,h:0,w0:0,h0:0,s:1,ox:0,oy:0,pick:false,box:null,name:'',blob:null,pts:new Map(),pid:null,pt:null,hex:null,pkGlobal:false,trace:false,trOp:.35};
+const RF={src:null,cx:null,w:0,h:0,w0:0,h0:0,s:1,ox:0,oy:0,pick:false,box:null,name:'',blob:null,pts:new Map(),pid:null,pt:null,hex:null,pkGlobal:false,trace:false,trOp:.35,tp:{x:0,y:0,s:1,a:0}};
+const TA={on:false,pts:new Map()};
 const refEl=$('ref'),refC=$('refC'),refG=refC.getContext('2d');
 const REF_DB=!THUMBS;
 const refOpen=()=>refEl.classList.contains('open');
@@ -2112,21 +2117,21 @@ function refUI(){const has=!!RF.src,open=refOpen();$('bRefShow').disabled=!has;$
  trSync();$('refMsg').textContent=has?RF.name+' · '+RF.w0+'×'+RF.h0+' px'+(open?'':' (hidden)'):'No reference image yet.';$('refT').textContent=RF.name||'Reference';}
 function refShow(on){if(on&&!RF.src){refChoose();return;}refEl.classList.toggle('open',!!on);if(on){refClamp();refDraw();}else{refSetPick(false);RF.pts.clear();RF.pid=null;}refUI();refSave();}
 let refST=0;function refSave(){if(!REF_DB)return;clearTimeout(refST);refST=setTimeout(async()=>{try{const db=await asDB(),tx=db.transaction('kv','readwrite'),os=tx.objectStore('kv');
- if(RF.src)os.put({blob:RF.blob,name:RF.name,box:RF.box,view:{s:RF.s,ox:RF.ox,oy:RF.oy},shown:refOpen(),trace:RF.trace,trOp:RF.trOp},'refimg');else os.delete('refimg');}catch(_){}},250);}
+ if(RF.src)os.put({blob:RF.blob,name:RF.name,box:RF.box,view:{s:RF.s,ox:RF.ox,oy:RF.oy},shown:refOpen(),trace:RF.trace,trOp:RF.trOp,tp:RF.tp},'refimg');else os.delete('refimg');}catch(_){}},250);}
 async function refDecode(blob){if(window.createImageBitmap){try{return await createImageBitmap(blob);}catch(_){}}
  return await new Promise((res,rej)=>{const u=URL.createObjectURL(blob),im=new Image();im.onload=()=>{res(im);setTimeout(()=>URL.revokeObjectURL(u),0);};im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('decode'));};im.src=u;});}
 async function refSet(blob,name,o){o=o||{};let bm;try{bm=await refDecode(blob);}catch(_){if(!o.silent)toast("Couldn't open that image",2400);return false;}
  const w0=bm.width,h0=bm.height;if(!w0||!h0){if(!o.silent)toast("Couldn't open that image",2400);return false;}const k=Math.min(1,3072/Math.max(w0,h0)),w=Math.max(1,Math.round(w0*k)),h=Math.max(1,Math.round(h0*k));
  const c=document.createElement('canvas');c.width=w;c.height=h;const cx=c.getContext('2d',{willReadFrequently:true});cx.drawImage(bm,0,0,w,h);try{bm.close&&bm.close();}catch(_){}
  if(blob.size>12e6){const b2=await new Promise(r=>c.toBlob(r,'image/jpeg',.92));if(b2)blob=b2;}
- Object.assign(RF,{src:c,cx,w,h,w0,h0,name:(name||'Reference').replace(/\.[a-z0-9]{2,5}$/i,'')||'Reference',blob});if(o.box)RF.box=Object.assign({},o.box);if(o.trace!=null)RF.trace=!!o.trace;if(o.trOp>0)RF.trOp=o.trOp;
+ Object.assign(RF,{src:c,cx,w,h,w0,h0,name:(name||'Reference').replace(/\.[a-z0-9]{2,5}$/i,'')||'Reference',blob});if(o.box)RF.box=Object.assign({},o.box);if(o.trace!=null)RF.trace=!!o.trace;if(o.trOp>0)RF.trOp=o.trOp;RF.tp=o.tp&&o.tp.s>0?Object.assign({x:0,y:0,s:1,a:0},o.tp):{x:0,y:0,s:1,a:0};
  const show=o.shown!==false;refEl.classList.toggle('open',show);if(show)refClamp();
  if(show&&o.view&&o.view.s>0){refSize();Object.assign(RF,{s:o.view.s,ox:o.view.ox,oy:o.view.oy});refKeep();refDraw();}else if(show)refFit();
  refUI();if(!o.silent){refSave();if(document.body.classList.contains('m'))setPanel(false);}return true;}
 function refChoose(){$('refFile').value='';$('refFile').click();}
 $('refFile').onchange=e=>{const f=e.target.files&&e.target.files[0];if(f)refSet(f,f.name);};
-function refRemove(){if(!RF.src)return;const prev={blob:RF.blob,name:RF.name,box:RF.box&&Object.assign({},RF.box),view:{s:RF.s,ox:RF.ox,oy:RF.oy},shown:refOpen(),trace:RF.trace,trOp:RF.trOp};
- refEl.classList.remove('open');refSetPick(false);Object.assign(RF,{src:null,cx:null,blob:null,name:'',w:0,h:0,w0:0,h0:0,trace:false});refUI();refSave();
+function refRemove(){if(!RF.src)return;const prev={blob:RF.blob,name:RF.name,box:RF.box&&Object.assign({},RF.box),view:{s:RF.s,ox:RF.ox,oy:RF.oy},shown:refOpen(),trace:RF.trace,trOp:RF.trOp,tp:Object.assign({},RF.tp)};
+ refEl.classList.remove('open');refSetPick(false);Object.assign(RF,{src:null,cx:null,blob:null,name:'',w:0,h:0,w0:0,h0:0,trace:false});taEnd(true);refUI();refSave();
  toast('Reference image removed',6000,[['Undo',()=>refSet(prev.blob,prev.name,prev)]]);}
 $('bRefAdd').onclick=refChoose;$('bRefShow').onclick=()=>refShow(!refOpen());$('bRefDel').onclick=refRemove;
 $('tRef').onclick=$('tRefM').onclick=()=>RF.src?refShow(!refOpen()):refChoose();
@@ -2136,20 +2141,55 @@ $('refPk').onclick=()=>{refSetPick(!RF.pick);if(RF.pick)toast(document.body.clas
 /* v0.32 tracing: the reference fitted over the whole canvas, see-through, following zoom / rotation. A separate screen layer (never painted, sampled or exported). */
 const trC=$('trace'),trG=trC.getContext('2d');let trKey='';
 function trOn(){return !!(RF.src&&RF.trace);}
-function trSync(){const on=trOn(),has=!!RF.src;trC.classList.toggle('on',on);trC.style.opacity=RF.trOp;$('refTr').classList.toggle('on',on);$('refTr').setAttribute('aria-pressed',on);
- const cb=$('refTrace');cb.disabled=!has;cb.checked=on;const pc=Math.round(RF.trOp*100);$('refTrOp').value=pc;$('refTrV').textContent=pc+'%';trKey='';}
-function trBox(){const k=Math.min(W/RF.w,H/RF.h);return{k,x0:(W-RF.w*k)/2,y0:(H-RF.h*k)/2};}
+function trSync(){const on=trOn(),has=!!RF.src;trC.classList.toggle('on',on);$('refTr').classList.toggle('on',on);$('refTr').setAttribute('aria-pressed',on);
+ const cb=$('refTrace');cb.disabled=!has;cb.checked=on;const pc=Math.round(RF.trOp*100);$('refTrOp').value=pc;$('refTrV').textContent=pc+'%';
+ const sz=Math.round(RF.tp.s*100),ag=Math.round(RF.tp.a*180/Math.PI);$('refTrS').value=sz;$('refTrSV').textContent=sz+'%';$('refTrA').value=ag;$('refTrAV').textContent=ag+'°';
+ for(const i of['refTrS','refTrA','bTrAdj','bTrRst'])$(i).disabled=!has;$('bTrAdj').textContent=TA.on?'Done moving':'Move / resize…';$('bTrAdj').classList.toggle('on',TA.on);
+ trC.style.opacity=TA.on?Math.max(RF.trOp,.6):RF.trOp;if(!on&&TA.on)taEnd(true);trKey='';}
+/* v0.33: trace placement RF.tp = centre offset from the canvas centre (canvas px, y down), size (x the fitted size) and angle (rad) */
+function trBox(){const t=RF.tp,k=Math.min(W/RF.w,H/RF.h)*t.s,c=Math.cos(t.a),n=Math.sin(t.a),cx=W/2+t.x,cy=H/2+t.y;
+ return{k,f:(u,v)=>{const du=u-RF.w/2,dv=v-RF.h/2;return[cx+k*(c*du-n*dv),cy+k*(n*du+c*dv)];}};}
+function trScr(X,Y){const q=v2s(X,H-Y);return[q[0],cv.height-q[1]];}
 function trDraw(){if(!trOn())return;const r=cvRect(),d=cv.width/Math.max(1,r.width);
  if(trC.width!==cv.width||trC.height!==cv.height){trC.width=cv.width;trC.height=cv.height;}
  Object.assign(trC.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});
- const b=trBox(),f=(u,v)=>{const q=v2s(b.x0+u*b.k,H-(b.y0+v*b.k));return[q[0],cv.height-q[1]];},P0=f(0,0),Pu=f(1,0),Pv=f(0,1);
+ const b=trBox(),f=(u,v)=>trScr(...b.f(u,v)),P0=f(0,0),Pu=f(1,0),Pv=f(0,1);
  trG.setTransform(1,0,0,1,0,0);trG.clearRect(0,0,trC.width,trC.height);trG.imageSmoothingEnabled=view.s*b.k<3;trG.imageSmoothingQuality='high';
- trG.setTransform(Pu[0]-P0[0],Pu[1]-P0[1],Pv[0]-P0[0],Pv[1]-P0[1],P0[0],P0[1]);trG.drawImage(RF.src,0,0);trG.setTransform(1,0,0,1,0,0);}
-(function trLoop(){if(trOn()){const r=cvRect(),key=[view.s,view.ox,view.oy,view.r,cv.width,cv.height,W,H,r.left,r.top,r.width,RF.w,RF.h,RF.name].join();if(key!==trKey){trKey=key;trDraw();}}requestAnimationFrame(trLoop);})();
+ trG.setTransform(Pu[0]-P0[0],Pu[1]-P0[1],Pv[0]-P0[0],Pv[1]-P0[1],P0[0],P0[1]);trG.drawImage(RF.src,0,0);trG.setTransform(1,0,0,1,0,0);
+ if(TA.on){const d=cv.width/Math.max(1,r.width),C=[f(0,0),f(RF.w,0),f(RF.w,RF.h),f(0,RF.h)];trG.save();
+  for(const[col,w,dash]of[['rgba(0,0,0,.75)',4*d,[]],['#fff',2*d,[8*d,6*d]]]){trG.strokeStyle=col;trG.lineWidth=w;trG.setLineDash(dash);trG.beginPath();C.forEach((q,i)=>i?trG.lineTo(q[0],q[1]):trG.moveTo(q[0],q[1]));trG.closePath();trG.stroke();}
+  trG.setLineDash([]);for(const q of C){trG.fillStyle='#fff';trG.strokeStyle='rgba(0,0,0,.75)';trG.lineWidth=2*d;trG.beginPath();trG.arc(q[0],q[1],6*d,0,6.2832);trG.fill();trG.stroke();}trG.restore();}}
+(function trLoop(){if(trOn()){const r=cvRect(),key=[view.s,view.ox,view.oy,view.r,cv.width,cv.height,W,H,r.left,r.top,r.width,RF.w,RF.h,RF.name,RF.tp.x,RF.tp.y,RF.tp.s,RF.tp.a,TA.on].join();if(key!==trKey){trKey=key;trDraw();}}requestAnimationFrame(trLoop);})();
 function trSet(on,quiet){if(on&&!RF.src){if(!quiet)toast('Add a reference image first (Settings › Reference image)',2600);return;}RF.trace=!!on;trSync();refSave();
- if(!quiet)toast(RF.trace?'Tracing on: the reference shows over the canvas (it is never painted or exported)':'Tracing off',2000);}
+ if(!quiet){if(RF.trace)toast('Tracing on: the reference shows over the canvas (never painted or exported)',3500,[['Move / resize',()=>taStart()]]);else toast('Tracing off',1600);}}
 $('refTr').onclick=()=>trSet(!RF.trace);$('refTrace').onchange=e=>trSet(e.target.checked,true);
-$('refTrOp').addEventListener('input',e=>{RF.trOp=+e.target.value/100;trC.style.opacity=RF.trOp;$('refTrV').textContent=e.target.value+'%';refSave();});
+$('refTrOp').addEventListener('input',e=>{RF.trOp=+e.target.value/100;trC.style.opacity=TA.on?Math.max(RF.trOp,.6):RF.trOp;$('refTrV').textContent=e.target.value+'%';refSave();});
+addEventListener('keydown',e=>{if((e.key==='t'||e.key==='T')&&e.shiftKey&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!typingIn(e.target)&&!document.querySelector('dialog[open]')){e.preventDefault();TA.on?taEnd():taStart();}
+ else if(TA.on&&(e.key==='Escape'||e.key==='Enter')&&!typingIn(e.target)){e.preventDefault();taEnd();}});
+/* v0.33 move / resize / turn the trace: drag moves it, pinch or wheel resizes, two-finger twist or Shift+wheel turns it. Painting is paused meanwhile. */
+function taTD(e){const u=toUV(e);return[u[0]*W,(1-u[1])*H];}
+function taMsg(){toast(document.body.classList.contains('m')?'Drag to move the trace, pinch to resize, twist to turn':'Drag to move the trace, scroll to resize, Shift+scroll to turn',0,[['Reset',()=>{taReset();taMsg();}],['Done',()=>taEnd()]]);}
+function taStart(){if(!RF.src){toast('Add a reference image first (Settings › Reference image)',2600);return;}if(!RF.trace)trSet(true,true);try{if(PK.on)cancelPick();}catch(_){}
+ TA.on=true;TA.pts.clear();document.body.classList.add('tradj');if(document.body.classList.contains('m'))setPanel(false);trSync();taMsg();}
+function taEnd(quiet){if(!TA.on)return;TA.on=false;TA.pts.clear();document.body.classList.remove('tradj');trSync();refSave();if(!quiet)hideToast();}
+function taReset(){Object.assign(RF.tp,{x:0,y:0,s:1,a:0});trSync();refSave();}
+function taScale(P,f){const t=RF.tp,ns=Math.min(Math.max(t.s*f,.05),20);f=ns/t.s;const cx=W/2+t.x,cy=H/2+t.y;t.x=P[0]+(cx-P[0])*f-W/2;t.y=P[1]+(cy-P[1])*f-H/2;t.s=ns;}
+function taRot(P,da){const t=RF.tp,cx=W/2+t.x-P[0],cy=H/2+t.y-P[1],c=Math.cos(da),n=Math.sin(da);t.x=P[0]+c*cx-n*cy-W/2;t.y=P[1]+n*cx+c*cy-H/2;t.a=Math.atan2(Math.sin(t.a+da),Math.cos(t.a+da));}
+function taSnap(){const t=RF.tp;if(Math.abs(t.a)<3*Math.PI/180&&t.a){taRot([W/2+t.x,H/2+t.y],-t.a);}}
+cv.addEventListener('pointerdown',e=>{if(!TA.on)return;e.stopImmediatePropagation();e.preventDefault();if(e.button>0&&e.pointerType==='mouse')return;try{cv.setPointerCapture(e.pointerId);}catch(_){}TA.pts.set(e.pointerId,taTD(e));},{capture:true});
+cv.addEventListener('pointermove',e=>{if(!TA.on)return;e.stopImmediatePropagation();if(!TA.pts.has(e.pointerId))return;const before=[...TA.pts.values()].map(q=>q.slice());const ids=[...TA.pts.keys()];TA.pts.set(e.pointerId,taTD(e));const after=[...TA.pts.values()];
+ const t=RF.tp;if(after.length===1){t.x+=after[0][0]-before[0][0];t.y+=after[0][1]-before[0][1];}
+ else{const a0=before[0],b0=before[1],a1=after[0],b1=after[1],c0=[(a0[0]+b0[0])/2,(a0[1]+b0[1])/2],c1=[(a1[0]+b1[0])/2,(a1[1]+b1[1])/2];
+  t.x+=c1[0]-c0[0];t.y+=c1[1]-c0[1];const d0=Math.hypot(b0[0]-a0[0],b0[1]-a0[1]),d1=Math.hypot(b1[0]-a1[0],b1[1]-a1[1]);if(d0>4)taScale(c1,d1/d0);
+  let da=Math.atan2(b1[1]-a1[1],b1[0]-a1[0])-Math.atan2(b0[1]-a0[1],b0[0]-a0[0]);da=Math.atan2(Math.sin(da),Math.cos(da));if(d0>20)taRot(c1,da);}
+ trSync();},{capture:true});
+const taUp=e=>{if(!TA.on)return;e.stopImmediatePropagation();if(TA.pts.delete(e.pointerId)&&!TA.pts.size){taSnap();trSync();refSave();}};
+cv.addEventListener('pointerup',taUp,{capture:true});cv.addEventListener('pointercancel',taUp,{capture:true});
+cv.addEventListener('wheel',e=>{if(!TA.on)return;e.stopImmediatePropagation();e.preventDefault();const P=taTD(e);
+ if(e.shiftKey){const dd=e.deltaY||e.deltaX;taRot(P,(dd>0?1:-1)*2.5*Math.PI/180);}else taScale(P,Math.exp(-e.deltaY*.0015));trSync();refSave();},{capture:true,passive:false});
+$('bTrAdj').onclick=()=>TA.on?taEnd():taStart();$('bTrRst').onclick=taReset;
+$('refTrS').addEventListener('input',e=>{const t=RF.tp;taScale([W/2+t.x,H/2+t.y],(+e.target.value/100)/t.s);trSync();refSave();});
+$('refTrA').addEventListener('input',e=>{const t=RF.tp;taRot([W/2+t.x,H/2+t.y],+e.target.value*Math.PI/180-t.a);trSync();refSave();});
 addEventListener('keydown',e=>{if((e.key==='t'||e.key==='T')&&!e.shiftKey&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!typingIn(e.target)&&!document.querySelector('dialog[open]')){e.preventDefault();trSet(!RF.trace);}});
 /* window: drag by the title bar, resize from the corner */
 function refGrab(h,mode){h.addEventListener('pointerdown',e=>{if(mode==='move'&&e.target.closest('button'))return;if(e.button>0)return;e.preventDefault();e.stopPropagation();try{h.setPointerCapture(e.pointerId);}catch(_){}
@@ -2191,9 +2231,9 @@ addEventListener('drop',e=>{if(!refDragHas(e))return;e.preventDefault();document
 addEventListener('paste',e=>{if(typingIn(e.target))return;const it=[...((e.clipboardData&&e.clipboardData.items)||[])].find(i=>i.kind==='file'&&/^image\//.test(i.type));const f=it&&it.getAsFile();if(f){e.preventDefault();refSet(f,f.name&&f.name!=='image.png'?f.name:'Pasted image');}});
 /* restore from the last visit */
 if(REF_DB)(async()=>{try{const db=await asDB();const d=await new Promise((res,rej)=>{const q=db.transaction('kv').objectStore('kv').get('refimg');q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error);});
- if(d&&d.blob)await refSet(d.blob,d.name,{box:d.box,view:d.view,shown:d.shown,trace:d.trace,trOp:d.trOp,silent:true});}catch(_){}refUI();})();
+ if(d&&d.blob)await refSet(d.blob,d.name,{box:d.box,view:d.view,shown:d.shown,trace:d.trace,trOp:d.trOp,tp:d.tp,silent:true});}catch(_){}refUI();})();
 refUI();
 Object.assign(window.paintAPI,{refLoad:async(url,name)=>{const b=await (await fetch(url)).blob();return refSet(b,name||'Reference');},refShow,refOpen,refFit,refRemove,refPickMode:refSetPick,
  refInfo:()=>({has:!!RF.src,open:refOpen(),trace:trOn(),trOp:RF.trOp,w:RF.w,h:RF.h,w0:RF.w0,h0:RF.h0,s:RF.s,ox:RF.ox,oy:RF.oy,box:RF.box&&Object.assign({},RF.box),pick:RF.pick,name:RF.name}),
- refSampleImg:(x,y,r)=>refSample(x,y,r),refTrace:(on,op)=>{if(op!=null){RF.trOp=op;}trSet(on,true);return trOn();},refTraceOn:trOn,traceAt:(u,v)=>{const r=cvRect(),d=cv.width/r.width,b=trBox(),q=v2s(b.x0+u*b.k,H-(b.y0+v*b.k));return[r.left+q[0]/d,r.top+(cv.height-q[1])/d];}});
+ refSampleImg:(x,y,r)=>refSample(x,y,r),refTrace:(on,op)=>{if(op!=null){RF.trOp=op;}trSet(on,true);return trOn();},refTraceOn:trOn,traceAt:(u,v)=>{const r=cvRect(),d=cv.width/r.width,q=trScr(...trBox().f(u,v));return[r.left+q[0]/d,r.top+q[1]/d];},traceAdjust:on=>{on?taStart():taEnd();return TA.on;},tracePlace:o=>{if(o)Object.assign(RF.tp,o);trSync();return Object.assign({},RF.tp);},traceAdjOn:()=>TA.on});
 </script></body></html>
