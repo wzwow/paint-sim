@@ -1,7 +1,7 @@
 // Medium paint: offline support. The app is one HTML file plus icons.
 // Pages: network first (so a new version shows up as soon as you're online), cached copy when offline.
 // Icons/manifest: cache first. Bump VERSION with each release so old caches are cleared.
-const VERSION='medium-v0.35';
+const VERSION='medium-v0.36';
 const CORE=['./','./index.html','./manifest.webmanifest','./icons/icon-192.png','./icons/icon-512.png','./icons/icon-maskable-192.png','./icons/icon-maskable-512.png','./icons/apple-touch-icon.png','./icons/favicon-32.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(VERSION).then(c=>c.addAll(CORE.map(u=>new Request(u,{cache:'reload'})))).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k.startsWith('medium-')&&k!==VERSION).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});

@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v0.35</title>
+<title>Medium — paint v0.36</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="app-version" content="medium-v0.35">
+<meta name="app-version" content="medium-v0.36">
 <meta name="theme-color" content="#161618">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -97,7 +97,7 @@ input[type=color]{width:34px;height:26px;border:0;border-radius:8px;background:n
 #viewc{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);z-index:9;display:flex;align-items:center;gap:2px;background:var(--glass);border:1px solid var(--line);border-radius:11px;padding:3px;box-shadow:var(--sh)}
 #viewc button{background:none;border:0;color:var(--mute);border-radius:8px;height:28px;min-width:28px;padding:0 6px;display:grid;place-items:center;cursor:pointer;font:600 11px/1 system-ui;font-variant-numeric:tabular-nums}
 #viewc button{position:relative}#viewc [data-tip]:hover::after{top:auto;bottom:calc(100% + 8px)}#viewc button:hover{background:var(--accS);color:var(--ink)}#viewc button svg{width:16px;height:16px}#viewc .vsep{width:1px;height:16px;background:var(--line);margin:0 3px}
-#zoomv{min-width:50px!important}#rotv[hidden]{display:none}#rotv{color:var(--acc)!important}
+#zoomv{min-width:50px!important}#rotv{color:var(--acc)!important}#rotv:disabled{opacity:.4;cursor:default;color:var(--mute)!important}#rotv:disabled:hover{background:none}#vClr{color:#f19b9b!important}#viewc{max-width:calc(100vw - 20px)}
 /* colour picker */
 #cp{width:288px;padding:14px;display:none;top:68px;right:12px}
 #cp.open{display:block}
@@ -273,9 +273,9 @@ body.dropref::after{content:'Drop an image to use it as a reference';position:fi
 </style></head>
 <body>
 <div id="stage"><canvas id="c"></canvas><canvas id="trace" style="position:fixed" aria-hidden="true"></canvas><canvas id="cur" style="position:fixed;pointer-events:none"></canvas><div id="msg"></div></div>
-<div id="viewc" role="toolbar" aria-label="Canvas view"><button id="vOut" data-ic="minus" data-tip="Zoom out (Ctrl+−)" aria-label="Zoom out"></button><button id="zoomv" data-tip="Zoom: click for 100% (Ctrl+1), again to fit (Ctrl+0)" aria-label="Zoom level">100%</button><button id="vIn" data-ic="plus" data-tip="Zoom in (Ctrl++)" aria-label="Zoom in"></button><span class="vsep"></span><button id="vRL" data-ic="rotl" data-tip="Rotate view left 15° (Shift+R)" aria-label="Rotate view left"></button><button id="vRR" data-ic="rotr" data-tip="Rotate view right 15° (R)" aria-label="Rotate view right"></button><button id="rotv" hidden data-tip="Straighten the view" aria-label="Reset rotation">0°</button></div>
+<div id="viewc" role="toolbar" aria-label="Canvas view"><button id="vFit" data-ic="fit" data-tip="Fit to screen (Ctrl+0)" aria-label="Fit to screen"></button><button id="v100" data-tip="Zoom to 100% (Ctrl+1)" aria-label="Zoom to 100%">1:1</button><button id="vOut" data-ic="minus" data-tip="Zoom out (Ctrl+−)" aria-label="Zoom out"></button><button id="zoomv" data-tip="Zoom: click for 100% (Ctrl+1), again to fit (Ctrl+0)" aria-label="Zoom level">100%</button><button id="vIn" data-ic="plus" data-tip="Zoom in (Ctrl++)" aria-label="Zoom in"></button><span class="vsep"></span><button id="vRL" data-ic="rotl" data-tip="Rotate view left 15° (Shift+R)" aria-label="Rotate view left"></button><button id="vRR" data-ic="rotr" data-tip="Rotate view right 15° (R)" aria-label="Rotate view right"></button><button id="rotv" disabled data-tip="Straighten the view (shows current angle)" aria-label="Reset rotation">0°</button><span class="vsep"></span><button id="vClr" data-ic="trash" data-tip="Clear layer… (Shift+Delete)" aria-label="Clear layer" aria-haspopup="dialog"></button></div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.35</span></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.36</span></div>
  <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tClr" data-tip="Clear layer… (Shift+Delete)" aria-label="Clear layer" aria-haspopup="dialog" data-ic="trash"></button><button class="ib dk" id="tFit" data-tip="Fit to screen" aria-label="Fit to screen" data-ic="fit"></button><button class="ib dk" id="tExp" data-tip="Export… (Ctrl+Shift+E)" aria-label="Export image" aria-haspopup="dialog" data-ic="download"></button><button class="ib dk" id="tRef" data-tip="Reference image" aria-label="Reference image" data-ic="image"></button><button class="ib dk" id="tHelp" data-tip="Help &amp; shortcuts (?)" aria-label="Help and keyboard shortcuts" aria-haspopup="dialog" data-ic="help"></button></div>
 <!-- top-right: tools -->
 <div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button><button class="ib" id="dPencil" data-tip="Pencil (G)" aria-label="Pencil" data-ic="pencil"></button>
@@ -1235,7 +1235,7 @@ let finKey='';function render(){const full=compFull||belowDirty,dirty=full?null:
   sc=[Math.max(0,X0),Math.max(0,Y0),Math.min(cv.width,X1)-Math.max(0,X0),Math.min(cv.height,Y1)-Math.max(0,Y0)];if(sc[2]<=0||sc[3]<=0)return lastZoomUpd();}
  run(P.final,null,{uAC:src.t[0],uAA:src.t[1],uP:PAPER.t[0]},Object.assign(L,{uScreen:1,uMode:0,uView:[view.ox,view.oy,view.s,view.r],uBg:[.085,.085,.095]}),sc);lastZoomUpd();}
 function lastZoomUpd(){
- const deg=rotDeg(),zt=Math.round(view.s/(devicePixelRatio||1)*100)+'%'+(deg?' · '+(-deg)+'°':'')+(isHome()?'h':'');if(zt!==lastZoomT){lastZoomT=zt;const z=$('zoomv');if(z)z.textContent=zt.replace(/h$/,'').replace(/ · .*$/,m=>document.body.classList.contains('m')?m:'');const rv=$('rotv');if(rv){rv.hidden=!deg;rv.textContent=(-deg)+'°';}const vc=$('viewc');if(vc)vc.classList.toggle('home',isHome());}}
+ const deg=rotDeg(),zt=Math.round(view.s/(devicePixelRatio||1)*100)+'%'+(deg?' · '+(-deg)+'°':'')+(isHome()?'h':'');if(zt!==lastZoomT){lastZoomT=zt;const z=$('zoomv');if(z)z.textContent=zt.replace(/h$/,'').replace(/ · .*$/,m=>document.body.classList.contains('m')?m:'');const rv=$('rotv');if(rv){rv.disabled=!deg;rv.textContent=(-deg)+'°';}const vc=$('viewc');if(vc)vc.classList.toggle('home',isHome());}}
 function rotDeg(){let d=Math.round(view.r*180/Math.PI)%360;if(d>180)d-=360;if(d<=-180)d+=360;return d;}
 let homeS=0;function isHome(){return !rotDeg()&&homeS>0&&Math.abs(view.s/homeS-1)<.02;}
 let lastZoomT='';
@@ -1640,7 +1640,7 @@ document.addEventListener('pointerdown',e=>{if(mp.classList.contains('open')&&!m
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMP();});
 document.addEventListener('keydown',e=>{if(e.key!=='F2'||e.ctrlKey||e.metaKey||e.altKey)return;const tg=e.target&&e.target.tagName;if(tg==='INPUT'&&e.target.type!=='range'&&e.target.type!=='checkbox'||tg==='SELECT'||tg==='TEXTAREA')return;e.preventDefault();setPanel(true);const dt=$('layers').closest('details');if(dt)dt.open=true;requestAnimationFrame(()=>startRename(ai));});
 $('tNew').onclick=()=>$('bNew').click();$('tFit').onclick=()=>homeView();
-$('vIn').onclick=()=>zoomStep(1.25);$('vOut').onclick=()=>zoomStep(1/1.25);$('vRL').onclick=()=>rotStep(15);$('vRR').onclick=()=>rotStep(-15);$('rotv').onclick=()=>rotReset();
+$('vIn').onclick=()=>zoomStep(1.25);$('vOut').onclick=()=>zoomStep(1/1.25);$('vRL').onclick=()=>rotStep(15);$('vRR').onclick=()=>rotStep(-15);$('rotv').onclick=()=>rotReset();$('vFit').onclick=()=>homeView();$('v100').onclick=()=>zoom100();$('vClr').onclick=openClear;
 $('zoomv').onclick=()=>{if(document.body.classList.contains('m')||Math.abs(view.s-(devicePixelRatio||1))<.01)homeView();else zoom100();};
 // v0.27 view keys: Ctrl+0 fit (and straighten), Ctrl+1 100%, Ctrl+= / Ctrl+- zoom at the centre, R / Shift+R rotate 15 deg
 document.addEventListener('keydown',e=>{if(document.querySelector('dialog[open]')||typingIn(e.target))return;const k=e.key;
