@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v0.36</title>
+<title>Medium — paint v0.37</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="app-version" content="medium-v0.36">
+<meta name="app-version" content="medium-v0.37">
 <meta name="theme-color" content="#161618">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -270,12 +270,37 @@ body.m #toast{bottom:calc(84px + env(safe-area-inset-bottom));width:calc(100vw -
 #refTr.on,#tRefM.on{color:var(--acc,#8ab4ff)}
 body.m #refH .ib{min-width:44px;height:44px}body.m #refH{padding-left:6px;gap:1px}body.m #refRs{width:34px;height:34px}
 body.dropref::after{content:'Drop an image to use it as a reference';position:fixed;inset:12px;border:2px dashed var(--acc);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--ink);background:rgba(22,22,24,.7);z-index:60;pointer-events:none}
+#lp{z-index:32;left:50%;bottom:58px;transform:translateX(-50%);width:318px;max-width:calc(100vw - 16px);padding:10px 12px 10px;display:flex;flex-direction:column;gap:6px;color:var(--ink);font:12px/1.3 system-ui}#lp[hidden]{display:none}
+#lp .lpH{display:flex;align-items:center;gap:8px}#lp .lpH b{font-size:13px}#lp .lpHint{color:var(--dim);font-size:11px;flex:1}#lp .lpH .ib{min-width:32px;height:32px;padding:0}#lp .lpH .ib svg{width:16px;height:16px}
+#lp .lpTop{display:flex;gap:12px;align-items:center}
+#lpDial{position:relative;flex:0 0 112px;width:112px;height:112px;border-radius:50%;background:radial-gradient(circle at 50% 50%,#3a3a42 0,#26262b 70%,#1d1d21 100%);border:1px solid var(--line2);cursor:grab;touch-action:none;outline:none}
+#lpDial:focus-visible{box-shadow:0 0 0 2px var(--acc)}#lpDial .lpRing{position:absolute;inset:28px;border-radius:50%;border:1px dashed rgba(255,255,255,.13);pointer-events:none}
+#lpDial::after{content:'';position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px;border-radius:50%;background:var(--dim)}
+#lpSun{position:absolute;width:20px;height:20px;margin:-10px;border-radius:50%;background:radial-gradient(circle,#fff6c8 0,#ffd25e 55%,#f0a020 100%);box-shadow:0 0 12px 3px rgba(255,200,80,.5);pointer-events:none}
+#lp .lpSide{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0}#lpRead{font:600 12px/1 system-ui;font-variant-numeric:tabular-nums;color:var(--acc)}
+#lp .lpPre{display:grid;grid-template-columns:1fr 1fr;gap:4px}#lp .lpPre button{background:var(--card2);color:var(--ink);border:1px solid var(--line);border-radius:8px;height:30px;font:600 11px system-ui;cursor:pointer}#lp .lpPre button:hover,#lp .lpPre button.on{border-color:var(--acc);color:var(--acc)}
+#lp .lpS{display:grid;grid-template-columns:58px 1fr 42px;align-items:center;gap:6px}#lp .lpS label{color:var(--mute)}#lp .lpS output{text-align:right;font-variant-numeric:tabular-nums;color:var(--mute)}#lp .lpS input{width:100%;margin:0}
+#lp .lpF{display:flex;gap:14px}#lp .lpF .chk{display:flex;align-items:center;gap:6px;color:var(--ink)}#lp .lpNote{margin:0;color:var(--dim);font-size:11px}
+#viewc [aria-expanded=true]:hover::after,#viewc [aria-expanded=true]:hover::before{display:none!important}#viewc button.on{color:var(--acc)!important;background:var(--accS)}#mView .ib.on{color:var(--acc);background:var(--accS)}
+body.m #lp{bottom:auto;top:calc(116px + env(safe-area-inset-top));width:min(380px,calc(100vw - 16px))}body.m #lp .lpS{grid-template-columns:62px 1fr 44px}body.m #lp .lpS input{height:32px}body.m #lp .lpPre button{height:36px}
+body.m.mv #mView{flex-wrap:wrap;justify-content:center;row-gap:2px}body.m.mv #mView .ib{min-width:40px;flex:0 0 auto;padding:0 2px}body.m.mv #mView .vsep{margin:8px 0}
 </style></head>
 <body>
 <div id="stage"><canvas id="c"></canvas><canvas id="trace" style="position:fixed" aria-hidden="true"></canvas><canvas id="cur" style="position:fixed;pointer-events:none"></canvas><div id="msg"></div></div>
-<div id="viewc" role="toolbar" aria-label="Canvas view"><button id="vFit" data-ic="fit" data-tip="Fit to screen (Ctrl+0)" aria-label="Fit to screen"></button><button id="v100" data-tip="Zoom to 100% (Ctrl+1)" aria-label="Zoom to 100%">1:1</button><button id="vOut" data-ic="minus" data-tip="Zoom out (Ctrl+−)" aria-label="Zoom out"></button><button id="zoomv" data-tip="Zoom: click for 100% (Ctrl+1), again to fit (Ctrl+0)" aria-label="Zoom level">100%</button><button id="vIn" data-ic="plus" data-tip="Zoom in (Ctrl++)" aria-label="Zoom in"></button><span class="vsep"></span><button id="vRL" data-ic="rotl" data-tip="Rotate view left 15° (Shift+R)" aria-label="Rotate view left"></button><button id="vRR" data-ic="rotr" data-tip="Rotate view right 15° (R)" aria-label="Rotate view right"></button><button id="rotv" disabled data-tip="Straighten the view (shows current angle)" aria-label="Reset rotation">0°</button><span class="vsep"></span><button id="vClr" data-ic="trash" data-tip="Clear layer… (Shift+Delete)" aria-label="Clear layer" aria-haspopup="dialog"></button></div>
+<div id="lp" class="fl" role="dialog" aria-label="Light and relief" hidden>
+ <div class="lpH"><b>Light &amp; relief</b><span class="lpHint">view only</span><button class="ib" id="lpX" aria-label="Close" data-ic="x"></button></div>
+ <div class="lpTop"><div id="lpDial" role="slider" tabindex="0" aria-label="Light direction and height" aria-valuetext=""><i class="lpRing"></i><span id="lpSun"></span></div>
+  <div class="lpSide"><div id="lpRead">135° · 40° high</div><div class="lpPre" role="group" aria-label="Light presets"><button data-lp="studio">Studio</button><button data-lp="raking">Raking</button><button data-lp="gallery">Gallery</button><button data-lp="flat">Flat</button></div></div></div>
+ <div class="lpS"><label for="lpStr">Strength</label><input id="lpStr" type="range" min="0" max="200" step="1" value="100"><output id="lpStrV">100%</output></div>
+ <div class="lpS"><label for="lpGl">Gloss</label><input id="lpGl" type="range" min="0" max="200" step="1" value="100"><output id="lpGlV">100%</output></div>
+ <div class="lpS"><label for="lpRel">Relief</label><input id="lpRel" type="range" min="0" max="3" step="0.05" value="1.5"><output id="lpRelV">1.50</output></div>
+ <div class="lpS"><label for="lpPap">Paper</label><input id="lpPap" type="range" min="0" max="300" step="5" value="100"><output id="lpPapV">100%</output></div>
+ <div class="lpF"><label class="chk"><input type="checkbox" id="lpWet" checked> Wet sheen</label><label class="chk"><input type="checkbox" id="lpFlat"> Flat view</label></div>
+ <p class="lpNote">Changes only how the painting is lit on screen. The “lit relief” export uses these settings; flat export doesn’t.</p>
+</div>
+<div id="viewc" role="toolbar" aria-label="Canvas view"><button id="vFit" data-ic="fit" data-tip="Fit to screen (Ctrl+0)" aria-label="Fit to screen"></button><button id="v100" data-tip="Zoom to 100% (Ctrl+1)" aria-label="Zoom to 100%">1:1</button><button id="vOut" data-ic="minus" data-tip="Zoom out (Ctrl+−)" aria-label="Zoom out"></button><button id="zoomv" data-tip="Zoom: click for 100% (Ctrl+1), again to fit (Ctrl+0)" aria-label="Zoom level">100%</button><button id="vIn" data-ic="plus" data-tip="Zoom in (Ctrl++)" aria-label="Zoom in"></button><span class="vsep"></span><button id="vRL" data-ic="rotl" data-tip="Rotate view left 15° (Shift+R)" aria-label="Rotate view left"></button><button id="vRR" data-ic="rotr" data-tip="Rotate view right 15° (R)" aria-label="Rotate view right"></button><button id="rotv" disabled data-tip="Straighten the view (shows current angle)" aria-label="Reset rotation">0°</button><button id="vSun" data-ic="sun" data-tip="Light &amp; relief (Shift+L)" aria-label="Light and relief" aria-haspopup="dialog" aria-expanded="false" aria-controls="lp"></button><button id="vFlat" data-ic="flat" data-tip="Flat view: hide lighting to judge colour (Shift+F)" aria-label="Flat view" aria-pressed="false"></button><span class="vsep"></span><button id="vClr" data-ic="trash" data-tip="Clear layer… (Shift+Delete)" aria-label="Clear layer" aria-haspopup="dialog"></button></div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.36</span></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.37</span></div>
  <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tClr" data-tip="Clear layer… (Shift+Delete)" aria-label="Clear layer" aria-haspopup="dialog" data-ic="trash"></button><button class="ib dk" id="tFit" data-tip="Fit to screen" aria-label="Fit to screen" data-ic="fit"></button><button class="ib dk" id="tExp" data-tip="Export… (Ctrl+Shift+E)" aria-label="Export image" aria-haspopup="dialog" data-ic="download"></button><button class="ib dk" id="tRef" data-tip="Reference image" aria-label="Reference image" data-ic="image"></button><button class="ib dk" id="tHelp" data-tip="Help &amp; shortcuts (?)" aria-label="Help and keyboard shortcuts" aria-haspopup="dialog" data-ic="help"></button></div>
 <!-- top-right: tools -->
 <div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button><button class="ib" id="dPencil" data-tip="Pencil (G)" aria-label="Pencil" data-ic="pencil"></button>
@@ -289,7 +314,7 @@ body.dropref::after{content:'Drop an image to use it as a reference';position:fi
 <!-- mobile top-right -->
 <div id="mTop" class="fl"><button class="ib" id="tRefM" aria-label="Reference image" data-ic="image"></button><button class="ib" id="tView" aria-label="Canvas view controls" aria-expanded="false" aria-controls="mView" data-ic="canvas"></button><button class="ib" id="tUndo" aria-label="Undo" data-ic="undo"></button><button class="ib" id="tRedo" aria-label="Redo" data-ic="redo"></button></div>
 <!-- v0.29 mobile canvas controls -->
-<div id="mView" class="fl" role="toolbar" aria-label="Canvas controls"><button class="ib" id="mvFit" aria-label="Fit to screen" data-ic="fit"></button><button class="ib" id="mv100" aria-label="Zoom to 100%" style="font:600 12px/1 system-ui">1:1</button><button class="ib" id="mvOut" aria-label="Zoom out" data-ic="minus"></button><button class="ib" id="mvIn" aria-label="Zoom in" data-ic="plus"></button><span class="vsep"></span><button class="ib" id="mvRL" aria-label="Rotate left 15°" data-ic="rotl"></button><button class="ib" id="mvRR" aria-label="Rotate right 15°" data-ic="rotr"></button><button class="ib" id="mvRot" aria-label="Straighten (reset rotation)">0°</button><span class="vsep"></span><button class="ib" id="mvClr" aria-label="Clear canvas" data-ic="trash"></button></div>
+<div id="mView" class="fl" role="toolbar" aria-label="Canvas controls"><button class="ib" id="mvFit" aria-label="Fit to screen" data-ic="fit"></button><button class="ib" id="mv100" aria-label="Zoom to 100%" style="font:600 12px/1 system-ui">1:1</button><button class="ib" id="mvOut" aria-label="Zoom out" data-ic="minus"></button><button class="ib" id="mvIn" aria-label="Zoom in" data-ic="plus"></button><span class="vsep"></span><button class="ib" id="mvRL" aria-label="Rotate left 15°" data-ic="rotl"></button><button class="ib" id="mvRR" aria-label="Rotate right 15°" data-ic="rotr"></button><button class="ib" id="mvRot" aria-label="Straighten (reset rotation)">0°</button><span class="vsep"></span><button class="ib" id="mvSun" aria-label="Light and relief" aria-haspopup="dialog" aria-expanded="false" aria-controls="lp" data-ic="sun"></button><button class="ib" id="mvFlat" aria-label="Flat view" aria-pressed="false" data-ic="flat"></button><span class="vsep"></span><button class="ib" id="mvClr" aria-label="Clear canvas" data-ic="trash"></button></div>
 <dialog id="dlgClear" aria-labelledby="clT"><h2 id="clT">Clear canvas?</h2><div class="sub2" id="clSub">You can undo this.</div>
  <div class="cbtn"><button id="clLayer" class="dang">Clear this layer</button><button id="clAll" class="dang2">Clear all layers</button><button id="clCancel">Cancel</button></div></dialog>
 <!-- mobile bottom toolbar -->
@@ -798,20 +823,27 @@ void main(){vec4 Cb=texture(uAC,vUv),Ab=texture(uAA,vUv),Cs=texture(uLC,vUv)*uOp
 float ab=Cb.a,as=Cs.a;vec3 cb=ab>1e-5?Cb.rgb/ab:vec3(0),cs=as>1e-5?Cs.rgb/as:vec3(0);
 o0=vec4((1.-ab)*Cs.rgb+(1.-as)*Cb.rgb+as*ab*B(cb,cs),as+ab*(1.-as));
 o1=vec4(Ab.x+As.x*uOp,max(Ab.y*(1.-as),As.y*uOp),max(Ab.z*(1.-as),As.z*uOp),Ab.w+As.w*uOp);}`,
-final:`uniform sampler2D uAC,uAA,uP;uniform vec3 uL,uBg;uniform float uRelief,uPR,uMode,uScreen;uniform vec4 uView;out vec4 o;
-float Ht(vec2 u){return texture(uAA,u).x+texture(uP,u).r*uPR;}
+/* v0.37: zoom-aware relief. When the canvas is shown smaller than ~0.7 screen px per canvas texel, height (paint + paper) is box-averaged into
+   a k-times smaller texture (k = 2,4,8 by zoom) and the normal/AO are taken from it with steps of k texels, so ridges and paper tooth match the
+   screen-pixel footprint instead of aliasing away. uHK=1 (exports, close zoom) = the v0.36 path. */
+hdown:`uniform sampler2D uAA,uP;uniform float uDK,uPR;out vec4 o;
+void main(){int k=int(uDK+.5);ivec2 b=ivec2(gl_FragCoord.xy)*k,mx=ivec2(uSz)-1;float s=0.;
+for(int y=0;y<k;y++)for(int x=0;x<k;x++){ivec2 q=min(b+ivec2(x,y),mx);s+=texelFetch(uAA,q,0).x+texelFetch(uP,q,0).r*uPR;}
+o=vec4(s/float(k*k),0.,0.,1.);}`,
+final:`uniform sampler2D uAC,uAA,uP,uHM;uniform vec3 uL,uBg;uniform float uRelief,uPR,uMode,uScreen,uHK,uRB,uLS,uGl,uWS,uFast;uniform vec4 uView;out vec4 o;
+float Ht(vec2 u){return uHK>1.5?texture(uHM,u).x:texture(uAA,u).x+texture(uP,u).r*uPR;}
 void main(){vec2 u=vUv;if(uScreen>.5){vec2 q=FC.xy-uView.xy;float cr=cos(uView.w),sr=sin(uView.w);vec2 cp=vec2(cr*q.x+sr*q.y,-sr*q.x+cr*q.y)/uView.z;u=cp/uSz;if(u.x<0.||u.y<0.||u.x>1.||u.y>1.){o=vec4(uBg,1);return;}}
-vec2 t=1./uSz;vec4 C=texture(uAC,u),A=texture(uAA,u);
+vec2 t=max(uHK,1.)/uSz;vec4 C=texture(uAC,u),A=texture(uAA,u);float rl=uRelief*uRB;
 if(uMode>3.5){o=vec4(C.a>1e-5?pow(clamp(C.rgb/C.a,0.,1.),vec3(1./2.2)):vec3(0),C.a);return;}
 vec3 R=C.a>1e-5?C.rgb/C.a:vec3(1);
 vec2 ex=vec2(t.x,0),ey=vec2(0,t.y);float H0=Ht(u);float gx=(Ht(u+ex*1.5)-Ht(u-ex*1.5))/3.,gy=(Ht(u+ey*1.5)-Ht(u-ey*1.5))/3.;
-vec3 n=normalize(vec3(-gx*uRelief,-gy*uRelief,1.));
+vec3 n=normalize(vec3(-gx*rl,-gy*rl,1.));
 if(uMode>2.5){o=vec4(n*.5+.5,1);return;}
 vec3 c=R;
-if(uMode<.5){vec3 L=normalize(uL);float dif=max(dot(n,L),0.)/L.z;float avg=0.;for(int i=0;i<8;i++){float an=float(i)*.785;avg+=Ht(u+vec2(cos(an),sin(an))*t*4.);}avg/=8.;
- float ao=clamp(1.-(avg-H0)*.12*uRelief,.5,1.08);vec3 hv=normalize(L+vec3(0,0,1));float nh=max(dot(n,hv),0.);float hw=A.y,hd=A.w;
- float sp=pow(nh,28.)*smoothstep(.02,.6,hw)*.32+pow(nh,10.)*smoothstep(.02,.6,hd)*.08+pow(nh,140.)*smoothstep(.03,.15,A.z)*.3;
- float lit=C.a;c=R*mix(1.,clamp(mix(1.,dif,.8),.25,1.5)*ao,lit);c+=sp*min(uRelief,1.)*(1.-.5*max(max(c.r,c.g),c.b));}
+if(uMode<.5){vec3 L=normalize(uL);float dif=max(dot(n,L),0.)/L.z;float avg=H0;if(uFast<.5){avg=0.;for(int i=0;i<8;i++){float an=float(i)*.785;avg+=Ht(u+vec2(cos(an),sin(an))*t*4.);}avg/=8.;}
+ float ao=clamp(1.-(avg-H0)*.12*rl,.5,1.08);vec3 hv=normalize(L+vec3(0,0,1));float nh=max(dot(n,hv),0.);float hw=A.y,hd=A.w;
+ float sp=(pow(nh,28.)*smoothstep(.02,.6,hw)*.32*uWS+pow(nh,10.)*smoothstep(.02,.6,hd)*.08+pow(nh,140.)*smoothstep(.03,.15,A.z)*.3)*uGl;
+ float lit=C.a;c=R*mix(1.,clamp(mix(1.,dif,uLS),.25,1.5)*ao,lit);c+=sp*min(uRelief,1.)*(1.-.5*max(max(c.r,c.g),c.b));}
 c=pow(clamp(c,0.,1.),vec3(1./2.2));
 /* v0.15: triangular dither (+-1 LSB) before the 8-bit output: smooth dried washes no longer show 8-bit banding/contours */
 {vec2 dp=uScreen>.5?gl_FragCoord.xy:FC.xy;c+=(ihashS(dp,1.,0.)+ihashS(dp,2.,0.)-1.)*(1./255.);}
@@ -1225,15 +1257,22 @@ function compositeRects(rects){const B=belowSrc(),act=layers[ai],b=baseOf(act);c
 function composite(){if(ensureBelow())compFull=true;
  if(compFull){compositeRects(null);compFull=false;compTiles.clear();}else if(compTiles.size){compositeRects(spansOf(compTiles));compTiles.clear();}
  return OUT;}
-function litU(){const a=st.light*Math.PI/180;return{uL:[Math.cos(a)*.75,Math.sin(a)*.75,.62],uRelief:st.relief,uPR:PR[surface.type]};}
+/* v0.37 light: azimuth st.light, relief st.relief + LT (elevation, strength, gloss, paper, wet sheen; flat = view-only). Defaults = v0.36 look. */
+const LT0={el:Math.atan2(.62,.75)*180/Math.PI,str:100,gloss:100,paper:100,wet:true,flat:false};let LT=Object.assign({},LT0),ltDrag=false;
+function litU(){const a=st.light*Math.PI/180,e=LT.el*Math.PI/180,c=Math.cos(e);return{uL:[Math.cos(a)*c,Math.sin(a)*c,Math.sin(e)],uRelief:st.relief,uPR:PR[surface.type]*LT.paper/100,uLS:.8*LT.str/100,uGl:LT.gloss/100,uWS:LT.wet?1:0,uHK:1,uRB:1,uFast:0};}
+let HM=null,hmK=1;function hmFor(){const s=view.s;if(!(s<.7))return 1;return Math.min(8,Math.pow(2,Math.round(Math.log2(1/s))));}
 /* v0.18: the screen pass (paper lighting at full display resolution, 8 Mpx on a 4K screen) is redrawn only where the composite changed when
    nothing else did (the drawing buffer is preserved); any view / lighting / layer / canvas change still redraws everything. */
 let finKey='';function render(){const full=compFull||belowDirty,dirty=full?null:new Set(compTiles);const src=composite();
- const L=litU(),key=[view.s,view.ox,view.oy,view.r,cv.width,cv.height,W,H,JSON.stringify(L),surface.type,ai,layers.length].join();let sc=null;
- if(full||key!==finKey||!dirty){finKey=key;}else if(!dirty.size){return lastZoomUpd();}else{let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(const k of dirty){const r=tileRect(k);x0=Math.min(x0,r[0]);y0=Math.min(y0,r[1]);x1=Math.max(x1,r[0]+r[2]);y1=Math.max(y1,r[1]+r[3]);}
+ const L=litU(),hk=hmFor();L.uHK=hk;L.uRB=Math.pow(hk,.3);L.uFast=ltDrag?1:0;const key=[LT.flat,view.s,view.ox,view.oy,view.r,cv.width,cv.height,W,H,JSON.stringify(L),surface.type,ai,layers.length].join();let sc=null,dbb=null;
+ if(full||key!==finKey||!dirty){finKey=key;}else if(!dirty.size){return lastZoomUpd();}else{let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(const k of dirty){const r=tileRect(k);x0=Math.min(x0,r[0]);y0=Math.min(y0,r[1]);x1=Math.max(x1,r[0]+r[2]);y1=Math.max(y1,r[1]+r[3]);}dbb=[x0,y0,x1,y1];
   const pad=Math.ceil(view.s)+2,cs=[v2s(x0,y0),v2s(x1,y0),v2s(x0,y1),v2s(x1,y1)],X0=Math.floor(Math.min(...cs.map(q=>q[0])))-pad,Y0=Math.floor(Math.min(...cs.map(q=>q[1])))-pad,X1=Math.ceil(Math.max(...cs.map(q=>q[0])))+pad,Y1=Math.ceil(Math.max(...cs.map(q=>q[1])))+pad;
   sc=[Math.max(0,X0),Math.max(0,Y0),Math.min(cv.width,X1)-Math.max(0,X0),Math.min(cv.height,Y1)-Math.max(0,Y0)];if(sc[2]<=0||sc[3]<=0)return lastZoomUpd();}
- run(P.final,null,{uAC:src.t[0],uAA:src.t[1],uP:PAPER.t[0]},Object.assign(L,{uScreen:1,uMode:0,uView:[view.ox,view.oy,view.s,view.r],uBg:[.085,.085,.095]}),sc);lastZoomUpd();}
+ if(hk>1&&!LT.flat){const hw=Math.ceil(W/hk),hh=Math.ceil(H/hk);let all=!dbb||hk!==hmK;if(!HM||HM.w!==hw||HM.h!==hh){if(HM)delTarget(HM);HM=target(1,hw,hh,gl.RGBA16F,gl.HALF_FLOAT);all=true;}hmK=hk;
+  const rr=all?null:[Math.max(0,Math.floor(dbb[0]/hk)-2),Math.max(0,Math.floor(dbb[1]/hk)-2),0,0];if(rr){rr[2]=Math.min(hw,Math.ceil(dbb[2]/hk)+2)-rr[0];rr[3]=Math.min(hh,Math.ceil(dbb[3]/hk)+2)-rr[1];}
+  run(P.hdown,HM,{uAA:src.t[1],uP:PAPER.t[0]},{uDK:hk,uPR:L.uPR/L.uRB},rr||undefined);}
+ else if(HM&&hk===1){delTarget(HM);HM=null;hmK=1;}
+ run(P.final,null,{uAC:src.t[0],uAA:src.t[1],uP:PAPER.t[0],uHM:HM?HM.t[0]:PAPER.t[0]},Object.assign(L,{uScreen:1,uMode:LT.flat?1:0,uView:[view.ox,view.oy,view.s,view.r],uBg:[.085,.085,.095]}),sc);lastZoomUpd();}
 function lastZoomUpd(){
  const deg=rotDeg(),zt=Math.round(view.s/(devicePixelRatio||1)*100)+'%'+(deg?' · '+(-deg)+'°':'')+(isHome()?'h':'');if(zt!==lastZoomT){lastZoomT=zt;const z=$('zoomv');if(z)z.textContent=zt.replace(/h$/,'').replace(/ · .*$/,m=>document.body.classList.contains('m')?m:'');const rv=$('rotv');if(rv){rv.disabled=!deg;rv.textContent=(-deg)+'°';}const vc=$('viewc');if(vc)vc.classList.toggle('home',isHome());}}
 function rotDeg(){let d=Math.round(view.r*180/Math.PI)%360;if(d>180)d-=360;if(d<=-180)d+=360;return d;}
@@ -1416,8 +1455,8 @@ function setMedium(v,kind){v=+v;st.m=v;st.med=kind||(st.med==='ink'&&v<.15?'ink'
 function setMed(kind){setMedium(MEDS[kind].m,kind);}
 $('medium').oninput=e=>setMedium(e.target.value);setMedium(0);
 const setSize=v=>{st.size=+v;$('sv').textContent=v+' px';};$('size').oninput=e=>setSize(e.target.value);setSize(34);
-const setLight=v=>{st.light=+v;$('lv').textContent=v+'°';};$('light').oninput=e=>setLight(e.target.value);setLight(135);
-const setRelief=v=>{st.relief=+v;$('rv').textContent=(+v).toFixed(2);};$('relief').oninput=e=>setRelief(e.target.value);setRelief(1.5);
+const setLight=v=>{v=((Math.round(+v)%360)+360)%360;st.light=v;$('lv').textContent=v+'°';$('light').value=v;needRender=true;if(window.lpSync)lpSync();};$('light').oninput=e=>setLight(e.target.value);setLight(135);
+const setRelief=v=>{st.relief=+v;$('rv').textContent=(+v).toFixed(2);$('relief').value=v;needRender=true;if(window.lpSync)lpSync();};$('relief').oninput=e=>setRelief(e.target.value);setRelief(1.5);
 function clearLayer(){pushUndo(true);clearAll();belowDirty=true;compFull=true;layers[ai]=Object.assign({},layers[ai],{tex:null});gcTex();needRender=true;}
 function clearAllLayers(){pushUndo(true);clearAll();belowDirty=true;compFull=true;layers=layers.map(l=>Object.assign({},l,{tex:null}));gcTex();needRender=true;uiLayers&&uiLayers();}
 // v0.29: Clear asks first (Clear this layer / Clear all layers / Cancel); both are one undo step
@@ -1504,7 +1543,7 @@ function readTarget(t,i){const b=new Float32Array(t.w*t.h*4);gl.bindFramebuffer(
 function pixelsToCanvas(px,w,h){const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');const im=g.createImageData(w,h);
  for(let y=0;y<h;y++)im.data.set(px.subarray((h-1-y)*w*4,(h-y)*w*4),y*w*4);g.putImageData(im,0,0);return c;}
 function renderOut(src,mode,k){const w=W*k,h=H*k;if(w>MAXTEX||h>MAXTEX)throw new Error('export too large');const t=target(1,w,h,gl.RGBA8,gl.UNSIGNED_BYTE);
- run(P.final,t,{uAC:src.t[0],uAA:src.t[1],uP:PAPER.t[0]},Object.assign(litU(),{uScreen:0,uMode:mode,uView:[0,0,1,0],uBg:[0,0,0]}));
+ run(P.final,t,{uAC:src.t[0],uAA:src.t[1],uP:PAPER.t[0],uHM:PAPER.t[0]},Object.assign(litU(),{uScreen:0,uMode:mode,uView:[0,0,1,0],uBg:[0,0,0]}));
  const px=new Uint8Array(w*h*4);gl.bindFramebuffer(gl.FRAMEBUFFER,t.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);gl.readPixels(0,0,w,h,gl.RGBA,gl.UNSIGNED_BYTE,px);delTarget(t);return pixelsToCanvas(px,w,h);}
 function exportData(kind,x2){const k=x2?2:1;const out=[];const src=composite();
  if(kind==='lit'||kind==='flat'||kind==='normal')out.push(['painting-'+kind+(x2?'@2x':'')+'.png',renderOut(src,kind==='lit'?0:kind==='flat'?1:3,k)]);
@@ -1558,7 +1597,7 @@ const ICONS={
  file:'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 11v6M9 14h6"/>',
  fit:'<path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4"/>',
  download:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
- x:'<path d="M6 6l12 12M18 6L6 18"/>',
+ x:'<path d="M6 6l12 12M18 6L6 18"/>',flat:'<circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor" stroke="none"/>',
  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
  layers:'<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>',
  canvas:'<rect x="4" y="3" width="16" height="13" rx="1.5"/><path d="M8 21l4-5 4 5"/>',
@@ -1711,7 +1750,40 @@ if(DIAG){const d=document.createElement('div');d.id='diag';d.style.cssText='posi
  const upd=()=>{pre.textContent=diagInfo();};cp.onclick=async()=>{upd();try{await navigator.clipboard.writeText(pre.textContent);cp.textContent='Copied';}catch(e){const r=document.createRange();r.selectNodeContents(pre);const s=getSelection();s.removeAllRanges();s.addRange(r);cp.textContent='Selected - copy manually';}setTimeout(()=>cp.textContent='Copy',1500);};
  rf.onclick=upd;cl.onclick=()=>d.remove();['pointerdown','pointermove','pointerup','touchstart','wheel'].forEach(t=>d.addEventListener(t,e=>e.stopPropagation()));
  d.append(pre,cp,rf,cl);document.body.appendChild(d);setTimeout(upd,300);}
-window.paintAPI={resetPeak:()=>{gpuPeak=gpuBytes;},pause:v=>paused=v,setMedium,setMed,medium:()=>st.med,setSize,selectPig,setHex:h=>{st.ks=hexKS(h);},clear:clearAll,undo,redo,setLight,setRelief,
+
+/* v0.37 Light & relief pop-over (☀ in the view bar, mobile canvas row). View-only; persisted in localStorage 'medium.light'. */
+{const lp=$('lp'),dial=$('lpDial'),sun=$('lpSun');const PRE={studio:{az:135,el:LT0.el,str:100,gloss:100,relief:1.5,paper:100,wet:true,flat:false},raking:{az:160,el:12,str:140,gloss:80,relief:2.2,paper:160,wet:true,flat:false},gallery:{az:100,el:65,str:70,gloss:45,relief:1.2,paper:80,wet:true,flat:false}};
+ let svT=0;const save=()=>{clearTimeout(svT);svT=setTimeout(()=>{try{localStorage.setItem('medium.light',JSON.stringify({az:st.light,relief:st.relief,el:LT.el,str:LT.str,gloss:LT.gloss,paper:LT.paper,wet:LT.wet,flat:LT.flat}));}catch(_){}},200);};
+ const preOf=()=>{for(const k in PRE){const p=PRE[k];if(!LT.flat&&p.az===st.light&&Math.abs(p.el-LT.el)<.5&&p.str===LT.str&&p.gloss===LT.gloss&&Math.abs(p.relief-st.relief)<.01&&p.paper===LT.paper&&p.wet===LT.wet)return k;}return LT.flat?'flat':'';};
+ window.lpSync=()=>{const R=56,rr=(90-LT.el)/90*(R-12),a=st.light*Math.PI/180;sun.style.left=(R+Math.cos(a)*rr)+'px';sun.style.top=(R-Math.sin(a)*rr)+'px';
+  const t=Math.round(st.light)+'° · '+Math.round(LT.el)+'° high';$('lpRead').textContent=t;dial.setAttribute('aria-valuetext','direction '+Math.round(st.light)+' degrees, height '+Math.round(LT.el)+' degrees');
+  $('lpStr').value=LT.str;$('lpStrV').textContent=LT.str+'%';$('lpGl').value=LT.gloss;$('lpGlV').textContent=LT.gloss+'%';$('lpRel').value=st.relief;$('lpRelV').textContent=(+st.relief).toFixed(2);$('lpPap').value=LT.paper;$('lpPapV').textContent=LT.paper+'%';
+  $('lpWet').checked=LT.wet;$('lpFlat').checked=LT.flat;for(const id of ['vFlat','mvFlat']){$(id).classList.toggle('on',LT.flat);$(id).setAttribute('aria-pressed',LT.flat);}
+  const pk=preOf();lp.querySelectorAll('[data-lp]').forEach(b=>b.classList.toggle('on',b.dataset.lp===pk));save();};
+ const setLT=o=>{Object.assign(LT,o);needRender=true;lpSync();};window.setLT=setLT;
+ const applyPre=k=>{if(k==='flat'){setLT({flat:true});return;}const p=PRE[k];LT.flat=false;Object.assign(LT,{el:p.el,str:p.str,gloss:p.gloss,paper:p.paper,wet:p.wet});setRelief(p.relief);setLight(p.az);};
+ const open=on=>{if(on==null)on=lp.hidden;lp.hidden=!on;for(const id of ['vSun','mvSun']){$(id).classList.toggle('on',on);$(id).setAttribute('aria-expanded',on);}if(on)lpSync();};window.lpOpen=open;
+ $('vSun').onclick=$('mvSun').onclick=e=>{e.stopPropagation();open();};$('lpX').onclick=()=>open(false);
+ $('vFlat').onclick=$('mvFlat').onclick=()=>setLT({flat:!LT.flat});$('lpFlat').onchange=e=>setLT({flat:e.target.checked});$('lpWet').onchange=e=>setLT({wet:e.target.checked});
+ lp.querySelectorAll('[data-lp]').forEach(b=>b.onclick=()=>applyPre(b.dataset.lp));
+ const drag=on=>{if(ltDrag!==on){ltDrag=on;needRender=true;}};
+ for(const [id,k] of [['lpStr','str'],['lpGl','gloss'],['lpPap','paper']]){const el=$(id);el.addEventListener('input',()=>{drag(true);setLT({[k]:+el.value});});}
+ $('lpRel').addEventListener('input',e=>{drag(true);setRelief(e.target.value);});
+ lp.addEventListener('pointerup',()=>drag(false));lp.addEventListener('change',()=>drag(false));window.addEventListener('pointerup',()=>drag(false));window.addEventListener('pointercancel',()=>drag(false));
+ const fromPt=e=>{const r=dial.getBoundingClientRect(),R=r.width/2,dx=e.clientX-r.left-R,dy=e.clientY-r.top-R,d=Math.min(Math.hypot(dx,dy),R-12);
+  const az=Math.round(((Math.atan2(-dy,dx)*180/Math.PI)%360+360)%360),el=Math.max(5,Math.min(90,90-d/(R-12)*90));LT.el=Math.round(el);setLight(az);};
+ dial.addEventListener('pointerdown',e=>{e.preventDefault();dial.setPointerCapture(e.pointerId);drag(true);dial.style.cursor='grabbing';fromPt(e);});
+ dial.addEventListener('pointermove',e=>{if(dial.hasPointerCapture(e.pointerId))fromPt(e);});
+ const up=e=>{if(dial.hasPointerCapture&&dial.hasPointerCapture(e.pointerId))dial.releasePointerCapture(e.pointerId);dial.style.cursor='';drag(false);};dial.addEventListener('pointerup',up);dial.addEventListener('pointercancel',up);
+ dial.addEventListener('keydown',e=>{const k=e.key;let az=st.light,el=LT.el;if(k==='ArrowLeft')az+=5;else if(k==='ArrowRight')az-=5;else if(k==='ArrowUp')el=Math.min(90,el+5);else if(k==='ArrowDown')el=Math.max(5,el-5);else return;e.preventDefault();e.stopPropagation();LT.el=el;setLight(az);});
+ ['pointerdown','wheel','touchstart'].forEach(t=>lp.addEventListener(t,e=>e.stopPropagation(),{passive:true}));
+ document.addEventListener('pointerdown',e=>{if(lp.hidden)return;if(lp.contains(e.target)||e.target.closest('#vSun,#mvSun'))return;open(false);},true);
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!lp.hidden){open(false);return;}if(!e.shiftKey||e.ctrlKey||e.metaKey||e.altKey||typingIn(e.target)||document.querySelector('dialog[open]'))return;
+  if(e.code==='KeyL'){e.preventDefault();open();}else if(e.code==='KeyF'){e.preventDefault();setLT({flat:!LT.flat});}});
+ try{const o=JSON.parse(localStorage.getItem('medium.light')||'null');if(o&&typeof o==='object'){const n=(v,d,a,b)=>typeof v==='number'&&isFinite(v)?Math.max(a,Math.min(b,v)):d;
+  Object.assign(LT,{el:n(o.el,LT0.el,5,90),str:n(o.str,100,0,200),gloss:n(o.gloss,100,0,200),paper:n(o.paper,100,0,300),wet:o.wet!==false,flat:!!o.flat});setRelief(n(o.relief,1.5,0,3));setLight(n(o.az,135,0,360));}}catch(_){}
+ lpSync();}
+window.paintAPI={resetPeak:()=>{gpuPeak=gpuBytes;},pause:v=>paused=v,setMedium,setMed,medium:()=>st.med,setSize,selectPig,setHex:h=>{st.ks=hexKS(h);},clear:clearAll,undo,redo,setLight,setRelief,lightState:()=>({az:st.light,relief:st.relief,el:LT.el,str:LT.str,gloss:LT.gloss,paper:LT.paper,wet:LT.wet,flat:LT.flat,hk:hmFor()}),setLT:o=>setLT(o),
  step:n=>{for(let i=0;i<n;i++)step();render();},dryAll:()=>{st.dryAll=1;step();render();},
  L:L_,layers:()=>layers.map((l,i)=>({name:l.name,vis:l.vis,op:l.op,blend:l.blend,has:!!l.tex,active:i===ai})),setSurface,newCanvas,exportData,saveProjectBytes,openProjectBytes,fit,render:()=>render(),view,homeView,rotStep,zoom100,clearLayer,clearAllLayers,isHome:()=>isHome(),
 
@@ -1749,7 +1821,7 @@ function exLimit(scale){const w=W*scale,h=H*scale;if(scale>1&&(w>16384||h>16384|
 function exEff(o){o=normEx(o);if(o.fmt==='jpeg')o.bg='paper';if(o.scale===2&&!exLimit(2).ok)o.scale=1;return o;}
 // straight-alpha RGBA8, top-down, rendered by the same final pass as the screen (lit relief, current light + relief settings)
 function renderPx(src,mode){const w=W,h=H;if(w>MAXTEX||h>MAXTEX)throw new Error('export too large');const t=target(1,w,h,gl.RGBA8,gl.UNSIGNED_BYTE);
- try{run(P.final,t,{uAC:src.t[0],uAA:src.t[1],uP:PAPER.t[0]},Object.assign(litU(),{uScreen:0,uMode:mode,uView:[0,0,1,0],uBg:[0,0,0]}));
+ try{run(P.final,t,{uAC:src.t[0],uAA:src.t[1],uP:PAPER.t[0],uHM:PAPER.t[0]},Object.assign(litU(),{uScreen:0,uMode:mode,uView:[0,0,1,0],uBg:[0,0,0]}));
   const px=new Uint8Array(w*h*4);gl.bindFramebuffer(gl.FRAMEBUFFER,t.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);gl.readPixels(0,0,w,h,gl.RGBA,gl.UNSIGNED_BYTE,px);
   const row=new Uint8Array(w*4);for(let y=0;y<h>>1;y++){const a=y*w*4,b=(h-1-y)*w*4;row.set(px.subarray(a,a+w*4));px.copyWithin(a,b,b+w*4);px.set(row,b);}
   return{px,w,h};}finally{delTarget(t);}}
@@ -2099,7 +2171,7 @@ window.paintAPI.installInfo=()=>({sw:swState,swOn:SW_ON,standalone:isStandalone(
 // ---- v0.30 eyedropper: pick a colour from the painting (flat colour, no light/relief highlights, all visible layers + surface) ----
 const PK={on:false,alt:false,id:null,pt:null,hex:null,t:null,tAt:0,touch:false};
 function pkTarget(){const now=performance.now();if(PK.t&&now-PK.tAt<400&&PK.t.w===W&&PK.t.h===H)return PK.t;if(PK.t){delTarget(PK.t);PK.t=null;}
- const src=composite();const t=target(1,W,H,gl.RGBA8,gl.UNSIGNED_BYTE);run(P.final,t,{uAC:src.t[0],uAA:src.t[1],uP:PAPER.t[0]},Object.assign(litU(),{uScreen:0,uMode:1,uView:[0,0,1,0],uBg:[0,0,0]}));
+ const src=composite();const t=target(1,W,H,gl.RGBA8,gl.UNSIGNED_BYTE);run(P.final,t,{uAC:src.t[0],uAA:src.t[1],uP:PAPER.t[0],uHM:PAPER.t[0]},Object.assign(litU(),{uScreen:0,uMode:1,uView:[0,0,1,0],uBg:[0,0,0]}));
  PK.t=t;PK.tAt=now;needRender=true;return t;}
 function pkFree(){if(PK.t){delTarget(PK.t);PK.t=null;}}
 /* average a (2r+1)^2 window, alpha-weighted; null where there is nothing (transparent canvas) or outside */
