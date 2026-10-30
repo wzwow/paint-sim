@@ -132,8 +132,8 @@ for(const vp of VPS){console.log('== '+vp.name);const mob=vp.name==='mobile';con
   await p.keyboard.press('F1');await p.waitForTimeout(200);await p.keyboard.press('Escape');await p.waitForTimeout(200);
   const f0=await flat(p),w0=(await st()).undo;await stroke(p,.15,.15,.85,.2);const f1=await flat(p);check((await st()).undo===w0+1&&fdiff(f0,f1)>20,'a stroke paints after closing help',{changed:fdiff(f0,f1)});
  }else{
-  check(await p.evaluate(()=>getComputedStyle(document.getElementById('tHelp')).display==='none'),'desktop ? button hidden on mobile');
-  await tap('#tSet');await p.waitForTimeout(300);
+  check(await p.evaluate(()=>getComputedStyle(document.getElementById('tHelp')).display!=='none'),'v0.40: ? help button in the phone top bar too (same as desktop)');
+  await tap('#dSet');await p.waitForTimeout(300);
   const sum=await p.$('#pBody summary:has-text("Help")');check(!!sum,'Settings drawer has a Help & tips section');await sum.scrollIntoViewIfNeeded();await sum.tap();await p.waitForTimeout(300);
   await p.evaluate(()=>document.getElementById('bHelp').scrollIntoView({block:'center'}));await p.waitForTimeout(200);
   const bh=await p.evaluate(()=>{const e=document.getElementById('bHelp'),b=e.getBoundingClientRect(),h=document.elementFromPoint(b.left+b.width/2,b.top+b.height/2);return{w:b.width,h:b.height,hit:!!h&&(h===e||e.contains(h)),txt:e.textContent.trim()};});

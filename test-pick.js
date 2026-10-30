@@ -48,7 +48,7 @@ try{// ---------- desktop ----------
   const stroke=async(x0,y0,x1,y1)=>{await T('touchStart',x0,y0);for(let i=1;i<=20;i++){await T('touchMove',x0+(x1-x0)*i/20,y0+(y1-y0)*i/20);await p.waitForTimeout(16);}await T('touchEnd');await p.waitForTimeout(400);};
   await p.evaluate(()=>applyHex('#d8a21a',false));await stroke(110,420,280,420);await stroke(110,432,280,432);
   await p.evaluate(()=>applyHex('#205a30',false));const n0=await painted(p);
-  await p.tap('#tCol');await p.waitForTimeout(200);const bx=await p.evaluate(()=>{const r=document.getElementById('cpPick').getBoundingClientRect();return[r.width,r.height];});
+  await p.tap('#dCol');await p.waitForTimeout(200);const bx=await p.evaluate(()=>{const r=document.getElementById('cpPick').getBoundingClientRect();return[r.width,r.height];});
   check(bx[0]>=36&&bx[1]>=36,'pipette button big enough to tap',bx);
   await p.tap('#cpPick');await p.waitForTimeout(200);check(await p.evaluate(()=>paintAPI.pickOn()),'tap pipette starts pick');
   await T('touchStart',150,500);await T('touchMove',180,460);await T('touchMove',200,426);await p.waitForTimeout(350);
@@ -59,7 +59,7 @@ try{// ---------- desktop ----------
   check(!(await p.evaluate(()=>paintAPI.pickOn())),'pick ends on lift');
   await stroke(110,600,280,600);check(await painted(p)>n0,'next touch paints again');
   // cancel via toast
-  await p.tap('#tCol');await p.waitForTimeout(150);await p.tap('#cpPick');await p.waitForTimeout(150);
+  await p.tap('#dCol');await p.waitForTimeout(150);await p.tap('#cpPick');await p.waitForTimeout(150);
   const cancel=await p.$('#toast button');if(cancel){await cancel.tap();await p.waitForTimeout(150);check(!(await p.evaluate(()=>paintAPI.pickOn())),'Cancel in toast ends pick');}else console.log('NOTE toast cancel button not found by selector');
   check(!errs.length,'mobile: no page errors',errs);await ctx.close();}
 }catch(e){console.log('FAIL exception',e);fails++;}finally{await b.close();}

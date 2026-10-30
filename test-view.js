@@ -45,7 +45,7 @@ try{for(const vp of VPS){console.log('== '+vp.name);const mob=vp.name==='mobile'
   check(corners.every(q=>q[0]>=0&&q[0]<=W0&&q[1]>=0&&q[1]<=H0)&&Math.abs(deg(i2.r)+90)<.2,'resize-fit keeps the rotation and keeps the rotated canvas on screen',corners.map(q=>q.map(Math.round)));
   await p.keyboard.press('Control+0');await p.waitForTimeout(150);const j2=await V();check(j2.home&&j2.r===0,'Ctrl+0 back to straight fit');
  }else{
-  check(!v0.bar.vis,'mobile: zoom chip hidden while the view is fitted',v0.bar);
+  check(v0.bar.vis&&v0.bar.y+v0.bar.h<=844,'v0.40: mobile shows the desktop view bar (always visible, on screen)',v0.bar);
   const twist=async(ang,spread,n=14)=>{const r0=60;await touch('touchStart',[[cx-r0,cy],[cx+r0,cy]]);for(let i=1;i<=n;i++){const t=i/n,a=ang*t*Math.PI/180,r=r0+spread*t;await touch('touchMove',[[cx-r*Math.cos(a),cy-r*Math.sin(a)],[cx+r*Math.cos(a),cy+r*Math.sin(a)]]);await p.waitForTimeout(16);}await touch('touchEnd',[]);await p.waitForTimeout(250);};
   await twist(6,70);const a=await V();check(a.r===0&&a.s>v0.s*1.3&&a.undo===v0.undo,'plain pinch (small 6° wobble) zooms without rotating or painting',{s:[v0.s,a.s],r:deg(a.r)});
   check(a.bar.vis&&/%/.test(a.bar.z),'mobile: zoom chip appears when zoomed',a.bar);

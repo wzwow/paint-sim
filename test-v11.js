@@ -46,21 +46,21 @@ const watch=(p,tag)=>{p.on('pageerror',x=>errs.push(tag+': '+x));p.on('console',
   minBtn:Math.min(...[...document.querySelectorAll('#tb .ib,#mTop .ib')].map(x=>Math.min(x.getBoundingClientRect().width,x.getBoundingClientRect().height)))};});
  const [L,T,Wd,Ht]=st.r;ok(st.mobile,'mobile class');ok(st.minBtn>=44,'touch targets >=44');
  const stroke=async(x0,y0,x1,y1,n=25)=>{await touch('touchStart',[[x0,y0]]);for(let i=1;i<=n;i++){const t=i/n;await touch('touchMove',[[x0+(x1-x0)*t,y0+(y1-y0)*t+12*Math.sin(t*5)]]);await p.waitForTimeout(16);}await touch('touchEnd',[]);};
- await p.tap('#tMed');await p.tap('#tCol');await p.waitForTimeout(150);ok(await p.isVisible('#cp'),'mobile picker');await p.tap('#cpPig button:nth-child(4)');
+ await p.tap('#dMed');await p.tap('#dCol');await p.waitForTimeout(150);ok(await p.isVisible('#cp'),'mobile picker');await p.tap('#cpPig button:nth-child(4)');
  await stroke(L+Wd*.15,T+Ht*.3,L+Wd*.85,T+Ht*.35);ok(!(await p.isVisible('#cp')),'picker closes on canvas');
- await p.tap('#tCol');await p.tap('#cpPig button:nth-child(3)');await stroke(L+Wd*.15,T+Ht*.45,L+Wd*.85,T+Ht*.5);
- await p.tap('#tMed');await p.tap('#tCol');await p.tap('#cpPig button:nth-child(2)');await stroke(L+Wd*.2,T+Ht*.6,L+Wd*.8,T+Ht*.7);
+ await p.tap('#dCol');await p.tap('#cpPig button:nth-child(3)');await stroke(L+Wd*.15,T+Ht*.45,L+Wd*.85,T+Ht*.5);
+ await p.tap('#dMed');await p.tap('#dCol');await p.tap('#cpPig button:nth-child(2)');await stroke(L+Wd*.2,T+Ht*.6,L+Wd*.8,T+Ht*.7);
  // size bar
  const hs=await (await p.$('#tSize')).boundingBox();await p.tap('#tSize',{position:{x:hs.width*.75,y:hs.height/2}});out.mobileSize=await p.evaluate(()=>document.getElementById('size').value);
  await p.waitForTimeout(600);const u1=await p.evaluate(()=>paintAPI.info().undo);
  const cx=L+Wd/2,cy=T+Ht/2;await touch('touchStart',[[cx-40,cy],[cx+40,cy]]);for(let i=1;i<=10;i++){await touch('touchMove',[[cx-40-i*8,cy+i*3],[cx+40+i*8,cy+i*3]]);await p.waitForTimeout(16);}await touch('touchEnd',[]);
  await p.waitForTimeout(300);const u2=await p.evaluate(()=>paintAPI.info());ok(u2.undo===u1,'pinch does not paint');
- await p.tap('#tUndo');const m1=await p.evaluate(()=>paintAPI.info());await p.tap('#tRedo');const m2=await p.evaluate(()=>paintAPI.info());ok(m1.undo===u1-1&&m2.undo===u1&&m2.redo===0,'mobile undo/redo');
+ await p.tap('#bUndo');const m1=await p.evaluate(()=>paintAPI.info());await p.tap('#bRedo');const m2=await p.evaluate(()=>paintAPI.info());ok(m1.undo===u1-1&&m2.undo===u1&&m2.redo===0,'mobile undo/redo');
  await p.evaluate(()=>paintAPI.fit());await p.waitForTimeout(400);
  out.mobile={...st,undo:[u1,u2.undo,m1.undo,m2.undo]};
  await p.screenshot({path:'screenshot-v11-mobile.png'});
- await p.tap('#tCol');await p.waitForTimeout(250);await p.screenshot({path:'screenshot-v11-mobile-picker.png'});await p.tap('#cpClose');
- await p.tap('#tSet');await p.waitForTimeout(400);ok(await p.isVisible('#panel'),'drawer opens');await p.screenshot({path:'screenshot-v11-drawer.png'});
+ await p.tap('#dCol');await p.waitForTimeout(250);await p.screenshot({path:'screenshot-v11-mobile-picker.png'});await p.tap('#cpClose');
+ await p.tap('#dSet');await p.waitForTimeout(400);ok(await p.isVisible('#panel'),'drawer opens');await p.screenshot({path:'screenshot-v11-drawer.png'});
  out.mobile.sections=await p.evaluate(()=>[...document.querySelectorAll('#pBody summary')].map(s=>s.textContent));
  await p.tap('summary:has-text("Canvas")');await p.tap('#bNew');await p.waitForTimeout(250);out.mobile.newDlg=await p.evaluate(()=>{const d=document.getElementById('dlgNew').getBoundingClientRect();return{w:d.width,left:d.left,preset:document.getElementById('preset').value,nw:document.getElementById('nw').value,nh:document.getElementById('nh').value};});
  ok(out.mobile.newDlg.w<=390&&out.mobile.newDlg.left>=0,'dialog fits phone');await p.screenshot({path:'screenshot-v11-newdialog-mobile.png'});

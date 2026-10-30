@@ -9,8 +9,8 @@ try{for(const [w,h,mob] of [[2191,1304,0],[1280,800,0],[412,915,1]]){console.log
  p.on('pageerror',e=>errs.push(''+e));p.on('console',m=>{if(m.type()==='error')errs.push(m.text())});
  await p.goto(URL);await p.waitForFunction(()=>window.paintAPI&&paintAPI.homeView,null,{timeout:30000});await p.evaluate(()=>localStorage.removeItem('medium.light'));await p.reload();await p.waitForFunction(()=>window.paintAPI&&paintAPI.homeView,null,{timeout:30000});await p.waitForTimeout(800);
  const L=()=>p.evaluate(()=>paintAPI.lightState());const d0=await L();check(Math.abs(d0.str-100)<1&&!d0.flat,'defaults',d0);
- const sun=mob?'#mvSun':'#vSun';
- if(mob&&!(await p.isVisible('#mvSun'))){await p.tap('#tView');await p.waitForTimeout(300);}
+ const sun=mob?'#vSun':'#vSun';
+ if(mob&&!(await p.isVisible('#vSun'))){await p.tap('#tView');await p.waitForTimeout(300);}
  await (mob?p.tap(sun):p.click(sun));await p.waitForTimeout(300);check(await p.isVisible('#lp'),'panel opens');
  const r=await p.evaluate(()=>{const R=e=>document.getElementById(e).getBoundingClientRect();const a=R('lp');return{a:{l:a.left,t:a.top,r:a.right,b:a.bottom},vw:innerWidth,vh:innerHeight};});
  check(r.a.l>=0&&r.a.t>=0&&r.a.r<=r.vw&&r.a.b<=r.vh,'panel inside viewport',r);
@@ -21,7 +21,7 @@ try{for(const [w,h,mob] of [[2191,1304,0],[1280,800,0],[412,915,1]]){console.log
  if(w===2191)await p.screenshot({path:'screenshot-v0.39-light-panel-desktop.png'});
  if(mob)await p.screenshot({path:'screenshot-v0.39-light-panel-mobile.png'});
  await p.keyboard.press('Escape');await p.waitForTimeout(200);check(!(await p.isVisible('#lp')),'Esc closes');
- const fl=mob?'#mvFlat':'#vFlat';await (mob?p.tap(fl):p.click(fl));await p.waitForTimeout(200);check((await L()).flat,'flat toggle on');
+ const fl=mob?'#vFlat':'#vFlat';await (mob?p.tap(fl):p.click(fl));await p.waitForTimeout(200);check((await L()).flat,'flat toggle on');
  await p.reload();await p.waitForFunction(()=>window.paintAPI&&paintAPI.homeView,null,{timeout:30000});await p.waitForTimeout(600);s=await L();check(s.flat&&s.gloss==30,'persisted after reload',s);
  await p.evaluate(()=>localStorage.removeItem('medium.light'));
  check(!errs.length,'no errors',errs);await ctx.close();}}

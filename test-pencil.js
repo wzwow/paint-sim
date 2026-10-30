@@ -37,7 +37,7 @@ check(wet,'pencil over wet oil runs');
 await p.close();
 // mobile bar
 p=await open({viewport:{width:390,height:844},deviceScaleFactor:3,hasTouch:true,isMobile:true,userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1'});
-await p.evaluate(()=>paintAPI.setTool('brush'));await p.tap('#tPencil');
+await p.evaluate(()=>paintAPI.setTool('brush'));await p.tap('#dPencil');
 check(await p.evaluate(()=>document.getElementById('tPencil').classList.contains('on')),'mobile bar selects pencil');
 check(!errs.length,'no page errors',errs);
 await b.close();console.log(fails?'FAILED '+fails:'ALL PASS');process.exit(fails?1:0);})();

@@ -12,8 +12,8 @@ const VPS=[
   bars:['#barL .ib','#barR .ib','#colc .ib','#rail .vs'],
   opens:[['#dSet','#panel','#dClose'],['#dCol','#cp','#cpClose'],['#tNew','#dlgNew','#nCancel']],settings:'#dSet',undo:'#bUndo',redo:'#bRedo',color:'#dCol',med:'#dMed'},
  {name:'mobile',ctx:{viewport:{width:390,height:844},deviceScaleFactor:3,hasTouch:true,isMobile:true,userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1'},
-  bars:['#barL .brand','#mTop .ib','#tb .ib','#tSize'],
-  opens:[['#tSet','#panel','#dClose'],['#tCol','#cp','#cpClose']],dialogVia:['#tSet','summary:has-text("Canvas")','#bNew','#dlgNew','#nCancel'],settings:'#tSet',undo:'#tUndo',redo:'#tRedo',color:'#tCol',med:'#tMed'}];
+  bars:['#barL .ib','#barR .ib','#colc .ib','#rail .vs','#viewc>button:not(#vOut):not(#vIn):not(#vRL):not(#vRR)'],
+  opens:[['#dSet','#panel','#dClose'],['#dCol','#cp','#cpClose'],['#tNew','#dlgNew','#nCancel']],dialogVia:['#dSet','summary:has-text("Canvas")','#bNew','#dlgNew','#nCancel'],settings:'#dSet',undo:'#bUndo',redo:'#bRedo',color:'#dCol',med:'#dMed'}];
 async function pixelDiff(page,a,b){return page.evaluate(async([a,b])=>{const ld=s=>new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.src='data:image/png;base64,'+s;});const[A,B]=await Promise.all([ld(a),ld(b)]);
  if(A.width!==B.width||A.height!==B.height)return 1;const c=document.createElement('canvas');c.width=A.width;c.height=A.height;const g=c.getContext('2d');g.drawImage(A,0,0);const da=g.getImageData(0,0,c.width,c.height).data;g.clearRect(0,0,c.width,c.height);g.drawImage(B,0,0);const db=g.getImageData(0,0,c.width,c.height).data;
  let n=0;for(let i=0;i<da.length;i+=4)if(Math.abs(da[i]-db[i])+Math.abs(da[i+1]-db[i+1])+Math.abs(da[i+2]-db[i+2])>48)n++;return n/(da.length/4);},[a,b]);}
@@ -28,6 +28,7 @@ for(const vp of VPS){cur=vp.name;console.log('== '+vp.name);const ctx=await br.n
  if(!NOBASE){const f=path.join(BASE,vp.name+'.png');const s=await shot();if(UPD||!fs.existsSync(f)){fs.mkdirSync(BASE,{recursive:true});fs.writeFileSync(f,Buffer.from(s,'base64'));console.log('  (baseline written '+f+')');}
   else{const d=await pixelDiff(p,fs.readFileSync(f).toString('base64'),s);check(d<=TOL,'UI matches baseline (tol '+TOL*100+'%)',{diffPct:+(d*100).toFixed(2)});if(d>TOL)fs.writeFileSync(path.join(BASE,vp.name+'-actual.png'),Buffer.from(s,'base64'));}}
  // toolbar buttons: exist, visible, in viewport, no overlap, hit-testable
+  // v0.40: on portrait phones zoom-/rotate-step buttons are hidden (pinch does it); test-mobilectl covers them in landscape
  const bars=await p.evaluate(sels=>{const W=innerWidth,H=innerHeight;const els=sels.flatMap(s=>[...document.querySelectorAll(s)].map((e,i)=>({e,s:s+'#'+(e.id||i)})));
   const r=els.map(({e,s})=>{const b=e.getBoundingClientRect(),cs=getComputedStyle(e);const cx=b.left+b.width/2,cy=b.top+b.height/2;const hit=document.elementFromPoint(cx,cy);
    return{s,w:b.width,h:b.height,l:b.left,t:b.top,r:b.right,b:b.bottom,vis:cs.display!=='none'&&cs.visibility!=='hidden'&&+cs.opacity>0&&b.width>0&&b.height>0,inVp:b.left>=0&&b.top>=0&&b.right<=W&&b.bottom<=H,hit:!!hit&&(hit===e||e.contains(hit))};});

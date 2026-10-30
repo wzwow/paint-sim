@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v0.39</title>
+<title>Medium — paint v0.40</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="app-version" content="medium-v0.39">
+<meta name="app-version" content="medium-v0.40">
 <meta name="theme-color" content="#161618">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -285,7 +285,7 @@ body.dropref::after{content:'Drop an image to use it as a reference';position:fi
 body.m #lp{bottom:auto;top:calc(116px + env(safe-area-inset-top));width:min(380px,calc(100vw - 16px))}body.m #lp .lpS{grid-template-columns:62px 1fr 44px}body.m #lp .lpS input{height:32px}body.m #lp .lpPre button{height:36px}
 body.m.mv #mView{flex-wrap:wrap;justify-content:center;row-gap:2px}body.m.mv #mView .ib{min-width:40px;flex:0 0 auto;padding:0 2px}body.m.mv #mView .vsep{margin:8px 0}
 
-/* v0.39 unified layout */
+/* v0.40 unified layout */
 #barL{right:12px;height:46px;box-sizing:border-box}#barL .sp{flex:1}#docT{font-size:12.5px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:40vw}
 #barR{top:70px;left:12px;right:auto;flex-direction:column;padding:4px;width:auto}#barR .sep{width:24px;height:1px;margin:3px 0}#barR .t{display:none}#barR [data-tip]:hover::after{top:50%;left:calc(100% + 10px);transform:translateY(-50%)}
 #barR .ib.on,#dPick.on{color:var(--acc);background:var(--accS)}
@@ -298,7 +298,7 @@ body.m #mView{top:auto!important;bottom:calc(74px + env(safe-area-inset-bottom))
 body.m.mv #viewc{top:calc(78px + env(safe-area-inset-top))}
 body.m.mv #panel,body.m.mv #cp{bottom:calc(80px + var(--mvh,48px) + env(safe-area-inset-bottom))}body.m.mv #mView{left:0;right:0;margin:0 auto;width:max-content;max-width:calc(100vw - 8px);transform:none}body.m.mv #mView .vsep{display:none}@media(max-width:400px){body.m #barL .brand{font-size:0}body.m #barL .brand .ver{margin-left:6px}}
 
-/* v0.39 colour */
+/* v0.40 colour */
 #cpCmp{display:flex;border-radius:10px;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2);flex:0 0 auto}#cpCmp #cpPrev{border-radius:0;width:30px;box-shadow:none}#cpOld{width:30px;height:36px;border:0;padding:0;cursor:pointer}
 #cpPin.on{color:#f5c542}#cpPin.on svg{fill:currentColor}
 #cpTabs{display:none;gap:4px;margin:-2px 0 10px}#cpTabs button,.cpMode button,.cpMix button{flex:1;background:var(--card2,rgba(255,255,255,.06));color:var(--ink);border:1px solid var(--line);border-radius:8px;height:30px;font:600 11.5px system-ui;cursor:pointer}
@@ -314,6 +314,30 @@ body.m.mv #panel,body.m.mv #cp{bottom:calc(80px + var(--mvh,48px) + env(safe-are
 body.grey #c{filter:grayscale(1)}#cpHex{flex:1 1 auto;width:0;min-width:64px}body:not(.m) #cpHead .ib{width:34px;min-width:34px;flex:0 0 34px}body:not(.m) #cpHead{gap:4px}body:not(.m) #cp{width:324px}#cpOld,#cpCmp #cpPrev{width:26px}body.m .cpNum select,body.m .cpNum input{height:38px;min-height:0}
 body.m #cpTabs{display:flex}body.m #cp .cpSec:not(.on){display:none}body.m #cpWh{width:170px;height:170px}
 body.m #cp{max-height:calc(100% - 200px - env(safe-area-inset-bottom));overflow:auto}
+
+/* v0.40: phone uses the desktop structure */
+body.m #mTop,body.m #tb,body.m #mView{display:none!important}
+body.m #barR,body.m #rail,body.m #colc{display:flex!important}
+body.m #barL .ib.dk,body.m #barL .sep.dk{display:inline-flex!important}body.m #barL .sep.dk{display:none!important}
+body.m #barL{left:4px;right:4px;top:calc(4px + env(safe-area-inset-top));height:auto;padding:2px;gap:0;justify-content:space-between;border-radius:14px}
+body.m #barL .ib{width:44px;min-width:44px;height:44px;padding:0;flex:0 0 44px}body.m #barL .sp{display:none}
+body.m #barL .brand{font-size:0;padding:0 2px;height:44px;gap:0}body.m #barL .brand .logo{display:none}body.m #barL .brand .ver{margin:0;font-size:9px;padding:2px 2px;letter-spacing:-.3px}body.m #barL{padding:1px}
+body.m #barR{top:calc(58px + env(safe-area-inset-top));left:4px;padding:2px;gap:0}body.m #barR .ib{width:44px;height:44px;min-width:44px}body.m #barR .sep{margin:2px 6px}
+body.m #rail{left:4px;top:calc(58px + 296px + env(safe-area-inset-top));transform:none;width:50px;padding:6px 3px;gap:4px}
+body.m #colc{top:calc(58px + env(safe-area-inset-top));right:4px;padding:2px;gap:2px}body.m #colc .ib{width:44px;height:44px}body.m #qsw{gap:2px}body.m #qsw button{width:44px;height:44px}
+body.m #viewc,body.m #viewc:not(.off),body.m.mv #viewc{display:flex!important;top:auto!important;bottom:calc(4px + env(safe-area-inset-bottom))!important;left:4px;right:4px;transform:none;max-width:none;justify-content:space-between;flex-wrap:nowrap;padding:2px;border-radius:14px}
+body.m #viewc>*{display:flex!important}body.m #viewc>button{width:44px;min-width:44px;height:44px;padding:0;flex:0 0 44px}body.m #viewc .vsep{display:none!important}
+body.m #viewc #zoomv,body.m #viewc #rotv{min-width:44px;height:44px;align-items:center;justify-content:center}
+@media (orientation:portrait){body.m #vOut,body.m #vIn,body.m #vRL,body.m #vRR{display:none!important}}
+body.m #cp,body.m #panel,body.m #bp,body.m #mp,body.m #lp,body.m.mv #panel,body.m.mv #cp{bottom:calc(56px + env(safe-area-inset-bottom))!important;top:auto;left:56px!important;right:56px!important;width:auto!important;max-height:calc(100% - 120px)!important}
+@media (max-width:420px){body.m #cp,body.m #panel,body.m #bp,body.m #mp,body.m #lp,body.m.mv #panel,body.m.mv #cp{left:4px!important;right:4px!important}}
+@media (orientation:landscape) and (max-height:520px){body.m #rail{left:56px;top:calc(58px + env(safe-area-inset-top));width:50px}body.m #rail .vs{height:54px!important}body.m #rail{gap:2px;padding:4px 3px}body.m #qsw button:nth-child(n+4){display:none}
+ body.m #cp,body.m #panel,body.m #bp,body.m #mp,body.m #lp,body.m.mv #panel,body.m.mv #cp{left:auto!important;right:56px!important;width:min(380px,60vw)!important;top:calc(54px + env(safe-area-inset-top))!important}}
+@media (orientation:portrait){body.m #rail .vs{height:120px!important}}
+@media (orientation:portrait) and (max-height:860px){body.m #rail .vs{height:88px!important}}
+@media (max-width:385px){body.m #barL .ib,body.m #viewc>button{width:40px;min-width:40px;flex-basis:40px}body.m #viewc #zoomv,body.m #viewc #rotv{min-width:38px}}
+body.m #lp{transform:none!important;width:auto!important;max-width:none!important}
+body.m #welcome{left:58px!important;right:58px!important;top:calc(58px + env(safe-area-inset-top))!important}
 </style></head>
 <body>
 <div id="stage"><canvas id="c"></canvas><canvas id="trace" style="position:fixed" aria-hidden="true"></canvas><canvas id="cur" style="position:fixed;pointer-events:none"></canvas><div id="msg"></div></div>
@@ -330,7 +354,7 @@ body.m #cp{max-height:calc(100% - 200px - env(safe-area-inset-bottom));overflow:
 </div>
 <div id="viewc" role="toolbar" aria-label="Canvas view"><button id="vFit" data-ic="fit" data-tip="Fit to screen (Ctrl+0)" aria-label="Fit to screen"></button><button id="v100" data-tip="Zoom to 100% (Ctrl+1)" aria-label="Zoom to 100%">1:1</button><button id="vOut" data-ic="minus" data-tip="Zoom out (Ctrl+−)" aria-label="Zoom out"></button><button id="zoomv" data-tip="Zoom: click for 100% (Ctrl+1), again to fit (Ctrl+0)" aria-label="Zoom level">100%</button><button id="vIn" data-ic="plus" data-tip="Zoom in (Ctrl++)" aria-label="Zoom in"></button><span class="vsep"></span><button id="vRL" data-ic="rotl" data-tip="Rotate view left 15° (Shift+R)" aria-label="Rotate view left"></button><button id="vRR" data-ic="rotr" data-tip="Rotate view right 15° (R)" aria-label="Rotate view right"></button><button id="rotv" disabled data-tip="Straighten the view (shows current angle)" aria-label="Reset rotation">0°</button><button id="vSun" data-ic="sun" data-tip="Light &amp; relief (Shift+L)" aria-label="Light and relief" aria-haspopup="dialog" aria-expanded="false" aria-controls="lp"></button><button id="vGrey" data-ic="grey" data-tip="Value check: greyscale view (Shift+V)" aria-label="Greyscale value check" aria-pressed="false"></button><button id="vFlat" data-ic="flat" data-tip="Flat view: hide lighting to judge colour (Shift+F)" aria-label="Flat view" aria-pressed="false"></button><span class="vsep"></span><button id="vClr" data-ic="trash" data-tip="Clear layer… (Shift+Delete)" aria-label="Clear layer" aria-haspopup="dialog"></button></div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.39</span></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.40</span></div>
  <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tExp" data-tip="Export… (Ctrl+Shift+E)" aria-label="Export image" aria-haspopup="dialog" data-ic="download"></button><span class="sep dk"></span><button class="ib dk" id="bUndo" data-tip="Undo (Ctrl+Z)" aria-label="Undo" data-ic="undo"></button><button class="ib dk" id="bRedo" data-tip="Redo (Ctrl+Shift+Z)" aria-label="Redo" data-ic="redo"></button><span class="sp dk"></span><span id="docT" class="dk"></span><span class="sp dk"></span><button class="ib dk" id="tRef" data-tip="Reference image" aria-label="Reference image" data-ic="image"></button><button class="ib dk" id="tLay" data-tip="Layers (in Settings)" aria-label="Layers" data-ic="layers"></button><button class="ib dk" id="tHelp" data-tip="Help &amp; shortcuts (?)" aria-label="Help and keyboard shortcuts" aria-haspopup="dialog" data-ic="help"></button><button class="ib dk" id="dSet" data-tip="Settings" aria-label="Settings" data-ic="sliders"></button></div>
 <!-- top-right: tools -->
 <div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dPencil" data-tip="Pencil (G)" aria-label="Pencil" data-ic="pencil"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button><button class="ib" id="dPick" data-tip="Eyedropper (I or Alt+click)" aria-label="Eyedropper" data-ic="pipette"></button>
@@ -861,7 +885,7 @@ void main(){vec4 Cb=texture(uAC,vUv),Ab=texture(uAA,vUv),Cs=texture(uLC,vUv)*uOp
 float ab=Cb.a,as=Cs.a;vec3 cb=ab>1e-5?Cb.rgb/ab:vec3(0),cs=as>1e-5?Cs.rgb/as:vec3(0);
 o0=vec4((1.-ab)*Cs.rgb+(1.-as)*Cb.rgb+as*ab*B(cb,cs),as+ab*(1.-as));
 o1=vec4(Ab.x+As.x*uOp,max(Ab.y*(1.-as),As.y*uOp),max(Ab.z*(1.-as),As.z*uOp),Ab.w+As.w*uOp);}`,
-/* v0.39: zoom-aware relief. When the canvas is shown smaller than ~0.7 screen px per canvas texel, height (paint + paper) is box-averaged into
+/* v0.40: zoom-aware relief. When the canvas is shown smaller than ~0.7 screen px per canvas texel, height (paint + paper) is box-averaged into
    a k-times smaller texture (k = 2,4,8 by zoom) and the normal/AO are taken from it with steps of k texels, so ridges and paper tooth match the
    screen-pixel footprint instead of aliasing away. uHK=1 (exports, close zoom) = the v0.36 path. */
 hdown:`uniform sampler2D uAA,uP;uniform float uDK,uPR;out vec4 o;
@@ -1295,7 +1319,7 @@ function compositeRects(rects){const B=belowSrc(),act=layers[ai],b=baseOf(act);c
 function composite(){if(ensureBelow())compFull=true;
  if(compFull){compositeRects(null);compFull=false;compTiles.clear();}else if(compTiles.size){compositeRects(spansOf(compTiles));compTiles.clear();}
  return OUT;}
-/* v0.39 light: azimuth st.light, relief st.relief + LT (elevation, strength, gloss, paper, wet sheen; flat = view-only). Defaults = v0.36 look. */
+/* v0.40 light: azimuth st.light, relief st.relief + LT (elevation, strength, gloss, paper, wet sheen; flat = view-only). Defaults = v0.36 look. */
 const LT0={el:Math.atan2(.62,.75)*180/Math.PI,str:100,gloss:100,paper:100,wet:true,flat:false};let LT=Object.assign({},LT0),ltDrag=false;
 function litU(){const a=st.light*Math.PI/180,e=LT.el*Math.PI/180,c=Math.cos(e);return{uL:[Math.cos(a)*c,Math.sin(a)*c,Math.sin(e)],uRelief:st.relief,uPR:PR[surface.type]*LT.paper/100,uLS:.8*LT.str/100,uGl:LT.gloss/100,uWS:LT.wet?1:0,uHK:1,uRB:1,uFast:0};}
 let HM=null,hmK=1;function hmFor(){const s=view.s;if(!(s<.7))return 1;return Math.min(8,Math.pow(2,Math.round(Math.log2(1/s))));}
@@ -1792,7 +1816,7 @@ if(DIAG){const d=document.createElement('div');d.id='diag';d.style.cssText='posi
  rf.onclick=upd;cl.onclick=()=>d.remove();['pointerdown','pointermove','pointerup','touchstart','wheel'].forEach(t=>d.addEventListener(t,e=>e.stopPropagation()));
  d.append(pre,cp,rf,cl);document.body.appendChild(d);setTimeout(upd,300);}
 
-/* v0.39 Light & relief pop-over (☀ in the view bar, mobile canvas row). View-only; persisted in localStorage 'medium.light'. */
+/* v0.40 Light & relief pop-over (☀ in the view bar, mobile canvas row). View-only; persisted in localStorage 'medium.light'. */
 {const lp=$('lp'),dial=$('lpDial'),sun=$('lpSun');const PRE={studio:{az:135,el:LT0.el,str:100,gloss:100,relief:1.5,paper:100,wet:true,flat:false},raking:{az:160,el:12,str:140,gloss:80,relief:2.2,paper:160,wet:true,flat:false},gallery:{az:100,el:65,str:70,gloss:45,relief:1.2,paper:80,wet:true,flat:false}};
  let svT=0;const save=()=>{clearTimeout(svT);svT=setTimeout(()=>{try{localStorage.setItem('medium.light',JSON.stringify({az:st.light,relief:st.relief,el:LT.el,str:LT.str,gloss:LT.gloss,paper:LT.paper,wet:LT.wet,flat:LT.flat}));}catch(_){}},200);};
  const preOf=()=>{for(const k in PRE){const p=PRE[k];if(!LT.flat&&p.az===st.light&&Math.abs(p.el-LT.el)<.5&&p.str===LT.str&&p.gloss===LT.gloss&&Math.abs(p.relief-st.relief)<.01&&p.paper===LT.paper&&p.wet===LT.wet)return k;}return LT.flat?'flat':'';};
@@ -1825,21 +1849,21 @@ if(DIAG){const d=document.createElement('div');d.id='diag';d.style.cssText='posi
   Object.assign(LT,{el:n(o.el,LT0.el,5,90),str:n(o.str,100,0,200),gloss:n(o.gloss,100,0,200),paper:n(o.paper,100,0,300),wet:o.wet!==false,flat:!!o.flat});setRelief(n(o.relief,1.5,0,3));setLight(n(o.az,135,0,360));}}catch(_){}
  lpSync();}
 
-/* v0.39 layout glue */
+/* v0.40 layout glue */
 {const tl=()=>{setPanel(true);const d=$('layers').closest('details');if(d)d.open=true;setTimeout(()=>$('layers').scrollIntoView({block:'nearest',behavior:'smooth'}),60);};
  $('tLay').onclick=tl;$('tLayM').onclick=tl;
  $('dPick').onclick=()=>{try{PK.on?cancelPick():startPick();}catch(e){}};
  setInterval(()=>{try{$('dPick').classList.toggle('on',!!PK.on);}catch(_){}},300);
- const qs=()=>{const q=$('qsw');if(!q)return;const src=[...document.querySelectorAll('#cpRec .swc')].slice(0,6);q.innerHTML='';src.forEach(b=>{const x=document.createElement('button');x.style.background=b.style.background;x.title=b.title;x.setAttribute('aria-label','Use '+b.title);x.onclick=()=>b.click();q.appendChild(x);});if(!src.length)PIG.slice(1,7).forEach((pg,i)=>{const x=document.createElement('button');x.style.background=pg[1];x.title=pg[0];x.setAttribute('aria-label','Use '+pg[0]);x.onclick=()=>{selectPig(i+1);try{syncTB();}catch(_){}};q.appendChild(x);});};
+ const qs=()=>{const q=$('qsw');if(!q)return;const src=[...document.querySelectorAll('#cpRec .swc')].slice(0,2);q.innerHTML='';src.forEach(b=>{const x=document.createElement('button');x.style.background=b.style.background;x.title=b.title;x.setAttribute('aria-label','Use '+b.title);x.onclick=()=>b.click();q.appendChild(x);});const used=src.map(b=>(b.title||'').toLowerCase());PIG.slice(1).filter(pg=>!used.includes(pg[1].toLowerCase())).slice(0,6-src.length).forEach((pg,_k,_a,i=PIG.indexOf(pg)-1)=>{const x=document.createElement('button');x.style.background=pg[1];x.title=pg[0];x.setAttribute('aria-label','Use '+pg[0]);x.onclick=()=>{selectPig(i+1);try{syncTB();}catch(_){}};q.appendChild(x);});};
  new MutationObserver(qs).observe($('cpRec'),{childList:true});qs();
  const dt=()=>{try{$('docT').textContent=W+'×'+H+' · '+MEDS[st.med].name+' · '+(layers[ai]&&layers[ai].name||'');}catch(_){}};setInterval(dt,700);dt();
 }
 
-/* v0.39 colour quick wins */
+/* v0.40 colour quick wins */
 const KMX={warm:'#e0631a',cool:'#1f3a93',light:'#ffffff',dark:'#202124'};
 function ksHex(ks){const S=ks[3];return rgb2hex([0,1,2].map(i=>{const q=Math.max(ks[i]/S,0);return Math.pow(Math.min(1,Math.max(0,1+q-Math.sqrt(q*q+2*q))),1/2.2);}));}
 function kmMix(hexA,hexB,t){const a=hexKS(hexA),b=hexKS(hexB);return ksHex(a.map((v,i)=>v*(1-t)+b[i]*t));}
-function kmNudge(kind,t){const c=$('col').value,n=kmMix(c,KMX[kind],t==null?(kind==='light'?.18:kind==='dark'?.10:.14):t);hsv=rgb2hsv(hex2rgb(n));applyHex(n,true);try{drawSV();cpMarks();}catch(_){}return n;}
+let lastNudge=null;function kmNudge(kind,t){if(lastNudge&&recent[0]===lastNudge)recent.shift();const c=$('col').value,n=kmMix(c,KMX[kind],t==null?(kind==='light'?.18:kind==='dark'?.10:.14):t);hsv=rgb2hsv(hex2rgb(n));applyHex(n,true);lastNudge=n;try{drawSV();cpMarks();}catch(_){}return n;}
 let pins=[];try{pins=JSON.parse(localStorage.getItem('medium-pins')||'[]').slice(0,18);}catch(_){}
 function savePins(){try{localStorage.setItem('medium-pins',JSON.stringify(pins));}catch(_){}drawFav();}
 function useHex(h){const i=PIG.findIndex(p=>p[1]===h);if(i>=0){selectPig(i);syncTB();}else applyHex(h,false);addRecent(h);hsv=rgb2hsv(hex2rgb(h));try{drawSV();cpMarks();}catch(_){}}

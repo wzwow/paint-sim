@@ -65,17 +65,17 @@ try{{const ctx=await b.newContext();const p=await ctx.newPage();const d=await p.
   check(!errs.length,'desktop: no page errors',errs);await ctx.close();}
  // ---------- mobile ----------
  {const ctx=await b.newContext({viewport:{width:390,height:844},deviceScaleFactor:3,hasTouch:true,isMobile:true});const{p,errs}=await setup(ctx);
-  check(await p.isVisible('#tRefM'),'mobile: reference button in the top bar');
-  const boxes=await p.evaluate(()=>['tRefM','tView','tUndo','tRedo'].map(i=>{const r=document.getElementById(i).getBoundingClientRect();return[r.left,r.right,r.width,r.height];}).concat([(()=>{const r=document.querySelector('#barL').getBoundingClientRect();return[r.left,r.right];})()]));
-  check(boxes.slice(0,4).every(q=>q[2]>=44&&q[3]>=44&&q[1]<=390),'mobile: top buttons ≥44 px and on screen',boxes);check(boxes[4][1]<boxes[0][0],'mobile: top-right buttons do not overlap the brand',boxes);
-  const [fc]=await Promise.all([p.waitForEvent('filechooser',{timeout:5000}).catch(()=>null),p.tap('#tRefM')]);check(!!fc,'mobile: reference button with no image opens the chooser');
+  check(await p.isVisible('#tRef'),'mobile: reference button in the top bar');
+  const boxes=await p.evaluate(()=>['tRef','tLay','bUndo','bRedo'].map(i=>{const r=document.getElementById(i).getBoundingClientRect();return[r.left,r.right,r.width,r.height];}).concat([(()=>{const r=document.querySelector('#barL .brand').getBoundingClientRect();return[r.left,r.right];})()]));
+  check(boxes.slice(0,4).every(q=>q[2]>=44&&q[3]>=44&&q[1]<=390),'mobile: top buttons ≥44 px and on screen',boxes);check(boxes[4][1]<=Math.min(...boxes.slice(0,4).map(q=>q[0])),'mobile: top-right buttons do not overlap the brand',boxes);
+  const [fc]=await Promise.all([p.waitForEvent('filechooser',{timeout:5000}).catch(()=>null),p.tap('#tRef')]);check(!!fc,'mobile: reference button with no image opens the chooser');
   if(fc)await fc.setFiles(IMG);else await p.setInputFiles('#refFile',IMG);await p.waitForFunction(()=>paintAPI.refInfo().open,null,{timeout:10000});await p.waitForTimeout(300);
   const hb=await p.evaluate(()=>{const w=document.getElementById('ref').getBoundingClientRect();return[...document.querySelectorAll('#refH .ib')].map(e=>{const r=e.getBoundingClientRect();return r.width>=44&&r.height>=44&&r.right<=w.right+0.5;});});
   check(hb.length===5&&hb.every(Boolean),'mobile: all five window buttons fit and are ≥44 px',hb);
   await p.tap('#refTr');await p.waitForTimeout(250);check((await info(p)).trace,'mobile: trace button turns tracing on');
-  await p.tap('#tRefM');await p.waitForTimeout(200);check(!(await info(p)).open&&(await info(p)).trace,'mobile: top button hides the window, overlay stays');
+  await p.tap('#tRef');await p.waitForTimeout(200);check(!(await info(p)).open&&(await info(p)).trace,'mobile: top button hides the window, overlay stays');
   await p.screenshot({path:path.join(__dirname,'screenshot-v0.32-trace-mobile.png')});
-  await p.tap('#tRefM');await p.waitForTimeout(200);check((await info(p)).open,'mobile: top button shows it again');
+  await p.tap('#tRef');await p.waitForTimeout(200);check((await info(p)).open,'mobile: top button shows it again');
   check(!errs.length,'mobile: no page errors',errs);await ctx.close();}
 }catch(e){console.log('FAIL exception '+(e.stack||e));fails++;}
 await b.close();console.log(fails?'FAILED '+fails:'ALL PASS');process.exit(fails?1:0);})();

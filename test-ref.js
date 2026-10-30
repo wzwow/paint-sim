@@ -88,8 +88,8 @@ try{// make the test PNG (800x600, four flat quadrants + a 1 px white frame)
  // ---------- mobile ----------
  {const ctx=await b.newContext({viewport:{width:390,height:844},deviceScaleFactor:3,hasTouch:true,isMobile:true});const{p,errs}=await setup(ctx);
   const cdp=await ctx.newCDPSession(p);const T=(type,pts)=>cdp.send('Input.dispatchTouchEvent',{type,touchPoints:pts.map((q,k)=>({x:q[0],y:q[1],id:k,radiusX:4,radiusY:4,force:.5}))});
-  check(!(await p.isVisible('#tRef')),'mobile: no desktop toolbar button');
-  await p.tap('#tSet');await p.waitForTimeout(300);await p.evaluate(()=>{document.getElementById('gRef').open=true;document.getElementById('gRef').scrollIntoView();});await p.waitForTimeout(200);
+  check(await p.isVisible('#tRef')&&!(await p.isVisible('#tRefM')),'v0.40: mobile uses the desktop reference button (phone copy hidden)');
+  await p.tap('#dSet');await p.waitForTimeout(300);await p.evaluate(()=>{document.getElementById('gRef').open=true;document.getElementById('gRef').scrollIntoView();});await p.waitForTimeout(200);
   check(await p.isVisible('#bRefAdd'),'mobile: Add image in settings');
   const [fc]=await Promise.all([p.waitForEvent('filechooser',{timeout:5000}).catch(()=>null),p.tap('#bRefAdd')]);check(!!fc,'mobile: Add image opens the chooser');
   if(fc)await fc.setFiles(IMG);else await p.setInputFiles('#refFile',IMG);await p.waitForFunction(()=>paintAPI.refInfo().open,null,{timeout:10000});await p.waitForTimeout(300);

@@ -12,7 +12,7 @@ for(const vp of [{name:'desktop',o:{viewport:{width:1440,height:900}}},{name:'mo
  const ctx=await b.newContext(vp.o);const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(''+e));p.on('console',m=>{if(m.type()==='error')errs.push(m.text());});
  const T=s=>vp.name+' · '+s;const mob=vp.name==='mobile';
  await p.goto(URL);await p.waitForFunction(()=>window.paintAPI&&paintAPI.presets,null,{timeout:30000});await p.waitForTimeout(500);
- const btn=mob?'#tPre':'#dPre';
+ const btn=mob?'#dPre':'#dPre';
  const vis=await p.evaluate(s=>{const e=document.querySelector(s),r=e.getBoundingClientRect();const el=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return{w:r.width,h:r.height,in:r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight,hit:!!el&&e.contains(el)};},btn);
  check(vis.in&&vis.hit&&vis.w>=44&&vis.h>=44,T('Presets button visible, clickable, >= 44 px'),vis);
  if(mob)await p.tap(btn);else await p.click(btn);await p.waitForTimeout(300);

@@ -38,5 +38,5 @@ await p.click('#vClr');await p.waitForTimeout(300);await p.screenshot({path:path
 check(errs.length===0,'no page errors',errs);
 // mobile: toolbar button hidden
 const m=await b.newContext({viewport:{width:390,height:844},deviceScaleFactor:2,hasTouch:true,isMobile:true});const mp=await m.newPage();await mp.goto(URL);await mp.waitForFunction(()=>window.paintAPI,null,{timeout:30000});await mp.waitForTimeout(600);
-check(await mp.evaluate(()=>getComputedStyle(document.getElementById('vClr')).display==='none'),'toolbar Clear hidden on mobile');
+check(await mp.evaluate(()=>{const v=d=>{const e=document.getElementById(d);return !!e&&getComputedStyle(e).display!=='none'&&e.offsetWidth>0;};return v('vClr')&&!v('mvClr')&&!v('tClr');}),'v0.40: mobile shows exactly the desktop view-bar Clear');
 await b.close();console.log(fails?'FAILED '+fails:'ALL PASS');process.exit(fails?1:0);})().catch(e=>{console.error(e);process.exit(2);});

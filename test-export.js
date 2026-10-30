@@ -39,7 +39,7 @@ for(const vp of VPS){console.log('== '+vp.name);const mob=vp.name==='mobile';con
   A.setMed('oil');A.selectPig(3);A.setSize(40);A.stroke([[.2,.28],[.4,.3],[.6,.27],[.8,.3]],.8,{dt:14});A.step(10);A.render();A.pause(false);return A.info();});
  const W=dims.W,H=dims.H;console.log('canvas',W,'x',H);
  // open via the UI
- if(mob){await tap('#tSet');await p.evaluate(()=>{const d=document.getElementById('bExpDlg').closest('details');d.open=true;document.getElementById('bExpDlg').scrollIntoView({block:'center'});});await p.waitForTimeout(300);
+ if(mob){await tap('#dSet');await p.evaluate(()=>{const d=document.getElementById('bExpDlg').closest('details');d.open=true;document.getElementById('bExpDlg').scrollIntoView({block:'center'});});await p.waitForTimeout(300);
   const bb=await p.evaluate(()=>{const r=document.getElementById('bExpDlg').getBoundingClientRect();return{h:r.height};});check(bb.h>=44,'Export image… button >= 44px on mobile',bb);await tap('#bExpDlg');}
  else{check(await p.evaluate(()=>document.getElementById('tExp').getAttribute('aria-label'))==='Export image','toolbar Export button labelled');await tap('#tExp');}
  const isOpen=()=>p.evaluate(()=>document.getElementById('dlgExp').open);

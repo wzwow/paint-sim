@@ -47,7 +47,7 @@ for(const vp of [{name:'desktop',o:{viewport:{width:1440,height:900}}},{name:'mo
  // 5. Settings > Install & offline, with a simulated install prompt
  await p.evaluate(()=>{const e=new Event('beforeinstallprompt');e.prompt=()=>{window.__prompted=1;return Promise.resolve();};e.userChoice=Promise.resolve({outcome:'dismissed'});dispatchEvent(e);});
  const click=async s=>mob?p.tap(s):p.click(s);
- if(!(await p.evaluate(()=>document.querySelector('.open #gInst, #gInst')&&!!document.getElementById('gInst').closest('.open'))))await click(mob?'#tSet':'#dSet');await p.waitForTimeout(400);
+ if(!(await p.evaluate(()=>document.querySelector('.open #gInst, #gInst')&&!!document.getElementById('gInst').closest('.open'))))await click(mob?'#dSet':'#dSet');await p.waitForTimeout(400);
  const sum=await p.$('#gInst summary');check(!!sum,T('Settings has an Install & offline section'));
  if(sum){await sum.scrollIntoViewIfNeeded();await click('#gInst summary');await p.waitForTimeout(300);await p.evaluate(()=>document.getElementById('gInst').scrollIntoView({block:'center'}));await p.waitForTimeout(300);
   const bi=await p.evaluate(()=>{const e=document.getElementById('bInstall'),r=e.getBoundingClientRect(),h=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return{vis:!e.hidden&&r.width>0,h:r.height,hit:!!h&&(h===e||e.contains(h)),msg:document.getElementById('instMsg').textContent,off:document.getElementById('offMsg').textContent,in:r.right<=innerWidth&&r.left>=0};});

@@ -11,10 +11,10 @@ for(const dev of ['Pixel 7','iPhone 14']){const ctx=await b.newContext({...devic
  const [L,T,Wd,Ht]=st.r;
  const stroke=async(x0,y0,x1,y1,n=25)=>{await touch('touchStart',[[x0,y0]]);for(let i=1;i<=n;i++){const t=i/n;await touch('touchMove',[[x0+(x1-x0)*t,y0+(y1-y0)*t+12*Math.sin(t*5)]]);await p.waitForTimeout(16);}await touch('touchEnd',[]);};
  // oil strokes via toolbar medium toggle
- await p.tap('#tMed');await p.tap('#tCol');await p.waitForTimeout(100);await p.tap('#popG button:nth-child(4)');
+ await p.tap('#dMed');await p.tap('#dCol');await p.waitForTimeout(100);await p.tap('#popG button:nth-child(4)');
  await stroke(L+Wd*.15,T+Ht*.3,L+Wd*.85,T+Ht*.35);
- await p.tap('#tCol');await p.tap('#popG button:nth-child(3)');await stroke(L+Wd*.15,T+Ht*.45,L+Wd*.85,T+Ht*.5);
- await p.tap('#tMed');await p.tap('#tCol');await p.tap('#popG button:nth-child(2)');await stroke(L+Wd*.2,T+Ht*.6,L+Wd*.8,T+Ht*.7);
+ await p.tap('#dCol');await p.tap('#popG button:nth-child(3)');await stroke(L+Wd*.15,T+Ht*.45,L+Wd*.85,T+Ht*.5);
+ await p.tap('#dMed');await p.tap('#dCol');await p.tap('#popG button:nth-child(2)');await stroke(L+Wd*.2,T+Ht*.6,L+Wd*.8,T+Ht*.7);
  await p.waitForTimeout(800);const u1=await p.evaluate(()=>paintAPI.info().undo);
  // pinch zoom: must not paint
  const v0=await p.evaluate(()=>({...paintAPI.view}));const cx=L+Wd/2,cy=T+Ht/2;
@@ -23,7 +23,7 @@ for(const dev of ['Pixel 7','iPhone 14']){const ctx=await b.newContext({...devic
  await p.evaluate(()=>paintAPI.fit());await p.waitForTimeout(400);
  out[dev]={...st,undoAfterStrokes:u1,undoAfterPinch:u2,zoomBefore:+v0.s.toFixed(3),zoomAfter:+v1.s.toFixed(3)};
  const tag=dev==='Pixel 7'?'':'-iphone';await p.screenshot({path:'screenshot-v10-mobile'+tag+'.png'});
- await p.tap('#tSet');await p.waitForTimeout(500);await p.screenshot({path:'screenshot-v10-drawer'+tag+'.png'});
+ await p.tap('#dSet');await p.waitForTimeout(500);await p.screenshot({path:'screenshot-v10-drawer'+tag+'.png'});
  out[dev].drawerSections=await p.evaluate(()=>[...document.querySelectorAll('#dBody summary')].map(s=>s.textContent));
  // drawer scroll + a control inside works
  out[dev].sizeSync=await p.evaluate(()=>{const s=document.getElementById('size');s.value=80;s.dispatchEvent(new Event('input'));return s.value;});
