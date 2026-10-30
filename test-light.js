@@ -18,8 +18,8 @@ try{for(const [w,h,mob] of [[2191,1304,0],[1280,800,0],[412,915,1]]){console.log
  const dl=await p.locator('#lpDial').boundingBox();await p.mouse.move(dl.x+dl.width/2,dl.y+dl.height/2);await p.mouse.down();await p.mouse.move(dl.x+dl.width/2+5,dl.y+dl.height/2-5,{steps:3});await p.mouse.up();await p.waitForTimeout(200);
  s=await L();check(s.el>70,'dial drag to centre raises sun',s.el);
  await p.fill('#lpGl','30');await p.dispatchEvent('#lpGl','input');await p.waitForTimeout(100);check((await L()).gloss==30,'gloss slider',(await L()).gloss);
- if(w===2191)await p.screenshot({path:'screenshot-v0.38-light-panel-desktop.png'});
- if(mob)await p.screenshot({path:'screenshot-v0.38-light-panel-mobile.png'});
+ if(w===2191)await p.screenshot({path:'screenshot-v0.39-light-panel-desktop.png'});
+ if(mob)await p.screenshot({path:'screenshot-v0.39-light-panel-mobile.png'});
  await p.keyboard.press('Escape');await p.waitForTimeout(200);check(!(await p.isVisible('#lp')),'Esc closes');
  const fl=mob?'#mvFlat':'#vFlat';await (mob?p.tap(fl):p.click(fl));await p.waitForTimeout(200);check((await L()).flat,'flat toggle on');
  await p.reload();await p.waitForFunction(()=>window.paintAPI&&paintAPI.homeView,null,{timeout:30000});await p.waitForTimeout(600);s=await L();check(s.flat&&s.gloss==30,'persisted after reload',s);

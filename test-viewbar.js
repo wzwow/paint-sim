@@ -2,7 +2,7 @@
 const {chromium}=require('playwright');const path=require('path');
 const tgt=process.argv[2]||'index.html';const URL=/^(https?|file):/.test(tgt)?tgt:'file://'+path.resolve(__dirname,tgt);
 let fails=0;const check=(c,m,x)=>{console.log((c?'PASS ':'FAIL ')+m+(x!==undefined?' '+JSON.stringify(x):''));if(!c)fails++;};
-const IDS=['vFit','v100','vOut','zoomv','vIn','vRL','vRR','rotv','vSun','vFlat','vClr'];
+const IDS=['vFit','v100','vOut','zoomv','vIn','vRL','vRR','rotv','vSun','vGrey','vFlat','vClr'];
 (async()=>{const b=await chromium.launch({args:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
 try{for(const [w,h] of [[2191,1304],[1280,800]]){console.log('== '+w+'x'+h);const ctx=await b.newContext({viewport:{width:w,height:h},deviceScaleFactor:1});const p=await ctx.newPage();const errs=[];
  p.on('pageerror',e=>errs.push(''+e));
@@ -26,7 +26,7 @@ try{for(const [w,h] of [[2191,1304],[1280,800]]){console.log('== '+w+'x'+h);cons
  await p.click('#vFit');await p.waitForTimeout(150);c=await S();check(c.home,'fit');
  await p.click('#vRR');await p.click('#vRR');await p.waitForTimeout(300);c=await S();check(!c.rd&&/30°/.test(c.rt),'rotate right ×2 → straighten enabled with angle',c.rt);
  await p.click('#vRL');await p.waitForTimeout(300);c=await S();check(/15°/.test(c.rt),'rotate left',c.rt);
- if(w===2191){await p.click('#vRR');await p.waitForTimeout(400);await p.hover('#rotv');await p.waitForTimeout(500);await p.screenshot({path:'screenshot-v0.38-viewbar-desktop.png'});}
+ if(w===2191){await p.click('#vRR');await p.waitForTimeout(400);await p.hover('#rotv');await p.waitForTimeout(500);await p.screenshot({path:'screenshot-v0.39-viewbar-desktop.png'});}
  await p.click('#rotv');await p.waitForTimeout(300);c=await S();check(c.r===0&&c.rd,'straighten resets & disables',[c.r,c.rt]);
  const u0=(await S()).undo;const cx=w/2,cy=h/2;await p.mouse.move(cx-100,cy);await p.mouse.down();for(let i=0;i<20;i++)await p.mouse.move(cx-100+i*10,cy+i*3);await p.mouse.up();await p.waitForTimeout(500);
  const u1=(await S()).undo;
