@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v0.37</title>
+<title>Medium — paint v0.38</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="app-version" content="medium-v0.37">
+<meta name="app-version" content="medium-v0.38">
 <meta name="theme-color" content="#161618">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -284,6 +284,19 @@ body.dropref::after{content:'Drop an image to use it as a reference';position:fi
 #viewc [aria-expanded=true]:hover::after,#viewc [aria-expanded=true]:hover::before{display:none!important}#viewc button.on{color:var(--acc)!important;background:var(--accS)}#mView .ib.on{color:var(--acc);background:var(--accS)}
 body.m #lp{bottom:auto;top:calc(116px + env(safe-area-inset-top));width:min(380px,calc(100vw - 16px))}body.m #lp .lpS{grid-template-columns:62px 1fr 44px}body.m #lp .lpS input{height:32px}body.m #lp .lpPre button{height:36px}
 body.m.mv #mView{flex-wrap:wrap;justify-content:center;row-gap:2px}body.m.mv #mView .ib{min-width:40px;flex:0 0 auto;padding:0 2px}body.m.mv #mView .vsep{margin:8px 0}
+
+/* v0.38 unified layout */
+#barL{right:12px;height:46px;box-sizing:border-box}#barL .sp{flex:1}#docT{font-size:12.5px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:40vw}
+#barR{top:70px;left:12px;right:auto;flex-direction:column;padding:4px;width:auto}#barR .sep{width:24px;height:1px;margin:3px 0}#barR .t{display:none}#barR [data-tip]:hover::after{top:50%;left:calc(100% + 10px);transform:translateY(-50%)}
+#barR .ib.on,#dPick.on{color:var(--acc);background:var(--accS)}
+#rail{left:68px}
+#colc{top:70px;right:12px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px}#colc [data-tip]:hover::after{top:50%;left:auto;right:calc(100% + 10px);transform:translateY(-50%)}
+#qsw{display:flex;flex-direction:column;gap:6px}#qsw button{width:22px;height:22px;border-radius:50%;border:0;box-shadow:inset 0 0 0 1px rgba(255,255,255,.35);cursor:pointer;padding:0}#qsw button:hover{transform:scale(1.15)}
+#panel{top:66px;right:80px}body:not(.m) #cp{top:66px;right:80px}
+body.m #colc,body.m #barL .dk{display:none}body.m #barL{right:auto;height:auto}
+body.m #mView{top:auto!important;bottom:calc(74px + env(safe-area-inset-bottom))}
+body.m.mv #viewc{top:calc(78px + env(safe-area-inset-top))}
+body.m.mv #panel,body.m.mv #cp{bottom:calc(80px + var(--mvh,48px) + env(safe-area-inset-bottom))}body.m.mv #mView{left:0;right:0;margin:0 auto;width:max-content;max-width:calc(100vw - 8px);transform:none}body.m.mv #mView .vsep{display:none}@media(max-width:400px){body.m #barL .brand{font-size:0}body.m #barL .brand .ver{margin-left:6px}}
 </style></head>
 <body>
 <div id="stage"><canvas id="c"></canvas><canvas id="trace" style="position:fixed" aria-hidden="true"></canvas><canvas id="cur" style="position:fixed;pointer-events:none"></canvas><div id="msg"></div></div>
@@ -300,19 +313,19 @@ body.m.mv #mView{flex-wrap:wrap;justify-content:center;row-gap:2px}body.m.mv #mV
 </div>
 <div id="viewc" role="toolbar" aria-label="Canvas view"><button id="vFit" data-ic="fit" data-tip="Fit to screen (Ctrl+0)" aria-label="Fit to screen"></button><button id="v100" data-tip="Zoom to 100% (Ctrl+1)" aria-label="Zoom to 100%">1:1</button><button id="vOut" data-ic="minus" data-tip="Zoom out (Ctrl+−)" aria-label="Zoom out"></button><button id="zoomv" data-tip="Zoom: click for 100% (Ctrl+1), again to fit (Ctrl+0)" aria-label="Zoom level">100%</button><button id="vIn" data-ic="plus" data-tip="Zoom in (Ctrl++)" aria-label="Zoom in"></button><span class="vsep"></span><button id="vRL" data-ic="rotl" data-tip="Rotate view left 15° (Shift+R)" aria-label="Rotate view left"></button><button id="vRR" data-ic="rotr" data-tip="Rotate view right 15° (R)" aria-label="Rotate view right"></button><button id="rotv" disabled data-tip="Straighten the view (shows current angle)" aria-label="Reset rotation">0°</button><button id="vSun" data-ic="sun" data-tip="Light &amp; relief (Shift+L)" aria-label="Light and relief" aria-haspopup="dialog" aria-expanded="false" aria-controls="lp"></button><button id="vFlat" data-ic="flat" data-tip="Flat view: hide lighting to judge colour (Shift+F)" aria-label="Flat view" aria-pressed="false"></button><span class="vsep"></span><button id="vClr" data-ic="trash" data-tip="Clear layer… (Shift+Delete)" aria-label="Clear layer" aria-haspopup="dialog"></button></div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.37</span></div>
- <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tClr" data-tip="Clear layer… (Shift+Delete)" aria-label="Clear layer" aria-haspopup="dialog" data-ic="trash"></button><button class="ib dk" id="tFit" data-tip="Fit to screen" aria-label="Fit to screen" data-ic="fit"></button><button class="ib dk" id="tExp" data-tip="Export… (Ctrl+Shift+E)" aria-label="Export image" aria-haspopup="dialog" data-ic="download"></button><button class="ib dk" id="tRef" data-tip="Reference image" aria-label="Reference image" data-ic="image"></button><button class="ib dk" id="tHelp" data-tip="Help &amp; shortcuts (?)" aria-label="Help and keyboard shortcuts" aria-haspopup="dialog" data-ic="help"></button></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.38</span></div>
+ <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tExp" data-tip="Export… (Ctrl+Shift+E)" aria-label="Export image" aria-haspopup="dialog" data-ic="download"></button><span class="sep dk"></span><button class="ib dk" id="bUndo" data-tip="Undo (Ctrl+Z)" aria-label="Undo" data-ic="undo"></button><button class="ib dk" id="bRedo" data-tip="Redo (Ctrl+Shift+Z)" aria-label="Redo" data-ic="redo"></button><span class="sp dk"></span><span id="docT" class="dk"></span><span class="sp dk"></span><button class="ib dk" id="tRef" data-tip="Reference image" aria-label="Reference image" data-ic="image"></button><button class="ib dk" id="tLay" data-tip="Layers (in Settings)" aria-label="Layers" data-ic="layers"></button><button class="ib dk" id="tHelp" data-tip="Help &amp; shortcuts (?)" aria-label="Help and keyboard shortcuts" aria-haspopup="dialog" data-ic="help"></button><button class="ib dk" id="dSet" data-tip="Settings" aria-label="Settings" data-ic="sliders"></button></div>
 <!-- top-right: tools -->
-<div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button><button class="ib" id="dPencil" data-tip="Pencil (G)" aria-label="Pencil" data-ic="pencil"></button>
- <span class="sep"></span><button class="ib" id="dPre" data-tip="Brush presets (P)" aria-label="Brush presets" aria-haspopup="true"><span data-ic="presets"></span><span class="t" id="dPreT">Presets</span></button><button class="ib" id="dMed" data-tip="Choose medium" aria-label="Medium" aria-haspopup="true"><span data-ic="drop"></span><span class="t">Water</span></button>
- <span class="sep"></span><button class="ib" id="dCol" data-tip="Colour (I or Alt+click picks from the painting)" aria-label="Colour"><span class="cdot"></span></button><button class="ib" id="dSet" data-tip="Settings & layers" aria-label="Settings" data-ic="sliders"></button></div>
+<div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dPencil" data-tip="Pencil (G)" aria-label="Pencil" data-ic="pencil"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button><button class="ib" id="dPick" data-tip="Eyedropper (I or Alt+click)" aria-label="Eyedropper" data-ic="pipette"></button>
+ <span class="sep"></span><button class="ib" id="dPre" data-tip="Brush presets (P)" aria-label="Brush presets" aria-haspopup="true"><span data-ic="presets"></span><span class="t" id="dPreT">Presets</span></button><button class="ib" id="dMed" data-tip="Choose medium" aria-label="Medium" aria-haspopup="true"><span data-ic="drop"></span><span class="t">Water</span></button></div>
+<div id="colc" class="fl" aria-label="Colour"><button class="ib" id="dCol" data-tip="Colour (I or Alt+click picks from the painting)" aria-label="Colour"><span class="cdot"></span></button><div id="qsw" role="group" aria-label="Quick colours"></div></div>
 <!-- left rail -->
 <div id="rail" class="fl"><div class="vs" id="vsSize" data-t="size" data-tip="Brush size"></div><div class="vl">Size<b id="vlSize"></b></div>
  <div class="vs" id="vsLoad" data-t="wload" data-tip="Load / flow"></div><div class="vl">Flow<b id="vlLoad"></b></div>
  <div class="vs" id="vsOp" data-t="lop" data-tip="Layer opacity" style="height:110px"></div><div class="vl">Opacity<b id="vlOp"></b></div>
- <button class="ib" id="bUndo" data-tip="Undo (Ctrl+Z)" aria-label="Undo" data-ic="undo"></button><button class="ib" id="bRedo" data-tip="Redo (Ctrl+Shift+Z)" aria-label="Redo" data-ic="redo"></button></div>
+ </div>
 <!-- mobile top-right -->
-<div id="mTop" class="fl"><button class="ib" id="tRefM" aria-label="Reference image" data-ic="image"></button><button class="ib" id="tView" aria-label="Canvas view controls" aria-expanded="false" aria-controls="mView" data-ic="canvas"></button><button class="ib" id="tUndo" aria-label="Undo" data-ic="undo"></button><button class="ib" id="tRedo" aria-label="Redo" data-ic="redo"></button></div>
+<div id="mTop" class="fl"><button class="ib" id="tRefM" aria-label="Reference image" data-ic="image"></button><button class="ib" id="tLayM" aria-label="Layers" data-ic="layers"></button><button class="ib" id="tView" aria-label="Canvas view controls" aria-expanded="false" aria-controls="mView" data-ic="canvas"></button><button class="ib" id="tUndo" aria-label="Undo" data-ic="undo"></button><button class="ib" id="tRedo" aria-label="Redo" data-ic="redo"></button></div>
 <!-- v0.29 mobile canvas controls -->
 <div id="mView" class="fl" role="toolbar" aria-label="Canvas controls"><button class="ib" id="mvFit" aria-label="Fit to screen" data-ic="fit"></button><button class="ib" id="mv100" aria-label="Zoom to 100%" style="font:600 12px/1 system-ui">1:1</button><button class="ib" id="mvOut" aria-label="Zoom out" data-ic="minus"></button><button class="ib" id="mvIn" aria-label="Zoom in" data-ic="plus"></button><span class="vsep"></span><button class="ib" id="mvRL" aria-label="Rotate left 15°" data-ic="rotl"></button><button class="ib" id="mvRR" aria-label="Rotate right 15°" data-ic="rotr"></button><button class="ib" id="mvRot" aria-label="Straighten (reset rotation)">0°</button><span class="vsep"></span><button class="ib" id="mvSun" aria-label="Light and relief" aria-haspopup="dialog" aria-expanded="false" aria-controls="lp" data-ic="sun"></button><button class="ib" id="mvFlat" aria-label="Flat view" aria-pressed="false" data-ic="flat"></button><span class="vsep"></span><button class="ib" id="mvClr" aria-label="Clear canvas" data-ic="trash"></button></div>
 <dialog id="dlgClear" aria-labelledby="clT"><h2 id="clT">Clear canvas?</h2><div class="sub2" id="clSub">You can undo this.</div>
@@ -359,7 +372,7 @@ body.m.mv #mView{flex-wrap:wrap;justify-content:center;row-gap:2px}body.m.mv #mV
  <div><div class="lab"><span>Water load</span><span id="wv"></span></div><input id="wload" type="range" min="0" max="1" step="0.01" value="0.7"><div class="ends"><span>Dry brush</span><span>Dripping</span></div></div>
  <div><div class="lab"><span>Pigments</span><span id="pn"></span></div><div class="sw" id="sw"></div>
   <label class="pick"><input id="col" type="color" value="#2a6f97"> Custom colour</label></div>
- <div class="btns"><button id="bClear">Clear layer</button><button id="bDry">Dry all</button><button id="bTilt">Tilt canvas</button><button id="bSave">Quick PNG</button></div>
+ <div class="btns"><button id="bDry">Dry all</button><button id="bTilt">Tilt canvas</button><button id="bSave">Quick PNG</button></div>
 </div></details>
 <details class="g"><summary><span data-ic="sun"></span>Light &amp; relief</summary><div class="gb">
  <div><div class="lab"><span>Light direction</span><span id="lv"></span></div><input id="light" type="range" min="0" max="360" step="1" value="135"></div>
@@ -372,7 +385,7 @@ body.m.mv #mView{flex-wrap:wrap;justify-content:center;row-gap:2px}body.m.mv #mV
  <div class="lab" style="margin-top:10px"><span>Blend</span></div><select id="lblend"><option>normal</option><option>multiply</option><option>screen</option><option>overlay</option></select></div>
 </div></details>
 <details class="g"><summary><span data-ic="canvas"></span>Canvas &amp; surface</summary><div class="gb">
- <div><div class="lab"><span>Canvas</span><span id="csz"></span></div><div class="row2"><button id="bNew">New canvas…</button><button id="bFit">Fit to screen</button></div>
+ <div><div class="lab"><span>Canvas</span><span id="csz"></span></div><div class="row2"><button id="bNew">New canvas…</button></div>
   <div class="hint" id="memv" style="margin-top:8px"></div></div>
  <div><div class="lab"><span>Quality</span><span id="qv"></span></div><select id="quality" aria-describedby="qhint"><option value="auto">Auto (adapts to this GPU)</option><option value="high">High (full simulation speed)</option><option value="low">Low (weak / integrated GPUs)</option></select>
   <div class="hint" id="qhint" style="margin-top:6px">Auto measures frame time and slows the paint simulation instead of the brush when the GPU can't keep up. Low also uses half-float simulation for new canvases.</div></div>
@@ -432,14 +445,14 @@ body.m.mv #mView{flex-wrap:wrap;justify-content:center;row-gap:2px}body.m.mv #mV
 <div class="hBody">
  <nav class="hNav" aria-label="Help sections"><button type="button" data-go="hsStart"><span data-ic="brush"></span>Getting started</button><button type="button" data-go="hsPresets"><span data-ic="presets"></span>Brush presets</button><button type="button" data-go="hsWater"><span data-ic="drop"></span>Watercolour</button><button type="button" data-go="hsOil"><span data-ic="oil"></span>Oil &amp; impasto</button><button type="button" data-go="hsPen"><span data-ic="pencil"></span>Pen &amp; touch</button><button type="button" data-go="hsLayers"><span data-ic="layers"></span>Layers</button><button type="button" data-go="hsExport"><span data-ic="download"></span>Export</button><button type="button" data-go="hsKeys"><span data-ic="keys"></span>Shortcuts</button></nav>
  <section class="hSec" id="hsStart"><h3><span data-ic="brush"></span>Getting started</h3><ol class="hSteps">
-  <li><b>Pick a medium</b>Open the Medium menu (<span class="dk">top right</span><span class="mo">bottom bar</span>) and choose Watercolour, Gouache, Acrylic, Oil or Ink.</li>
+  <li><b>Pick a medium</b>Open the Medium menu (<span class="dk">the drop button at the bottom of the left tool column</span><span class="mo">bottom bar</span>) and choose Watercolour, Gouache, Acrylic, Oil or Ink.</li>
   <li><b>Pick a colour</b>The colour dot opens the pigments, a custom colour picker and your recent colours. To reuse a colour already on the canvas, tap the pipette in the colour picker and touch the painting (on a keyboard: I, or hold Alt and click). To paint from a photo, open <b>Reference image</b> in Settings<span class="dk">, the picture button at the top left,</span><span class="mo">, the picture button at the top right,</span> or drop or paste an image: it floats beside the canvas and its pipette picks colours from it. Its trace button (or T) lays it see-through over the canvas so you can follow its shapes; Move / resize in Settings (or Shift+T) lets you drag, resize and turn it into place.</li>
   <li><b>Set up the brush</b>Choose brush or palette knife and set the size <span class="dk">on the left rail</span><span class="mo">with the Size slider</span>. Brush shape, stiffness and water load are in Settings.</li>
-  <li><b>Paint</b>Drag on the paper. Made a mistake? Undo is <span class="dk">on the left rail, or <span class="kmod">Ctrl</span>+Z</span><span class="mo">at the top right</span>.</li></ol>
+  <li><b>Paint</b>Drag on the paper. Made a mistake? Undo is <span class="dk">in the top bar, or <span class="kmod">Ctrl</span>+Z</span><span class="mo">at the top right</span>.</li></ol>
   <p class="hNote">Painting feels slow? Try Settings › Canvas &amp; surface › Quality: Low.</p></section>
  <div class="hCols">
  <section class="hSec" id="hsPresets"><h3><span data-ic="presets"></span>Brush presets</h3><ul>
-  <li>Open <b>Presets</b> (<span class="dk">top right, or <span class="kmod">P</span></span><span class="mo">the grid button in the bottom bar</span>). One tap sets the medium, tool, brush shape, size, stiffness, water load, dynamics and flick together. Your colour stays.</li>
+  <li>Open <b>Presets</b> (<span class="dk">the grid button in the left tool column, or <span class="kmod">P</span></span><span class="mo">the grid button in the bottom bar</span>). One tap sets the medium, tool, brush shape, size, stiffness, water load, dynamics and flick together. Your colour stays.</li>
   <li>Built-in: watercolour round wash, wet-on-wet bloom, dry brush, watercolour detail, gouache flat, acrylic filbert, oil impasto round, oil fan blender, palette knife impasto, oil rigger, acrylic liner, ink liner and ink wash. Each card shows a stroke painted by the real engine.</li>
   <li>The active preset is highlighted. When you change one of its settings it is marked <b>modified</b> (an orange dot on the Presets button).</li>
   <li><b>Save current</b> keeps your own setup under <b>My presets</b>; rename it with the pencil, delete it with the bin (tap twice). Presets and the last active one are kept in this browser.</li>
@@ -464,7 +477,7 @@ body.m.mv #mView{flex-wrap:wrap;justify-content:center;row-gap:2px}body.m.mv #mV
   <li><b>Tilt</b> a pen to lay the brush on its side (Settings › Brush › Use pen tilt). Without one, use the Brush tilt slider.</li>
   <li><b>Flick:</b> lift while still moving for a tapered tail. Turn it off with Flick on lift.</li>
   <li><b>Touch:</b> one finger paints, a tap leaves a dab. Two fingers pinch to zoom and drag to move the canvas; twist them to rotate the view. A quick two-finger tap fits the canvas back to the screen, straight.</li>
-  <li class="mo"><b>Canvas buttons:</b> tap the frame button at the top right (next to Undo) to show a row of canvas controls: Fit, 1:1 (100%), zoom out / in, rotate left / right, the angle button to straighten, and the bin to clear. Clear asks first (this layer or all layers) and can be undone.</li>
+  <li class="mo"><b>Canvas buttons:</b> the row of canvas controls sits just above the bottom bar (the frame button at the top hides or shows it): Fit, 1:1 (100%), zoom out / in, rotate left / right, the angle button to straighten, and the bin to clear. Clear asks first (this layer or all layers) and can be undone.</li>
   <li>While you use a pen, touches are ignored for a moment, so you can rest your palm on the screen.</li>
   <li><b>Mouse:</b> the wheel zooms; hold Space and drag, or drag with the middle button, to move the canvas. The bar at the bottom zooms, shows the zoom (click it for 100%, again to fit) and rotates the view; rotating only turns your view, not the painting.</li></ul></section>
  <section class="hSec" id="hsLayers"><h3><span data-ic="layers"></span>Layers</h3><ul>
@@ -473,7 +486,7 @@ body.m.mv #mView{flex-wrap:wrap;justify-content:center;row-gap:2px}body.m.mv #mV
   <li><b>Rename:</b> the pencil button, a double-click or double-tap on the name<span class="dk">, or F2</span>.</li>
   <li>The arrows move a layer up or down; <b>Merge down</b> joins it with the layer below.</li>
   <li><b>Opacity</b> and <b>Blend</b> (normal, multiply, screen, overlay) apply to the current layer.</li>
-  <li><b>Clear layer</b> (the red bin in the top bar, the bin on the active layer row, Settings › Paint, or Shift+Delete) clears only the current layer.</li></ul></section>
+  <li><b>Clear layer</b> (the bin at the end of the view bar, the bin on the active layer row, Settings › Paint, or Shift+Delete) clears only the current layer.</li></ul></section>
  </div>
  <section class="hSec" id="hsExport"><h3><span data-ic="download"></span>Export</h3><ul>
   <li><b>Export image</b>: <span class="dk">the download button at the top left, <span class="kmod">Ctrl</span>+Shift+E, or </span>Settings › Export &amp; projects. Choose PNG, JPEG or WebP; with paper or transparent; all visible layers or the current one; 1× or 2×.<span class="mo"> Share sends it straight to another app.</span></li>
@@ -485,7 +498,7 @@ body.m.mv #mView{flex-wrap:wrap;justify-content:center;row-gap:2px}body.m.mv #mV
 </div></dialog>
 <!-- v0.22 first-run welcome card (shown once; remembered in localStorage 'seenWelcome') -->
 <div id="welcome" class="fl" role="dialog" aria-modal="false" aria-labelledby="wcT" hidden><div class="wcHead"><span class="logo"></span><div><h2 id="wcT">Welcome to Medium</h2><div class="wcSub">Realistic paint, from watercolour to thick oil.</div></div></div>
- <ol class="wcSteps"><li><b>Pick a medium</b> from the Medium menu <span class="dk">(top right)</span><span class="mo">(bottom bar)</span>.</li><li><b>Pick a colour</b> with the colour dot.</li><li><b>Paint</b> by dragging on the paper. Pen pressure and tilt work too.</li><li><b>Undo</b> is <span class="dk">on the left (<span class="kmod">Ctrl</span>+Z)</span><span class="mo">at the top right</span>; everything else is in Settings.</li></ol>
+ <ol class="wcSteps"><li><b>Pick a medium</b> from the Medium menu <span class="dk">(left tool column)</span><span class="mo">(bottom bar)</span>.</li><li><b>Pick a colour</b> with the colour dot.</li><li><b>Paint</b> by dragging on the paper. Pen pressure and tilt work too.</li><li><b>Undo</b> is <span class="dk">on the left (<span class="kmod">Ctrl</span>+Z)</span><span class="mo">at the top right</span>; everything else is in Settings.</li></ol>
  <div class="wcBtns"><button class="btn" id="wcHelp">Open help</button><button class="btn pri" id="wcOk">Got it</button></div></div>
 <script>
 "use strict";
@@ -823,7 +836,7 @@ void main(){vec4 Cb=texture(uAC,vUv),Ab=texture(uAA,vUv),Cs=texture(uLC,vUv)*uOp
 float ab=Cb.a,as=Cs.a;vec3 cb=ab>1e-5?Cb.rgb/ab:vec3(0),cs=as>1e-5?Cs.rgb/as:vec3(0);
 o0=vec4((1.-ab)*Cs.rgb+(1.-as)*Cb.rgb+as*ab*B(cb,cs),as+ab*(1.-as));
 o1=vec4(Ab.x+As.x*uOp,max(Ab.y*(1.-as),As.y*uOp),max(Ab.z*(1.-as),As.z*uOp),Ab.w+As.w*uOp);}`,
-/* v0.37: zoom-aware relief. When the canvas is shown smaller than ~0.7 screen px per canvas texel, height (paint + paper) is box-averaged into
+/* v0.38: zoom-aware relief. When the canvas is shown smaller than ~0.7 screen px per canvas texel, height (paint + paper) is box-averaged into
    a k-times smaller texture (k = 2,4,8 by zoom) and the normal/AO are taken from it with steps of k texels, so ridges and paper tooth match the
    screen-pixel footprint instead of aliasing away. uHK=1 (exports, close zoom) = the v0.36 path. */
 hdown:`uniform sampler2D uAA,uP;uniform float uDK,uPR;out vec4 o;
@@ -1257,7 +1270,7 @@ function compositeRects(rects){const B=belowSrc(),act=layers[ai],b=baseOf(act);c
 function composite(){if(ensureBelow())compFull=true;
  if(compFull){compositeRects(null);compFull=false;compTiles.clear();}else if(compTiles.size){compositeRects(spansOf(compTiles));compTiles.clear();}
  return OUT;}
-/* v0.37 light: azimuth st.light, relief st.relief + LT (elevation, strength, gloss, paper, wet sheen; flat = view-only). Defaults = v0.36 look. */
+/* v0.38 light: azimuth st.light, relief st.relief + LT (elevation, strength, gloss, paper, wet sheen; flat = view-only). Defaults = v0.36 look. */
 const LT0={el:Math.atan2(.62,.75)*180/Math.PI,str:100,gloss:100,paper:100,wet:true,flat:false};let LT=Object.assign({},LT0),ltDrag=false;
 function litU(){const a=st.light*Math.PI/180,e=LT.el*Math.PI/180,c=Math.cos(e);return{uL:[Math.cos(a)*c,Math.sin(a)*c,Math.sin(e)],uRelief:st.relief,uPR:PR[surface.type]*LT.paper/100,uLS:.8*LT.str/100,uGl:LT.gloss/100,uWS:LT.wet?1:0,uHK:1,uRB:1,uFast:0};}
 let HM=null,hmK=1;function hmFor(){const s=view.s;if(!(s<.7))return 1;return Math.min(8,Math.pow(2,Math.round(Math.log2(1/s))));}
@@ -1461,7 +1474,7 @@ function clearLayer(){pushUndo(true);clearAll();belowDirty=true;compFull=true;la
 function clearAllLayers(){pushUndo(true);clearAll();belowDirty=true;compFull=true;layers=layers.map(l=>Object.assign({},l,{tex:null}));gcTex();needRender=true;uiLayers&&uiLayers();}
 // v0.29: Clear asks first (Clear this layer / Clear all layers / Cancel); both are one undo step
 function openClear(){const d=$('dlgClear'),n=layers.length;$('clAll').hidden=n<2;$('clSub').textContent=(n>1?'Layer: '+(layers[ai].name||('Layer '+(ai+1)))+'. ':'')+'You can undo this.';if(!d.open)d.showModal();$('clCancel').focus();}
-$('bClear').onclick=openClear;$('tClr').onclick=openClear;
+
 // v0.34 [ / ] brush (or knife) size: ~12% per press, Shift = ~35%
 function sizeStep(dir,big){const t=$('size'),mn=+t.min,mx=+t.max,v=+t.value,f=big?1.35:1.12;let n=Math.round(dir>0?v*f:v/f);if(n===v)n=v+dir;n=Math.max(mn,Math.min(mx,n));t.value=n;t.dispatchEvent(new Event('input',{bubbles:true}));
  let o=$('szRead');if(!o){o=document.createElement('div');o.id='szRead';o.setAttribute('role','status');o.setAttribute('aria-live','polite');o.style.cssText='position:fixed;left:50%;top:72px;transform:translateX(-50%);z-index:55;background:#000c;color:#fff;font:600 13px/1 system-ui;padding:8px 12px;border-radius:10px;pointer-events:none;transition:opacity .2s;opacity:0';document.body.appendChild(o);}
@@ -1521,7 +1534,7 @@ function startRename(i){if(i!==ai)L_.select(i);const row=$('layers').querySelect
  inp.onblur=()=>fin(true);inp.focus();inp.select();}
 $('lAdd').onclick=()=>L_.add();$('lRen').onclick=()=>startRename(ai);$('lDel').onclick=()=>L_.del();$('lUp').onclick=()=>L_.up();$('lDown').onclick=()=>L_.down();$('lMerge').onclick=()=>L_.merge();
 let opPushed=false;$('lop').addEventListener('pointerdown',()=>{opPushed=false;});$('lop').oninput=e=>{L_.opacity(e.target.value,!opPushed);opPushed=true;};$('lblend').onchange=e=>L_.blend(e.target.value);
-$('bFit').onclick=fit;
+
 // new canvas
 function fmtMB(b){return b>1e9?(b/1e9).toFixed(2)+' GB':Math.round(b/1e6)+' MB';}
 function updEst(){const w=+$('nw').value,h=+$('nh').value;const e=memEstimate(w,h);$('nest').innerHTML='Estimated GPU memory: <b>'+fmtMB(e)+'</b> with watercolour + full undo (oil only ≈ '+fmtMB(memEstimate(w,h,1))+')'+(w>MAXTEX||h>MAXTEX?'<br><b>Too large for this GPU (max '+MAXTEX+' px).</b>':e>1.6e9?'<br><b>Probably too large; may fail on many GPUs.</b>':'')+(w*h>2*scrPx()?'<br>Larger than your screen ('+Math.round(screen.width*(devicePixelRatio||1))+' × '+Math.round(screen.height*(devicePixelRatio||1))+' px): big wet washes will simulate more slowly'+(GPUINFO.igpu?', especially on this integrated GPU':'')+'.':'');}
@@ -1658,7 +1671,7 @@ $('cpHex').onchange=e=>{let v=e.target.value.trim();if(v[0]!=='#')v='#'+v;if(/^#
 PIG.forEach(([n,c],i)=>{const b=document.createElement('button');b.className='swc';b.style.background=c||'radial-gradient(circle at 35% 35%,#fff,#cfe3ee)';b.title=n;b.setAttribute('aria-label',n);
  b.onclick=()=>{selectPig(i);if(c){hsv=rgb2hsv(hex2rgb(c));drawSV();cpMarks();addRecent(c);}syncTB();if(document.body.classList.contains('m'))closeCP();};$('cpPig').appendChild(b);});
 function openCP(){try{closeMP();}catch(_){}if(document.body.classList.contains('m'))setPanel(false);else{}hsv=rgb2hsv(hex2rgb($('col').value));cp.classList.add('open');$('dCol').classList.add('on');$('tCol').classList.add('on');
- if(!document.body.classList.contains('m')&&panel.classList.contains('open'))cp.style.right='336px';else cp.style.right='';drawSV();cpMarks();}
+ if(!document.body.classList.contains('m')&&panel.classList.contains('open'))cp.style.right='404px';else cp.style.right='';drawSV();cpMarks();}
 function closeCP(){cp.classList.remove('open');$('dCol').classList.remove('on');$('tCol').classList.remove('on');}
 $('dCol').onclick=$('tCol').onclick=()=>cp.classList.contains('open')?closeCP():openCP();$('cpClose').onclick=closeCP;
 drawHue();drawRecent();
@@ -1678,7 +1691,7 @@ $('dMed').onclick=$('tMed').onclick=()=>mp.classList.contains('open')?closeMP():
 document.addEventListener('pointerdown',e=>{if(mp.classList.contains('open')&&!mp.contains(e.target)&&!e.target.closest('#dMed,#tMed'))closeMP();},true);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMP();});
 document.addEventListener('keydown',e=>{if(e.key!=='F2'||e.ctrlKey||e.metaKey||e.altKey)return;const tg=e.target&&e.target.tagName;if(tg==='INPUT'&&e.target.type!=='range'&&e.target.type!=='checkbox'||tg==='SELECT'||tg==='TEXTAREA')return;e.preventDefault();setPanel(true);const dt=$('layers').closest('details');if(dt)dt.open=true;requestAnimationFrame(()=>startRename(ai));});
-$('tNew').onclick=()=>$('bNew').click();$('tFit').onclick=()=>homeView();
+$('tNew').onclick=()=>$('bNew').click();
 $('vIn').onclick=()=>zoomStep(1.25);$('vOut').onclick=()=>zoomStep(1/1.25);$('vRL').onclick=()=>rotStep(15);$('vRR').onclick=()=>rotStep(-15);$('rotv').onclick=()=>rotReset();$('vFit').onclick=()=>homeView();$('v100').onclick=()=>zoom100();$('vClr').onclick=openClear;
 $('zoomv').onclick=()=>{if(document.body.classList.contains('m')||Math.abs(view.s-(devicePixelRatio||1))<.01)homeView();else zoom100();};
 // v0.27 view keys: Ctrl+0 fit (and straighten), Ctrl+1 100%, Ctrl+= / Ctrl+- zoom at the centre, R / Shift+R rotate 15 deg
@@ -1688,7 +1701,7 @@ document.addEventListener('keydown',e=>{if(document.querySelector('dialog[open]'
  if(!e.altKey&&(k==='r'||k==='R')){e.preventDefault();rotStep(e.shiftKey?15:-15);}});
 // v0.29 mobile canvas controls (UI only)
 {const mvSet=on=>{document.body.classList.toggle('mv',on);$('tView').classList.toggle('on',on);$('tView').setAttribute('aria-expanded',on);try{localStorage.setItem('medium.mv',on?'1':'0');}catch(_){}};
- let mv0=false;try{mv0=localStorage.getItem('medium.mv')==='1';}catch(_){}mvSet(mv0);
+ let mv0=false;try{mv0=localStorage.getItem('medium.mv')!=='0';}catch(_){}mvSet(mv0);
  $('tView').onclick=()=>mvSet(!document.body.classList.contains('mv'));
  $('mvFit').onclick=()=>homeView();$('mv100').onclick=()=>zoom100();$('mvIn').onclick=()=>zoomStep(1.25);$('mvOut').onclick=()=>zoomStep(1/1.25);
  $('mvRL').onclick=()=>rotStep(15);$('mvRR').onclick=()=>rotStep(-15);$('mvRot').onclick=()=>rotReset();$('mvClr').onclick=openClear;
@@ -1751,7 +1764,7 @@ if(DIAG){const d=document.createElement('div');d.id='diag';d.style.cssText='posi
  rf.onclick=upd;cl.onclick=()=>d.remove();['pointerdown','pointermove','pointerup','touchstart','wheel'].forEach(t=>d.addEventListener(t,e=>e.stopPropagation()));
  d.append(pre,cp,rf,cl);document.body.appendChild(d);setTimeout(upd,300);}
 
-/* v0.37 Light & relief pop-over (☀ in the view bar, mobile canvas row). View-only; persisted in localStorage 'medium.light'. */
+/* v0.38 Light & relief pop-over (☀ in the view bar, mobile canvas row). View-only; persisted in localStorage 'medium.light'. */
 {const lp=$('lp'),dial=$('lpDial'),sun=$('lpSun');const PRE={studio:{az:135,el:LT0.el,str:100,gloss:100,relief:1.5,paper:100,wet:true,flat:false},raking:{az:160,el:12,str:140,gloss:80,relief:2.2,paper:160,wet:true,flat:false},gallery:{az:100,el:65,str:70,gloss:45,relief:1.2,paper:80,wet:true,flat:false}};
  let svT=0;const save=()=>{clearTimeout(svT);svT=setTimeout(()=>{try{localStorage.setItem('medium.light',JSON.stringify({az:st.light,relief:st.relief,el:LT.el,str:LT.str,gloss:LT.gloss,paper:LT.paper,wet:LT.wet,flat:LT.flat}));}catch(_){}},200);};
  const preOf=()=>{for(const k in PRE){const p=PRE[k];if(!LT.flat&&p.az===st.light&&Math.abs(p.el-LT.el)<.5&&p.str===LT.str&&p.gloss===LT.gloss&&Math.abs(p.relief-st.relief)<.01&&p.paper===LT.paper&&p.wet===LT.wet)return k;}return LT.flat?'flat':'';};
@@ -1783,6 +1796,16 @@ if(DIAG){const d=document.createElement('div');d.id='diag';d.style.cssText='posi
  try{const o=JSON.parse(localStorage.getItem('medium.light')||'null');if(o&&typeof o==='object'){const n=(v,d,a,b)=>typeof v==='number'&&isFinite(v)?Math.max(a,Math.min(b,v)):d;
   Object.assign(LT,{el:n(o.el,LT0.el,5,90),str:n(o.str,100,0,200),gloss:n(o.gloss,100,0,200),paper:n(o.paper,100,0,300),wet:o.wet!==false,flat:!!o.flat});setRelief(n(o.relief,1.5,0,3));setLight(n(o.az,135,0,360));}}catch(_){}
  lpSync();}
+
+/* v0.38 layout glue */
+{const tl=()=>{setPanel(true);const d=$('layers').closest('details');if(d)d.open=true;setTimeout(()=>$('layers').scrollIntoView({block:'nearest',behavior:'smooth'}),60);};
+ $('tLay').onclick=tl;$('tLayM').onclick=tl;
+ $('dPick').onclick=()=>{try{PK.on?cancelPick():startPick();}catch(e){}};
+ setInterval(()=>{try{$('dPick').classList.toggle('on',!!PK.on);}catch(_){}},300);
+ const qs=()=>{const q=$('qsw');if(!q)return;const src=[...document.querySelectorAll('#cpRec .swc')].slice(0,6);q.innerHTML='';src.forEach(b=>{const x=document.createElement('button');x.style.background=b.style.background;x.title=b.title;x.setAttribute('aria-label','Use '+b.title);x.onclick=()=>b.click();q.appendChild(x);});if(!src.length)PIG.slice(1,7).forEach((pg,i)=>{const x=document.createElement('button');x.style.background=pg[1];x.title=pg[0];x.setAttribute('aria-label','Use '+pg[0]);x.onclick=()=>{selectPig(i+1);try{syncTB();}catch(_){}};q.appendChild(x);});};
+ new MutationObserver(qs).observe($('cpRec'),{childList:true});qs();
+ const dt=()=>{try{$('docT').textContent=W+'×'+H+' · '+MEDS[st.med].name+' · '+(layers[ai]&&layers[ai].name||'');}catch(_){}};setInterval(dt,700);dt();
+}
 window.paintAPI={resetPeak:()=>{gpuPeak=gpuBytes;},pause:v=>paused=v,setMedium,setMed,medium:()=>st.med,setSize,selectPig,setHex:h=>{st.ks=hexKS(h);},clear:clearAll,undo,redo,setLight,setRelief,lightState:()=>({az:st.light,relief:st.relief,el:LT.el,str:LT.str,gloss:LT.gloss,paper:LT.paper,wet:LT.wet,flat:LT.flat,hk:hmFor()}),setLT:o=>setLT(o),
  step:n=>{for(let i=0;i<n;i++)step();render();},dryAll:()=>{st.dryAll=1;step();render();},
  L:L_,layers:()=>layers.map((l,i)=>({name:l.name,vis:l.vis,op:l.op,blend:l.blend,has:!!l.tex,active:i===ai})),setSurface,newCanvas,exportData,saveProjectBytes,openProjectBytes,fit,render:()=>render(),view,homeView,rotStep,zoom100,clearLayer,clearAllLayers,isHome:()=>isHome(),
@@ -2086,7 +2109,7 @@ function bpUI(){const s=bpState(),sig=s?s.id+'|'+s.modified+'|'+s.name:'';if(sig
  $('dPre').setAttribute('aria-label','Brush presets'+(s?': '+s.name+(s.modified?' (modified)':''):''));$('tPre').setAttribute('aria-label',$('dPre').getAttribute('aria-label'));}
 function bpOpen(){closeCP();closeMP();const m=document.body.classList.contains('m');if(m)setPanel(false);if(!bpEl.dataset.built)bpBuild();else bpEl.querySelectorAll('img:not(.ok)').forEach(im=>{const p=bpAll().find(q=>bpKey(q)===im.dataset.k);if(p)bpThumb(p);});
  if(m){bpEl.style.left='8px';bpEl.style.right='8px';bpEl.style.top='';bpEl.style.bottom='calc(72px + env(safe-area-inset-bottom))';}
- else{const a=$('dPre').getBoundingClientRect(),w=Math.min(460,innerWidth-16);bpEl.style.width=w+'px';bpEl.style.left=Math.max(8,Math.min(a.left,innerWidth-w-8))+'px';bpEl.style.right='';bpEl.style.top=(a.bottom+8)+'px';bpEl.style.bottom='';}
+ else{const a=$('dPre').getBoundingClientRect(),w=Math.min(460,innerWidth-16);bpEl.style.width=w+'px';bpEl.style.left=Math.max(8,Math.min(a.right+12,innerWidth-w-8))+'px';bpEl.style.right='';bpEl.style.top='66px';bpEl.style.bottom='';}
  bpEl.classList.add('open');$('dPre').classList.add('on');$('tPre').classList.add('on');bpLast='';bpUI();}
 function bpClose(){bpEl.classList.remove('open');$('dPre').classList.remove('on');$('tPre').classList.remove('on');}
 const bpIsOpen=()=>bpEl.classList.contains('open');
@@ -2372,4 +2395,5 @@ refUI();
 Object.assign(window.paintAPI,{refLoad:async(url,name)=>{const b=await (await fetch(url)).blob();return refSet(b,name||'Reference');},refShow,refOpen,refFit,refRemove,refPickMode:refSetPick,
  refInfo:()=>({has:!!RF.src,open:refOpen(),trace:trOn(),trOp:RF.trOp,w:RF.w,h:RF.h,w0:RF.w0,h0:RF.h0,s:RF.s,ox:RF.ox,oy:RF.oy,box:RF.box&&Object.assign({},RF.box),pick:RF.pick,name:RF.name}),
  refSampleImg:(x,y,r)=>refSample(x,y,r),refTrace:(on,op)=>{if(op!=null){RF.trOp=op;}trSet(on,true);return trOn();},refTraceOn:trOn,traceAt:(u,v)=>{const r=cvRect(),d=cv.width/r.width,q=trScr(...trBox().f(u,v));return[r.left+q[0]/d,r.top+q[1]/d];},traceAdjust:on=>{on?taStart():taEnd();return TA.on;},tracePlace:o=>{if(o)Object.assign(RF.tp,o);trSync();return Object.assign({},RF.tp);},traceAdjOn:()=>TA.on});
-</script></body></html>
+</script><script>try{const mv=document.getElementById('mView');new ResizeObserver(()=>{if(mv.offsetHeight)document.body.style.setProperty('--mvh',mv.offsetHeight+'px');}).observe(mv);}catch(_){}</script>
+</body></html>

@@ -9,7 +9,7 @@ const results=[];const errs=[];let cur='';
 const check=(ok,name,detail)=>{results.push({vp:cur,ok:!!ok,name,detail});console.log((ok?'  PASS ':'  FAIL ')+cur+' · '+name+(ok||detail===undefined?'':'  → '+JSON.stringify(detail)));};
 const VPS=[
  {name:'desktop',ctx:{viewport:{width:1440,height:900}},
-  bars:['#barL .ib','#barR .ib','#rail .ib','#rail .vs'],
+  bars:['#barL .ib','#barR .ib','#colc .ib','#rail .vs'],
   opens:[['#dSet','#panel','#dClose'],['#dCol','#cp','#cpClose'],['#tNew','#dlgNew','#nCancel']],settings:'#dSet',undo:'#bUndo',redo:'#bRedo',color:'#dCol',med:'#dMed'},
  {name:'mobile',ctx:{viewport:{width:390,height:844},deviceScaleFactor:3,hasTouch:true,isMobile:true,userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1'},
   bars:['#barL .brand','#mTop .ib','#tb .ib','#tSize'],

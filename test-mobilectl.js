@@ -11,10 +11,10 @@ try{const ctx=await b.newContext({viewport:{width:390,height:844},deviceScaleFac
  await p.evaluate(()=>document.querySelectorAll('dialog[open]').forEach(d=>d.close()));
  const V=()=>p.evaluate(()=>({s:paintAPI.view.s,r:paintAPI.view.r,dpr:devicePixelRatio,home:paintAPI.isHome(),undo:paintAPI.info().undo}));
  const deg=r=>Math.round(r*180/Math.PI);
- const hidden=await p.evaluate(()=>getComputedStyle(document.getElementById('mView')).display);check(hidden==='none','controls collapsed by default',hidden);
- await p.tap('#tView');await p.waitForTimeout(150);
+ const hidden=await p.evaluate(()=>getComputedStyle(document.getElementById('mView')).display);check(hidden!=='none','v0.38: view controls visible by default',hidden);
+ await p.tap('#tView');await p.waitForTimeout(150);check(await p.evaluate(()=>getComputedStyle(document.getElementById('mView')).display)==='none','tView hides view row');await p.tap('#tView');await p.waitForTimeout(150);
  const box=await p.evaluate(()=>{const R=id=>{const r=document.getElementById(id).getBoundingClientRect();return{x:r.left,y:r.top,w:r.width,h:r.height,b:r.bottom,r:r.right};};return{mv:R('mView'),top:R('mTop'),tb:R('tb'),barL:R('barL'),btn:[...document.querySelectorAll('#mView .ib')].map(e=>{const r=e.getBoundingClientRect();return[r.width,r.height];})};});
- check(box.mv.w>0&&box.mv.y>=box.top.b&&box.mv.b<box.tb.y&&box.mv.x>=0&&box.mv.r<=390,'bar visible, below top bar, above toolbar, on screen',box.mv);
+ check(box.mv.w>0&&box.mv.y>=box.top.b&&box.mv.b<=box.tb.y&&box.mv.x>=0&&box.mv.r<=390,'bar visible, below top bar, above toolbar, on screen',box.mv);
  check(box.btn.every(([w,h])=>w>=40&&h>=44),'targets ~44px',box.btn);
  const v0=await V();
  await p.tap('#mvIn');await p.waitForTimeout(100);let a=await V();check(a.s>v0.s*1.2,'zoom in',[v0.s,a.s]);
