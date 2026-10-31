@@ -43,15 +43,19 @@ const watch=(p,tag)=>{p.on('pageerror',x=>errs.push(tag+': '+x));p.on('console',
  const p=await ctx.newPage();watch(p,'mobile');await p.goto(URL);await p.waitForTimeout(1500);const cdp=await ctx.newCDPSession(p);
  const touch=async(type,pts)=>cdp.send('Input.dispatchTouchEvent',{type,touchPoints:pts.map((q,i)=>({x:q[0],y:q[1],id:i,radiusX:4,radiusY:4,force:.5}))});
  const st=await p.evaluate(()=>{const v=paintAPI.view,c=document.getElementById('c'),d=c.width/c.getBoundingClientRect().width,I=paintAPI.info();return{r:[v.ox/d,(c.height-v.oy)/d-I.H*v.s/d,I.W*v.s/d,I.H*v.s/d],W:I.W,H:I.H,mobile:document.body.classList.contains('m'),
-  minBtn:Math.min(...[...document.querySelectorAll('#tb .ib,#mTop .ib')].map(x=>Math.min(x.getBoundingClientRect().width,x.getBoundingClientRect().height)))};});
+  minBtn:Math.min(...[...document.querySelectorAll('#barL .ib,#barR .ib,#colc .ib,#viewc>button')].filter(x=>x.offsetParent).map(x=>Math.min(x.getBoundingClientRect().width,x.getBoundingClientRect().height)))};});
  const [L,T,Wd,Ht]=st.r;ok(st.mobile,'mobile class');ok(st.minBtn>=44,'touch targets >=44');
  const stroke=async(x0,y0,x1,y1,n=25)=>{await touch('touchStart',[[x0,y0]]);for(let i=1;i<=n;i++){const t=i/n;await touch('touchMove',[[x0+(x1-x0)*t,y0+(y1-y0)*t+12*Math.sin(t*5)]]);await p.waitForTimeout(16);}await touch('touchEnd',[]);};
- await p.tap('#dMed');await p.tap('#dCol');await p.waitForTimeout(150);ok(await p.isVisible('#cp'),'mobile picker');await p.tap('#cpPig button:nth-child(4)');
- await stroke(L+Wd*.15,T+Ht*.3,L+Wd*.85,T+Ht*.35);ok(!(await p.isVisible('#cp')),'picker closes on canvas');
- await p.tap('#dCol');await p.tap('#cpPig button:nth-child(3)');await stroke(L+Wd*.15,T+Ht*.45,L+Wd*.85,T+Ht*.5);
- await p.tap('#dMed');await p.tap('#dCol');await p.tap('#cpPig button:nth-child(2)');await stroke(L+Wd*.2,T+Ht*.6,L+Wd*.8,T+Ht*.7);
+ // v0.42: since the v0.39/40 redesign pigments live on the phone picker's Pigments tab, and tapping one closes the picker
+ const pig=async n=>{if(!(await p.isVisible('#cpPig')))await p.tap('#cpTabs [data-t=pig]');const want=await p.evaluate(n=>document.querySelector('#cpPig button:nth-child('+n+')').title,n);await p.tap('#cpPig button:nth-child('+n+')');await p.waitForTimeout(100);
+  const pn=await p.evaluate(()=>document.getElementById('pn').textContent);ok(pn.includes(want),'mobile pigment '+n+' selected ('+want+' vs '+pn+')');ok(!(await p.isVisible('#cp')),'picker closes after pigment');};
+ await p.tap('#dMed');await p.tap('#dCol');await p.waitForTimeout(150);ok(await p.isVisible('#cp'),'mobile picker');await pig(4);
+ await stroke(L+Wd*.15,T+Ht*.3,L+Wd*.85,T+Ht*.35);ok(!(await p.isVisible('#cp')),'picker closed while painting');
+ await p.tap('#dCol');await pig(3);await stroke(L+Wd*.15,T+Ht*.45,L+Wd*.85,T+Ht*.5);
+ await p.tap('#dMed');await p.tap('#dCol');await pig(2);await stroke(L+Wd*.2,T+Ht*.6,L+Wd*.8,T+Ht*.7);
  // size bar
- const hs=await (await p.$('#tSize')).boundingBox();await p.tap('#tSize',{position:{x:hs.width*.75,y:hs.height/2}});out.mobileSize=await p.evaluate(()=>document.getElementById('size').value);
+ // v0.40+: phone uses the vertical side Size slider (#vsSize) instead of the old bottom bar
+ const s0=await p.evaluate(()=>+document.getElementById('size').value);const hs=await (await p.$('#vsSize')).boundingBox();await p.tap('#vsSize',{position:{x:hs.width/2,y:hs.height*.2}});out.mobileSize=await p.evaluate(()=>document.getElementById('size').value);ok(+out.mobileSize>s0&&+out.mobileSize>80,'mobile size slider sets size');
  await p.waitForTimeout(600);const u1=await p.evaluate(()=>paintAPI.info().undo);
  const cx=L+Wd/2,cy=T+Ht/2;await touch('touchStart',[[cx-40,cy],[cx+40,cy]]);for(let i=1;i<=10;i++){await touch('touchMove',[[cx-40-i*8,cy+i*3],[cx+40+i*8,cy+i*3]]);await p.waitForTimeout(16);}await touch('touchEnd',[]);
  await p.waitForTimeout(300);const u2=await p.evaluate(()=>paintAPI.info());ok(u2.undo===u1,'pinch does not paint');

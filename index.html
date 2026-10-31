@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v0.41</title>
+<title>Medium — paint v0.42</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="app-version" content="medium-v0.41">
+<meta name="app-version" content="medium-v0.42">
 <meta name="theme-color" content="#161618">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -336,13 +336,19 @@ body.m #viewc #zoomv,body.m #viewc #rotv{min-width:44px;height:44px;align-items:
 @media (orientation:portrait){body.m #vOut,body.m #vIn,body.m #vRL,body.m #vRR{display:none!important}}
 body.m #cp,body.m #panel,body.m #bp,body.m #mp,body.m #lp,body.m.mv #panel,body.m.mv #cp{bottom:calc(56px + env(safe-area-inset-bottom))!important;top:auto;left:56px!important;right:56px!important;width:auto!important;max-height:calc(100% - 120px)!important}
 @media (max-width:420px){body.m #cp,body.m #panel,body.m #bp,body.m #mp,body.m #lp,body.m.mv #panel,body.m.mv #cp{left:4px!important;right:4px!important}}
-@media (orientation:landscape) and (max-height:520px){body.m #rail{left:56px;top:calc(58px + env(safe-area-inset-top));width:50px}body.m #rail .vs{height:54px!important}body.m #rail{gap:2px;padding:4px 3px}body.m #qsw button:nth-child(n+4){display:none}
+@media (orientation:landscape) and (max-height:520px){body.m #rail{left:56px;top:calc(58px + env(safe-area-inset-top));width:50px}body.m #rail .vs{height:48px!important}body.m #rail .railFold{height:20px;margin-top:0}body.m #rail{gap:2px;padding:4px 3px}body.m #qsw button:nth-child(n+4){display:none}
  body.m #cp,body.m #panel,body.m #bp,body.m #mp,body.m #lp,body.m.mv #panel,body.m.mv #cp{left:auto!important;right:56px!important;width:min(380px,60vw)!important;top:calc(54px + env(safe-area-inset-top))!important}}
 @media (orientation:portrait){body.m #rail .vs{height:120px!important}}
-@media (orientation:portrait) and (max-height:860px){body.m #rail .vs{height:88px!important}}
+@media (orientation:portrait) and (max-height:860px){body.m #rail .vs{height:78px!important}}
 @media (max-width:385px){body.m #barL .ib,body.m #viewc>button{width:40px;min-width:40px;flex-basis:40px}body.m #viewc #zoomv,body.m #viewc #rotv{min-width:38px}}
 body.m #lp{transform:none!important;width:auto!important;max-width:none!important}
 body.m #welcome{left:58px!important;right:58px!important;top:calc(58px + env(safe-area-inset-top))!important}
+
+/* v0.42 collapsible sliders */
+.railFold,.railChip{border:0;background:transparent;color:var(--mute);cursor:pointer;border-radius:10px;padding:0;display:flex;align-items:center;justify-content:center}
+.railFold{width:44px;height:24px;margin-top:2px}.railFold:hover,.railChip:hover{color:var(--ink);background:rgba(255,255,255,.08)}
+.railChip{display:none;flex-direction:column;width:44px;height:44px;gap:0;color:var(--ink)}.railChip b{font:600 13px/1 system-ui}.railChip svg{color:var(--mute)}
+#rail.col>*:not(.railChip){display:none!important}#rail.col .railChip{display:flex}#rail.col{padding:3px;gap:0}body:not(.m) #rail.col{top:var(--railTop,50%);transform:none}
 </style></head>
 <body>
 <div id="stage"><canvas id="c"></canvas><canvas id="trace" style="position:fixed" aria-hidden="true"></canvas><canvas id="cur" style="position:fixed;pointer-events:none"></canvas><div id="msg"></div></div>
@@ -359,16 +365,17 @@ body.m #welcome{left:58px!important;right:58px!important;top:calc(58px + env(saf
 </div>
 <div id="viewc" role="toolbar" aria-label="Canvas view"><button id="vFit" data-ic="fit" data-tip="Fit to screen (Ctrl+0)" aria-label="Fit to screen"></button><button id="v100" data-tip="Zoom to 100% (Ctrl+1)" aria-label="Zoom to 100%">1:1</button><button id="vOut" data-ic="minus" data-tip="Zoom out (Ctrl+−)" aria-label="Zoom out"></button><button id="zoomv" data-tip="Zoom: click for 100% (Ctrl+1), again to fit (Ctrl+0)" aria-label="Zoom level">100%</button><button id="vIn" data-ic="plus" data-tip="Zoom in (Ctrl++)" aria-label="Zoom in"></button><span class="vsep"></span><button id="vRL" data-ic="rotl" data-tip="Rotate view left 15° (Shift+R)" aria-label="Rotate view left"></button><button id="vRR" data-ic="rotr" data-tip="Rotate view right 15° (R)" aria-label="Rotate view right"></button><button id="rotv" disabled data-tip="Straighten the view (shows current angle)" aria-label="Reset rotation">0°</button><button id="vSun" data-ic="sun" data-tip="Light &amp; relief (Shift+L)" aria-label="Light and relief" aria-haspopup="dialog" aria-expanded="false" aria-controls="lp"></button><button id="vGrey" data-ic="grey" data-tip="Value check: greyscale view (Shift+V)" aria-label="Greyscale value check" aria-pressed="false"></button><button id="vFlat" data-ic="flat" data-tip="Flat view: hide lighting to judge colour (Shift+F)" aria-label="Flat view" aria-pressed="false"></button><span class="vsep"></span><button id="vClr" data-ic="trash" data-tip="Clear layer… (Shift+Delete)" aria-label="Clear layer" aria-haspopup="dialog"></button></div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.41</span></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.42</span></div>
  <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tExp" data-tip="Export… (Ctrl+Shift+E)" aria-label="Export image" aria-haspopup="dialog" data-ic="download"></button><button class="ib dk" id="tShare" data-tip="Share… (Ctrl+Shift+S)" aria-label="Share painting" aria-haspopup="dialog" data-ic="share"></button><span class="sep dk"></span><button class="ib dk" id="bUndo" data-tip="Undo (Ctrl+Z)" aria-label="Undo" data-ic="undo"></button><button class="ib dk" id="bRedo" data-tip="Redo (Ctrl+Shift+Z)" aria-label="Redo" data-ic="redo"></button><span class="sp dk"></span><span id="docT" class="dk"></span><span class="sp dk"></span><button class="ib dk" id="tRef" data-tip="Reference image" aria-label="Reference image" data-ic="image"></button><button class="ib dk" id="tLay" data-tip="Layers (in Settings)" aria-label="Layers" data-ic="layers"></button><button class="ib dk" id="tHelp" data-tip="Help &amp; shortcuts (?)" aria-label="Help and keyboard shortcuts" aria-haspopup="dialog" data-ic="help"></button><button class="ib dk" id="dSet" data-tip="Settings" aria-label="Settings" data-ic="sliders"></button></div>
 <!-- top-right: tools -->
 <div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dPencil" data-tip="Pencil (G)" aria-label="Pencil" data-ic="pencil"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button><button class="ib" id="dPick" data-tip="Eyedropper (I or Alt+click)" aria-label="Eyedropper" data-ic="pipette"></button>
  <span class="sep"></span><button class="ib" id="dPre" data-tip="Brush presets (P)" aria-label="Brush presets" aria-haspopup="true"><span data-ic="presets"></span><span class="t" id="dPreT">Presets</span></button><button class="ib" id="dMed" data-tip="Choose medium" aria-label="Medium" aria-haspopup="true"><span data-ic="drop"></span><span class="t">Water</span></button></div>
 <div id="colc" class="fl" aria-label="Colour"><button class="ib" id="dCol" data-tip="Colour (I or Alt+click picks from the painting)" aria-label="Colour"><span class="cdot"></span></button><div id="qsw" role="group" aria-label="Quick colours"></div></div>
 <!-- left rail -->
-<div id="rail" class="fl"><div class="vs" id="vsSize" data-t="size" data-tip="Brush size"></div><div class="vl">Size<b id="vlSize"></b></div>
+<div id="rail" class="fl"><button class="railChip" id="railChip" aria-label="Show brush sliders" aria-expanded="false" aria-controls="rail" data-tip="Show sliders"><b id="railChipV"></b><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button><div class="vs" id="vsSize" data-t="size" data-tip="Brush size"></div><div class="vl">Size<b id="vlSize"></b></div>
  <div class="vs" id="vsLoad" data-t="wload" data-tip="Load / flow"></div><div class="vl">Flow<b id="vlLoad"></b></div>
  <div class="vs" id="vsOp" data-t="lop" data-tip="Layer opacity" style="height:110px"></div><div class="vl">Opacity<b id="vlOp"></b></div>
+ <button class="railFold" id="railFold" aria-label="Hide brush sliders" aria-expanded="true" aria-controls="rail" data-tip="Hide sliders"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg></button>
  </div>
 <!-- mobile top-right -->
 <div id="mTop" class="fl"><button class="ib" id="tRefM" aria-label="Reference image" data-ic="image"></button><button class="ib" id="tLayM" aria-label="Layers" data-ic="layers"></button><button class="ib" id="tView" aria-label="Canvas view controls" aria-expanded="false" aria-controls="mView" data-ic="canvas"></button><button class="ib" id="tUndo" aria-label="Undo" data-ic="undo"></button><button class="ib" id="tRedo" aria-label="Redo" data-ic="redo"></button></div>
@@ -1712,6 +1719,12 @@ function mkSlider(el,fmt,lab){const t=$(el.dataset.t),vert=el.classList.contains
  t.addEventListener('input',draw);SL.push({draw,b:null});draw();return draw;}
 const vlSize=$('vlSize'),vlLoad=$('vlLoad'),vlOp=$('vlOp');
 mkSlider($('vsSize'),v=>v);mkSlider($('vsLoad'),v=>v);mkSlider($('vsOp'),v=>v);mkSlider($('tSize'),v=>v+' px','Size');
+// v0.42 collapsible brush sliders (state remembered; [ ] keys keep working and update the chip)
+const rail=$('rail');const railTop=()=>{const r=$('barR').getBoundingClientRect();rail.style.setProperty('--railTop',(r.bottom+8)+'px');};addEventListener('resize',railTop);function setRail(c,save){railTop();rail.classList.toggle('col',c);$('railFold').setAttribute('aria-expanded',String(!c));$('railChip').setAttribute('aria-expanded',String(!c));$('railChipV').textContent=$('size').value;if(save)try{localStorage.setItem('medium-rail',c?'1':'0');}catch(_){}if(!c)requestAnimationFrame(()=>dispatchEvent(new Event('resize')));}
+$('railFold').onclick=()=>{setRail(true,true);$('railChip').focus();};$('railChip').onclick=()=>{setRail(false,true);$('railFold').focus();};
+$('size').addEventListener('input',()=>{$('railChipV').textContent=$('size').value;});
+setRail((()=>{try{return localStorage.getItem('medium-rail')==='1';}catch(_){return false;}})(),false);
+
 // colour picker (HSV square + hue strip + pigments + recents) drives the existing #col / pigment handlers
 const cp=$('cp'),sv=$('cpSV'),hu=$('cpH'),svg_=sv.getContext('2d'),hg=hu.getContext('2d');let hsv=[210,.7,.6],recent=[];
 try{recent=JSON.parse(localStorage.getItem('medium-recent')||'[]').slice(0,18);}catch(_){}
@@ -1782,7 +1795,7 @@ let tbSig='';function syncTB(){const sig=[$('pn').textContent,$('col').value,st.
  $('dBrush').classList.toggle('on',st.tool==='brush');$('dKnife').classList.toggle('on',st.tool==='knife');$('dPencil').classList.toggle('on',st.tool==='pencil');$('tPencil').classList.toggle('on',st.tool==='pencil');
  const key=st.tool+'|'+st.med;if(key!==lastTB){lastTB=key;$('tTool').innerHTML=ic(st.tool==='knife'?'knife':'brush');$('tTool').classList.toggle('on',st.tool!=='pencil'&&false);$('tTool').setAttribute('aria-label',st.tool==='brush'?'Brush (tap for knife)':st.tool==='knife'?'Knife (tap for brush)':'Brush');
   $('dMed').innerHTML=ic(MEDS[st.med].ic)+'<span class="t">'+MEDS[st.med].lab+'</span>';$('tMed').innerHTML=ic(MEDS[st.med].ic);$('tMed').setAttribute('aria-label','Medium: '+MEDS[st.med].name);}
- vlSize.textContent=$('size').value;vlLoad.textContent=Math.round($('wload').value*100)+'%';vlOp.textContent=Math.round($('lop').value*100)+'%';
+ vlSize.textContent=$('size').value;{const cv=$('railChipV');if(cv)cv.textContent=$('size').value;}vlLoad.textContent=Math.round($('wload').value*100)+'%';vlOp.textContent=Math.round($('lop').value*100)+'%';
  $('cpPn').textContent=$('pn').textContent;[...$('cpPig').children].forEach((b,j)=>b.classList.toggle('on',!!(sw.children[j]&&sw.children[j].classList.contains('on'))));
  $('bUndo').disabled=$('tUndo').disabled=!SNAP.length;$('bRedo').disabled=$('tRedo').disabled=!REDO.length;
  document.querySelectorAll('#rail .vs,#tSize').forEach(()=>{});}
