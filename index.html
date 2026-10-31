@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v0.40</title>
+<title>Medium — paint v0.41</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="app-version" content="medium-v0.40">
+<meta name="app-version" content="medium-v0.41">
 <meta name="theme-color" content="#161618">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -149,6 +149,11 @@ body.m #cpSV{height:150px}
 body.m #cpPig,body.m #cpRec{gap:8px}
 body.m dialog{padding:18px}
 /* v0.19 export dialog */
+#dlgShr{width:min(420px,calc(100vw - 24px));max-height:calc(100% - 24px);overflow:auto;padding:18px 20px 16px;overscroll-behavior:contain}#dlgShr [hidden]{display:none!important}
+#dlgShr .shPv{margin:10px 0 4px;height:min(200px,30vh);display:flex;align-items:center;justify-content:center;background:rgba(127,127,127,.12);border-radius:10px;overflow:hidden}#dlgShr .shPv img{max-width:100%;max-height:100%;object-fit:contain;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+body.m #shCopy{display:none!important}#dlgShr .exBtns{flex-wrap:wrap}
+#dlgShr .lnk{background:none;border:0;padding:0 0 12px;color:var(--acc);font:inherit;font-size:12.5px;cursor:pointer;text-align:left;min-height:28px}body.m #dlgShr .lnk{min-height:40px}
+#shInfo{font-size:12px;color:var(--mute);margin:10px 0 12px;line-height:1.45}#shSt{font-size:12px;color:var(--mute);margin-top:8px;min-height:1em}#dlgShr.busy .exBtns .btn:not(#shClose){opacity:.5;pointer-events:none}
 #dlgExp{width:min(420px,calc(100vw - 24px));max-height:calc(100% - 24px);overflow:auto;padding:18px 20px 16px;overscroll-behavior:contain}
 #dlgExp [hidden]{display:none!important}
 #dlgExp fieldset{border:0;margin:0 0 12px;padding:0;min-width:0}
@@ -320,7 +325,7 @@ body.m #mTop,body.m #tb,body.m #mView{display:none!important}
 body.m #barR,body.m #rail,body.m #colc{display:flex!important}
 body.m #barL .ib.dk,body.m #barL .sep.dk{display:inline-flex!important}body.m #barL .sep.dk{display:none!important}
 body.m #barL{left:4px;right:4px;top:calc(4px + env(safe-area-inset-top));height:auto;padding:2px;gap:0;justify-content:space-between;border-radius:14px}
-body.m #barL .ib{width:44px;min-width:44px;height:44px;padding:0;flex:0 0 44px}body.m #barL .sp{display:none}
+body.m #barL .ib{width:44px;min-width:44px;height:44px;padding:0;flex:0 0 44px}body.m #barL #tExp{display:none!important}body.m #barL .sp{display:none}
 body.m #barL .brand{font-size:0;padding:0 2px;height:44px;gap:0}body.m #barL .brand .logo{display:none}body.m #barL .brand .ver{margin:0;font-size:9px;padding:2px 2px;letter-spacing:-.3px}body.m #barL{padding:1px}
 body.m #barR{top:calc(58px + env(safe-area-inset-top));left:4px;padding:2px;gap:0}body.m #barR .ib{width:44px;height:44px;min-width:44px}body.m #barR .sep{margin:2px 6px}
 body.m #rail{left:4px;top:calc(58px + 296px + env(safe-area-inset-top));transform:none;width:50px;padding:6px 3px;gap:4px}
@@ -354,8 +359,8 @@ body.m #welcome{left:58px!important;right:58px!important;top:calc(58px + env(saf
 </div>
 <div id="viewc" role="toolbar" aria-label="Canvas view"><button id="vFit" data-ic="fit" data-tip="Fit to screen (Ctrl+0)" aria-label="Fit to screen"></button><button id="v100" data-tip="Zoom to 100% (Ctrl+1)" aria-label="Zoom to 100%">1:1</button><button id="vOut" data-ic="minus" data-tip="Zoom out (Ctrl+−)" aria-label="Zoom out"></button><button id="zoomv" data-tip="Zoom: click for 100% (Ctrl+1), again to fit (Ctrl+0)" aria-label="Zoom level">100%</button><button id="vIn" data-ic="plus" data-tip="Zoom in (Ctrl++)" aria-label="Zoom in"></button><span class="vsep"></span><button id="vRL" data-ic="rotl" data-tip="Rotate view left 15° (Shift+R)" aria-label="Rotate view left"></button><button id="vRR" data-ic="rotr" data-tip="Rotate view right 15° (R)" aria-label="Rotate view right"></button><button id="rotv" disabled data-tip="Straighten the view (shows current angle)" aria-label="Reset rotation">0°</button><button id="vSun" data-ic="sun" data-tip="Light &amp; relief (Shift+L)" aria-label="Light and relief" aria-haspopup="dialog" aria-expanded="false" aria-controls="lp"></button><button id="vGrey" data-ic="grey" data-tip="Value check: greyscale view (Shift+V)" aria-label="Greyscale value check" aria-pressed="false"></button><button id="vFlat" data-ic="flat" data-tip="Flat view: hide lighting to judge colour (Shift+F)" aria-label="Flat view" aria-pressed="false"></button><span class="vsep"></span><button id="vClr" data-ic="trash" data-tip="Clear layer… (Shift+Delete)" aria-label="Clear layer" aria-haspopup="dialog"></button></div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.40</span></div>
- <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tExp" data-tip="Export… (Ctrl+Shift+E)" aria-label="Export image" aria-haspopup="dialog" data-ic="download"></button><span class="sep dk"></span><button class="ib dk" id="bUndo" data-tip="Undo (Ctrl+Z)" aria-label="Undo" data-ic="undo"></button><button class="ib dk" id="bRedo" data-tip="Redo (Ctrl+Shift+Z)" aria-label="Redo" data-ic="redo"></button><span class="sp dk"></span><span id="docT" class="dk"></span><span class="sp dk"></span><button class="ib dk" id="tRef" data-tip="Reference image" aria-label="Reference image" data-ic="image"></button><button class="ib dk" id="tLay" data-tip="Layers (in Settings)" aria-label="Layers" data-ic="layers"></button><button class="ib dk" id="tHelp" data-tip="Help &amp; shortcuts (?)" aria-label="Help and keyboard shortcuts" aria-haspopup="dialog" data-ic="help"></button><button class="ib dk" id="dSet" data-tip="Settings" aria-label="Settings" data-ic="sliders"></button></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.41</span></div>
+ <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tExp" data-tip="Export… (Ctrl+Shift+E)" aria-label="Export image" aria-haspopup="dialog" data-ic="download"></button><button class="ib dk" id="tShare" data-tip="Share… (Ctrl+Shift+S)" aria-label="Share painting" aria-haspopup="dialog" data-ic="share"></button><span class="sep dk"></span><button class="ib dk" id="bUndo" data-tip="Undo (Ctrl+Z)" aria-label="Undo" data-ic="undo"></button><button class="ib dk" id="bRedo" data-tip="Redo (Ctrl+Shift+Z)" aria-label="Redo" data-ic="redo"></button><span class="sp dk"></span><span id="docT" class="dk"></span><span class="sp dk"></span><button class="ib dk" id="tRef" data-tip="Reference image" aria-label="Reference image" data-ic="image"></button><button class="ib dk" id="tLay" data-tip="Layers (in Settings)" aria-label="Layers" data-ic="layers"></button><button class="ib dk" id="tHelp" data-tip="Help &amp; shortcuts (?)" aria-label="Help and keyboard shortcuts" aria-haspopup="dialog" data-ic="help"></button><button class="ib dk" id="dSet" data-tip="Settings" aria-label="Settings" data-ic="sliders"></button></div>
 <!-- top-right: tools -->
 <div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dPencil" data-tip="Pencil (G)" aria-label="Pencil" data-ic="pencil"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button><button class="ib" id="dPick" data-tip="Eyedropper (I or Alt+click)" aria-label="Eyedropper" data-ic="pipette"></button>
  <span class="sep"></span><button class="ib" id="dPre" data-tip="Brush presets (P)" aria-label="Brush presets" aria-haspopup="true"><span data-ic="presets"></span><span class="t" id="dPreT">Presets</span></button><button class="ib" id="dMed" data-tip="Choose medium" aria-label="Medium" aria-haspopup="true"><span data-ic="drop"></span><span class="t">Water</span></button></div>
@@ -458,7 +463,7 @@ body.m #welcome{left:58px!important;right:58px!important;top:calc(58px + env(saf
  <div><div class="lab"><span>Maps &amp; extras</span></div><select id="expMode" aria-label="Map or extra to export"><option value="flat">PNG – flat colour (unlit)</option><option value="height">Height map</option><option value="normal">Normal map</option><option value="layers">Transparent PNG per layer</option><option value="lit">PNG – lit relief (as seen)</option></select>
  <label class="chk"><input type="checkbox" id="exp2x"> 2× upscale</label><div class="row2" style="margin-top:10px"><button id="bExport" style="grid-column:span 2">Export map</button></div></div>
  <div><div class="lab"><span>Project</span></div><div class="row2"><button id="bSaveP">Save project</button><button id="bOpenP">Open project</button></div>
- <input type="file" id="openFile" accept=".mpaint" style="display:none">
+ <input type="file" id="openFile" accept=".mpaint,.png,image/png" style="display:none">
  <label class="chk" style="margin-top:10px"><input type="checkbox" id="autoSave" checked> Autosave in this browser</label>
  <div class="hint" id="asv" aria-live="polite">Your painting is kept on this device and reopened next time.</div></div>
 </div></details>
@@ -469,6 +474,13 @@ body.m #welcome{left:58px!important;right:58px!important;top:calc(58px + env(saf
  <select id="preset"><option value="1024x768">1024 × 768</option><option value="1536x1024">1536 × 1024</option><option value="2048x1536">2048 × 1536</option><option value="2048x2048">Square 2048</option><option value="1754x2480">A4 portrait 150 dpi (1754 × 2480)</option><option value="2480x3508">A4 portrait 300 dpi (2480 × 3508)</option><option value="3508x4961">A3 portrait 300 dpi (3508 × 4961)</option><option value="4096x4096">Square 4096</option><option value="custom">Custom…</option></select>
  <div class="r"><label>Width<input type="number" id="nw" value="1024" min="256" max="8192" inputmode="numeric"></label><span class="x">×</span><label>Height<input type="number" id="nh" value="768" min="256" max="8192" inputmode="numeric"></label></div>
  <div id="nest" class="hint"></div><div class="row2"><button id="nCancel">Cancel</button><button id="nOk">Create</button></div></dialog>
+<dialog id="dlgShr" aria-labelledby="shT" aria-describedby="shInfo"><h2 id="shT">Share painting</h2><div class="sub2">Send a picture of your painting. With the editable copy inside, a friend can open it in Medium and keep painting.</div>
+ <div class="shPv"><img id="shPrev" alt="Preview of the shared picture"></div>
+ <label class="chk"><input type="checkbox" id="shEd" checked> Include an editable copy (all layers) inside the picture</label>
+ <div id="shInfo"></div>
+ <button id="shMore" class="lnk" type="button">More export options (JPEG, transparent, 2×)…</button>
+ <div class="exBtns"><button id="shClose" class="btn">Close</button><button id="shCopy" class="btn" hidden>Copy picture</button><button id="shDl" class="btn"><span data-ic="download"></span>Download</button><button id="shGo" class="btn pri" hidden><span data-ic="share"></span><span id="shGoT">Share…</span></button></div>
+ <div id="shSt" role="status" aria-live="polite"></div></dialog>
 <dialog id="dlgExp" aria-labelledby="exT" aria-describedby="exInfo"><h2 id="exT">Export image</h2><div class="sub2">Pick a format and what to include.</div>
  <fieldset><legend>Format</legend><div class="rseg">
   <label><input type="radio" name="exFmt" value="png"><span>PNG<small>lossless</small></span></label>
@@ -1639,7 +1651,7 @@ async function openProjectBytes(bytes){const raw=new Uint8Array(await new Respon
  liveTiles=new Set();for(let k=0;k<NTX*NTY;k++){const r=tileRect(k);let live=false;for(const h of [...(hasWater?wt:[]),...ol]){for(let y=r[1];y<r[1]+r[3]&&!live;y++){const o=(y*W+r[0])*4;for(let j=o;j<o+r[2]*4;j++)if(h[j]&0x7fff){live=true;break;}}if(live)break;}if(live)liveTiles.add(k);}
  awake=new Set(liveTiles);SR.clear();lastAct=performance.now();belowDirty=true;uiLayers();needRender=true;return hdr;}
 $('bSaveP').onclick=async()=>download('painting.mpaint',new Blob([await saveProjectBytes()]));
-$('bOpenP').onclick=()=>$('openFile').click();$('openFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{await openProjectBytes(await f.arrayBuffer());}catch(err){alert('Could not open project: '+err.message);}e.target.value='';};
+$('bOpenP').onclick=()=>$('openFile').click();$('openFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{await openAnyProject(await f.arrayBuffer());}catch(err){alert('Could not open project: '+err.message);}e.target.value='';};
 // init document
 const MQ=matchMedia('(max-width:900px),(pointer:coarse)');
 let initW=1024,initH=768;if(MQ.matches){document.body.classList.add('m');const r=$('stage').getBoundingClientRect();const a=Math.max(r.width,1)/Math.max(r.height,1);if(a<1){initH=1024;initW=Math.round(1024*a/8)*8;}else{initW=1024;initH=Math.round(1024/a/8)*8;}initW=Math.max(256,initW);initH=Math.max(256,initH);}
@@ -2051,6 +2063,40 @@ dlgE.addEventListener('click',e=>{if(e.target!==dlgE||exBusy)return;const r=dlgE
 $('exCancel').onclick=()=>dlgE.close();$('exGo').onclick=()=>exRun(false);$('exShare').onclick=()=>exRun(true);
 $('tExp').onclick=openExport;$('bExpDlg').onclick=openExport;
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.shiftKey&&e.key.toLowerCase()==='e'){e.preventDefault();openExport();}});
+// ---- v0.41 share: PNG picture with an optional editable project embedded in a private PNG chunk 'mpNt' ----
+const SH_CH='mpNt';
+function pngAddChunk(png,type,data){const iend=png.length-12;const c=new Uint8Array(12+data.length),dv=new DataView(c.buffer);dv.setUint32(0,data.length);for(let i=0;i<4;i++)c[4+i]=type.charCodeAt(i);c.set(data,8);dv.setUint32(8+data.length,crc32(c.subarray(4,8+data.length)));
+ const o=new Uint8Array(png.length+c.length);o.set(png.subarray(0,iend),0);o.set(c,iend);o.set(png.subarray(iend),iend+c.length);return o;}
+const isPNG=b=>b.length>8&&b[0]===137&&b[1]===80&&b[2]===78&&b[3]===71;
+function pngProject(b){b=b instanceof Uint8Array?b:new Uint8Array(b);if(!isPNG(b))return null;const dv=new DataView(b.buffer,b.byteOffset,b.byteLength);let p=8;
+ while(p+12<=b.length){const n=dv.getUint32(p),t=String.fromCharCode(b[p+4],b[p+5],b[p+6],b[p+7]);if(t===SH_CH)return b.slice(p+8,p+8+n);if(t==='IEND')break;p+=12+n;}return null;}
+async function makeShare(withProj){const r=await exportImage({fmt:'png',bg:'paper',layers:'all',scale:1});let png=new Uint8Array(await r.blob.arrayBuffer());
+ if(withProj){const pj=new Uint8Array(await saveProjectBytes());png=pngAddChunk(png,SH_CH,pj);}
+ const name=exDefName()+'.png';return{file:new File([png],name,{type:'image/png'}),w:r.w,h:r.h,proj:withProj};}
+const dlgS=$('dlgShr');let shRes=null,shSeq=0,shURL=null;
+function shCanFiles(f){try{return!!navigator.share&&!!navigator.canShare&&navigator.canShare({files:[f||new File([new Uint8Array(1)],'t.png',{type:'image/png'})]});}catch(_){return false;}}
+const shCanCopy=()=>!!(navigator.clipboard&&navigator.clipboard.write&&window.ClipboardItem);
+function shBusy(on,msg){dlgS.classList.toggle('busy',on);['shGo','shDl','shCopy'].forEach(id=>$(id).disabled=on);$('shSt').textContent=msg||'';}
+async function shPrep(){const seq=++shSeq;shRes=null;shBusy(true,'Preparing picture…');await new Promise(r=>requestAnimationFrame(()=>setTimeout(r,0)));
+ let r;try{r=await makeShare($('shEd').checked);}catch(e){if(seq===shSeq)shBusy(false,'Could not prepare the picture: '+(e&&e.message||e));return;}
+ if(seq!==shSeq||!dlgS.open)return;shRes=r;if(shURL)URL.revokeObjectURL(shURL);shURL=URL.createObjectURL(r.file);$('shPrev').src=shURL;
+ $('shGo').hidden=!shCanFiles(r.file);$('shCopy').hidden=!shCanCopy();
+ $('shInfo').innerHTML='<b>'+r.w+' × '+r.h+' px PNG</b> · '+fmtSize(r.file.size)+(r.proj?'<br>To keep painting, your friend opens this picture in Medium with Open project, or drops it on the canvas. Send it as a file or document: apps that shrink photos (for example WhatsApp sent as a photo) remove the editable copy.':'<br>Picture only: it opens as an image, not as an editable painting.');
+ shBusy(false);}
+function openShare(){if(dlgS.open)return;closeCP();if(dlgE.open)dlgE.close();if(document.body.classList.contains('m'))setPanel(false);
+ $('shPrev').removeAttribute('src');$('shInfo').textContent='';$('shGo').hidden=!shCanFiles();$('shCopy').hidden=!shCanCopy();dlgS.showModal();shPrep();}
+async function shShare(){const r=shRes;if(!r)return;try{await navigator.share({files:[r.file],title:'My painting',text:r.proj?'Made in Medium. Open this picture in Medium to keep painting: https://wzwow.github.io/paint-sim/':undefined});dlgS.close();exToast('Shared '+r.file.name);}
+ catch(e){const n=e&&e.name;if(n==='AbortError'){$('shSt').textContent='';return;}if(n==='NotAllowedError'){$('shSt').textContent='Tap Share again to open the share sheet.';return;}download(r.file.name,r.file);dlgS.close();exToast('Sharing failed, downloaded '+r.file.name+' instead');}}
+async function shCopy(){const r=shRes;if(!r)return;try{await navigator.clipboard.write([new ClipboardItem({'image/png':r.file})]);$('shSt').textContent='Picture copied. Pasting keeps the picture only, not the editable copy.';}catch(e){$('shSt').textContent='This browser would not copy the picture; use Download instead.';}}
+$('tShare').onclick=openShare;$('shClose').onclick=()=>dlgS.close();$('shGo').onclick=shShare;$('shCopy').onclick=shCopy;
+$('shDl').onclick=()=>{const r=shRes;if(!r)return;download(r.file.name,r.file);dlgS.close();exToast('Saved '+r.file.name+' · '+fmtSize(r.file.size));};
+$('shEd').onchange=shPrep;$('shMore').onclick=()=>{dlgS.close();openExport();};
+dlgS.addEventListener('close',()=>{shSeq++;shRes=null;if(shURL){URL.revokeObjectURL(shURL);shURL=null;}$('shPrev').removeAttribute('src');});
+dlgS.addEventListener('keydown',e=>e.stopPropagation());dlgS.addEventListener('keyup',e=>e.stopPropagation());
+dlgS.addEventListener('click',e=>{if(e.target!==dlgS)return;const r=dlgS.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dlgS.close();});
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.shiftKey&&e.key.toLowerCase()==='s'){e.preventDefault();if(document.querySelector('dialog[open]:not(#dlgShr)'))return;openShare();}},true);
+async function openAnyProject(buf){const b=new Uint8Array(buf);if(isPNG(b)){const pj=pngProject(b);if(!pj)throw new Error('this picture has no editable copy inside (only pictures shared from Medium with the editable copy can be reopened)');return openProjectBytes(pj.buffer);}return openProjectBytes(buf);}
+Object.assign(window.paintAPI,{openShare,closeShare:()=>dlgS.open&&dlgS.close(),shareOpen:()=>dlgS.open,shareReady:()=>!!shRes,shareFile:()=>shRes&&shRes.file,makeShare,pngProject,openAnyProject});
 Object.assign(window.paintAPI,{exportBlob:o=>exportImage(o||{}).then(r=>r.blob),exportImage:o=>exportImage(o||{}).then(r=>({blob:r.blob,w:r.w,h:r.h,opts:r.o})),
  exportInfo:o=>{const e=exEff(o||EXO);return Object.assign(e,{w:W*e.scale,h:H*e.scale,webp:EX_WEBP,max2x:exLimit(2).ok});},exportOptions:()=>Object.assign({},EXO),
  exportFormats:()=>Object.keys(EXF).filter(k=>k!=='webp'||EX_WEBP),openExport,closeExport:()=>dlgE.open&&dlgE.close(),exportFileName:(n,f)=>exFileName(n,f||'png')});
@@ -2068,6 +2114,7 @@ const HELP_KEYS=[
  {id:'undo',keys:['['+MODK+']','[Z]'],what:'Undo'},
  {id:'redo',keys:['['+MODK+']','[Shift]','[Z]'],alt:['['+MODK+']','[Y]'],what:'Redo'},
  {id:'export',keys:['['+MODK+']','[Shift]','[E]'],what:'Export image…'},
+ {id:'share',keys:['['+MODK+']','[Shift]','[S]'],what:'Share painting… (picture with an editable copy inside)'},
  {id:'save',keys:['['+MODK+']','[S]'],what:'Save project file (.mpaint)'},
  {id:'open',keys:['['+MODK+']','[O]'],what:'Open project file'},
  {id:'help',keys:['[?]'],alt:['[F1]'],what:'Open or close this help'},
@@ -2490,7 +2537,7 @@ addEventListener('keyup',e=>{if(e.key==='Alt'&&RF.pt&&RF.pid==null&&!RF.pick&&!P
 const refImgFile=list=>[...(list||[])].find(f=>f&&/^image\//.test(f.type));
 let refDT=0;const refDragHas=e=>{const t=e.dataTransfer&&e.dataTransfer.types;return !!t&&[...t].includes('Files');};
 addEventListener('dragover',e=>{if(!refDragHas(e))return;e.preventDefault();e.dataTransfer.dropEffect='copy';document.body.classList.add('dropref');clearTimeout(refDT);refDT=setTimeout(()=>document.body.classList.remove('dropref'),300);});
-addEventListener('drop',e=>{if(!refDragHas(e))return;e.preventDefault();document.body.classList.remove('dropref');const f=refImgFile(e.dataTransfer.files);if(f)refSet(f,f.name);else toast('Drop an image (PNG, JPEG, WebP…) to use it as a reference',2600);});
+addEventListener('drop',e=>{if(!refDragHas(e))return;e.preventDefault();document.body.classList.remove('dropref');const f=refImgFile(e.dataTransfer.files);if(f&&/png/i.test(f.type||f.name)){f.arrayBuffer().then(buf=>{const pj=pngProject(new Uint8Array(buf));if(!pj){refSet(f,f.name);return;}toast('This picture has an editable Medium painting inside.',0,[['Open it',()=>openProjectBytes(pj.buffer).catch(err=>alert('Could not open project: '+err.message))],['Use as reference',()=>refSet(f,f.name)]]);});}else if(f)refSet(f,f.name);else toast('Drop an image (PNG, JPEG, WebP…) to use it as a reference',2600);});
 addEventListener('paste',e=>{if(typingIn(e.target))return;const it=[...((e.clipboardData&&e.clipboardData.items)||[])].find(i=>i.kind==='file'&&/^image\//.test(i.type));const f=it&&it.getAsFile();if(f){e.preventDefault();refSet(f,f.name&&f.name!=='image.png'?f.name:'Pasted image');}});
 /* restore from the last visit */
 if(REF_DB)(async()=>{try{const db=await asDB();const d=await new Promise((res,rej)=>{const q=db.transaction('kv').objectStore('kv').get('refimg');q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error);});
