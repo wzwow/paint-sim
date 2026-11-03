@@ -7,7 +7,7 @@ const withQ=(u,q)=>u+(u.includes('?')?'&':'?')+q;
 const VPS=[{name:'desktop',ctx:{viewport:{width:1440,height:900}}},
  {name:'mobile',ctx:{viewport:{width:390,height:844},deviceScaleFactor:3,hasTouch:true,isMobile:true}}];
 // every shortcut row the help lists must be exercised below (keeps the list honest)
-const EXPECT_KEYS=['brush','presets','knife','pencil','undo','redo','export','save','open','help','rename','layersel','pan','zoom','zoomkey','fitkey','actual','rotate','keep','pick','trace','traceadj','size','clear','esc'];
+const EXPECT_KEYS=['brush','presets','knife','pencil','undo','redo','export','share','save','open','help','rename','layersel','pan','zoom','zoomkey','fitkey','actual','rotate','keep','pick','trace','traceadj','size','clear','esc'];
 let fails=0,VER='v0.22';const check=(c,m,x)=>{console.log((c?'PASS ':'FAIL ')+m+(x!==undefined&&(!c||process.env.V)?' '+JSON.stringify(x):''));if(!c)fails++;};
 const shotName=(k,vp)=>path.join(__dirname,'screenshot-'+VER+'-'+k+'-'+vp+'.png');
 (async()=>{const b=await chromium.launch({args:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
@@ -92,6 +92,7 @@ for(const vp of VPS){console.log('== '+vp.name);const mob=vp.name==='mobile';con
   await p.keyboard.press('Control+z');await p.keyboard.press('Control+y');const u4=await st();
   check(u1===u0+1&&u2.undo===u0&&u3.undo===u0+1&&u4.undo===u0+1,'Ctrl+Z undo, Ctrl+Shift+Z and Ctrl+Y redo',{u0,u1,u2:u2.undo,u3:u3.undo,u4:u4.undo});done.add('undo');done.add('redo');
   await p.keyboard.press('Control+Shift+E');await p.waitForTimeout(300);check((await st()).exp,'Ctrl+Shift+E opens Export');await p.keyboard.press('Escape');await p.waitForTimeout(250);check(!(await st()).exp,'Esc closes Export');done.add('export');
+  await p.keyboard.press('Control+Shift+S');await p.waitForTimeout(400);check(await p.evaluate(()=>paintAPI.shareOpen()),'Ctrl+Shift+S opens Share (v0.41)');await p.waitForFunction(()=>paintAPI.shareReady(),null,{timeout:30000}).catch(()=>{});await p.keyboard.press('Escape');await p.waitForTimeout(250);check(!await p.evaluate(()=>paintAPI.shareOpen()),'Esc closes Share');done.add('share');
   {const [dl]=await Promise.all([p.waitForEvent('download',{timeout:15000}).catch(()=>null),p.keyboard.press('Control+s')]);check(dl&&/\.mpaint$/.test(dl.suggestedFilename()),'Ctrl+S saves a .mpaint project (v0.25)',dl&&dl.suggestedFilename());done.add('save');
    const [fc]=await Promise.all([p.waitForEvent('filechooser',{timeout:5000}).catch(()=>null),p.keyboard.press('Control+o')]);check(!!fc,'Ctrl+O opens the project file picker (v0.25)');done.add('open');}
   done.add('help'); // ? and F1 checked above

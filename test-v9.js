@@ -7,7 +7,9 @@ const oa=P.activeTexture;P.activeTexture=function(u){cu=u;return oa.call(this,u)
 const ob=P.bindTexture;P.bindTexture=function(t,x){if(t===this.TEXTURE_2D)unit.set(cu,x);return ob.call(this,t,x);};
 const oi=P.texImage2D;P.texImage2D=function(...a){if(a.length>=8&&a[1]===0&&typeof a[3]==='number'){const x=unit.get(cu);const b=a[3]*a[4]*bpp(this,a[2]);const old=sz.get(x)||0;sz.set(x,b);__gpu.cur+=b-old;__gpu.peak=Math.max(__gpu.peak,__gpu.cur);}return oi.apply(this,a);};
 const od=P.deleteTexture;P.deleteTexture=function(x){const b=sz.get(x);if(b){__gpu.cur-=b;sz.delete(x);}return od.call(this,x);};})();`;
-const SIZES=[[1024,768,'1024×768'],[2048,1536,'2048×1536'],[2480,3508,'A4 300dpi 2480×3508'],[4096,4096,'4096×4096']];
+// v0.43: default run is light (1024x768 + 2048x1536; ~3 min on SwiftShader). FULL=1 adds A4 300 dpi and 4096x4096 (these took >15 min / crash SwiftShader on a busy box).
+const SIZES=process.env.FULL?[[1024,768,'1024×768'],[2048,1536,'2048×1536'],[2480,3508,'A4 300dpi 2480×3508'],[4096,4096,'4096×4096']]:[[1024,768,'1024×768'],[2048,1536,'2048×1536']];
+fs.mkdirSync('/tmp/v9',{recursive:true});const fail=[];const ok=(c,m)=>{if(!c)fail.push(m);};
 (async()=>{const b=await chromium.launch({args:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
 const errs=[];
 async function open(file){const p=await b.newPage({viewport:{width:1500,height:900}});await p.addInitScript(INIT);
@@ -41,9 +43,9 @@ fs.writeFileSync('/tmp/v9/lit8.png',Buffer.from(r8.lit.split(',')[1],'base64'));
 fs.writeFileSync('/tmp/v9/v8-project.mpaint',Buffer.from(r8.proj,'base64'));
 const op=await p9.evaluate(async b64=>{const A=paintAPI;A.newCanvas(1024,768);const by=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));const h=await A.openProjectBytes(by);A.render();
  return{hdrVersion:h.version,layers:A.layers().map(l=>l.name+'/'+l.blend),flat:A.exportData('flat')[0][1].toDataURL()};},r8.proj);
-const dProj=await diffJS(p9,r8.flat,op.flat);console.log('v8 project in v9',JSON.stringify({v:op.hdrVersion,layers:op.layers,...dProj,heat:undefined}));
+const dProj=await diffJS(p9,r8.flat,op.flat);ok(op.layers.length===3,'v8 project opens with 3 layers');ok(dProj.pctOver8<1,'v8 project looks the same after opening ('+dProj.pctOver8+'% px > 8)');console.log('v8 project in v9',JSON.stringify({v:op.hdrVersion,layers:op.layers,...dProj,heat:undefined}));
 // keep painting after open + undo works
-const after=await p9.evaluate(()=>{const A=paintAPI;A.setMedium(1);A.selectPig(3);A.stroke(LN(.2,.5,.6,.55));A.step(10);const u=A.info().undo;A.undo();A.step(2);return{undoBefore:u,undoAfter:A.info().undo};});console.log('after open',JSON.stringify(after));
+const after=await p9.evaluate(()=>{const A=paintAPI;A.setMedium(1);A.selectPig(3);A.stroke(LN(.2,.5,.6,.55));A.step(10);const u=A.info().undo;A.undo();A.step(2);return{undoBefore:u,undoAfter:A.info().undo};});ok(after.undoAfter===after.undoBefore-1,'paint + undo after opening');console.log('after open',JSON.stringify(after));
 await p8.close();await p9.close();
 // ---- 3. memory / timing per size ----
 const rows=[];
@@ -71,4 +73,5 @@ let md=`# v9 performance results (test-v9.js)\n\nHeadless Chromium + **SwiftShad
 for(const r of rows)md+=r.refused?`| ${r.label} | ${r.ver} | refused: ${r.refused.replace(/\|/g,'/')} |||||||||\n`:`| ${r.label} | ${r.ver} | ${f(r.allocMB)} MB | ${f(r.curMB)} MB | ${f(r.peakMB)} MB | ${r.undo} | ${f(r.oilStroke)} | ${f(r.oilStep)} | ${f(r.wcStroke)} | ${f(r.wcStep)} | ${f(r.renderMs)} |\n`;
 md+=`\nVisual equivalence (1024×768, same seeded strokes, 3 layers incl. multiply, oil+knife+watercolour), per-pixel max channel difference 0–255:\n\n| Export | mean | max | % pixels > 8 |\n|---|---|---|---|\n| lit | ${dLit.mean} | ${dLit.max} | ${dLit.pctOver8}% |\n| flat | ${dFlat.mean} | ${dFlat.max} | ${dFlat.pctOver8}% |\n\nv8 project (.mpaint) opened in v9: layers ${op.layers.join(', ')}; flat export vs v8 original: mean ${dProj.mean}, max ${dProj.max}, ${dProj.pctOver8}% px > 8.\n`;
 fs.writeFileSync('perf-v9.md',md);
-console.log('ERRORS',errs.length?errs.slice(0,10):'none');await b.close();})();
+for(const [w,h,label] of SIZES){const a=rows.find(r=>r.ver==='v8'&&r.label===label),c=rows.find(r=>r.ver==='v9'&&r.label===label);if(a&&c&&!a.refused){ok(!c.refused,label+' opens');ok(c.allocMB<a.allocMB,label+' uses less GPU memory than v8');ok(c.undo>=a.undo,label+' undo depth >= v8');}}
+console.log('FAILS',fail.length?fail:'none');console.log('ERRORS',errs.length?errs.slice(0,10):'none');await b.close();process.exit(fail.length||errs.length?1:0);})();

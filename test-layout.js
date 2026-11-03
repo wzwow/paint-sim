@@ -19,7 +19,7 @@ try{for(const [w,h,mob] of [[2191,1304,0],[1280,800,0],[360,800,1],[412,915,1],[
  check(L.clears.length===1,'exactly one visible Clear',L.clears);check(L.fits.length===1,'exactly one visible Fit',L.fits);
  const C=s=>mob?p.tap(s):p.click(s);
  if(mob){const hid=await p.evaluate(()=>['tb','mTop','mView'].filter(i=>{const e=document.getElementById(i);return e&&getComputedStyle(e).display!=='none';}));check(!hid.length,'phone-only toolbars gone',hid);}
- {check(JSON.stringify(L.top)===JSON.stringify(['tNew','tExp','bUndo','bRedo','tRef','tLay','tHelp','dSet']),'top bar order',L.top);
+ {const expTop=L.top.includes('tExp')?['tNew','tExp','tShare','bUndo','bRedo','tRef','tLay','tHelp','dSet']:['tNew','tShare','bUndo','bRedo','tRef','tLay','tHelp','dSet'];check(JSON.stringify(L.top)===JSON.stringify(expTop),'top bar order (v0.41: Share added; phone folds Export into Share)',L.top);
   check(JSON.stringify(L.tools)===JSON.stringify(['dBrush','dPencil','dKnife','dPick','dPre','dMed']),'tool column',L.tools);
   check(L.col[0]==='dCol'&&L.q>=(mob&&h<520?3:4),'colour column with quick swatches',L);
   const tb=await p.evaluate(()=>{const a=document.getElementById('barR').getBoundingClientRect(),r=document.getElementById('rail').getBoundingClientRect();return a.right<=r.left||a.bottom<=r.top;});check(tb,'sliders sit beside/below tool column');
