@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v0.43</title>
+<title>Medium — paint v0.44</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="app-version" content="medium-v0.43">
+<meta name="app-version" content="medium-v0.44">
 <meta name="theme-color" content="#161618">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -366,7 +366,7 @@ body.m #welcome{left:58px!important;right:58px!important;top:calc(58px + env(saf
 </div>
 <div id="viewc" role="toolbar" aria-label="Canvas view"><button id="vFit" data-ic="fit" data-tip="Fit to screen (Ctrl+0)" aria-label="Fit to screen"></button><button id="v100" data-tip="Zoom to 100% (Ctrl+1)" aria-label="Zoom to 100%">1:1</button><button id="vOut" data-ic="minus" data-tip="Zoom out (Ctrl+−)" aria-label="Zoom out"></button><button id="zoomv" data-tip="Zoom: click for 100% (Ctrl+1), again to fit (Ctrl+0)" aria-label="Zoom level">100%</button><button id="vIn" data-ic="plus" data-tip="Zoom in (Ctrl++)" aria-label="Zoom in"></button><span class="vsep"></span><button id="vRL" data-ic="rotl" data-tip="Rotate view left 15° (Shift+R)" aria-label="Rotate view left"></button><button id="vRR" data-ic="rotr" data-tip="Rotate view right 15° (R)" aria-label="Rotate view right"></button><button id="rotv" disabled data-tip="Straighten the view (shows current angle)" aria-label="Reset rotation">0°</button><button id="vSun" data-ic="sun" data-tip="Light &amp; relief (Shift+L)" aria-label="Light and relief" aria-haspopup="dialog" aria-expanded="false" aria-controls="lp"></button><button id="vGrey" data-ic="grey" data-tip="Value check: greyscale view (Shift+V)" aria-label="Greyscale value check" aria-pressed="false"></button><button id="vFlat" data-ic="flat" data-tip="Flat view: hide lighting to judge colour (Shift+F)" aria-label="Flat view" aria-pressed="false"></button><span class="vsep"></span><button id="vClr" data-ic="trash" data-tip="Clear layer… (Shift+Delete)" aria-label="Clear layer" aria-haspopup="dialog"></button></div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.43</span></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.44</span></div>
  <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tExp" data-tip="Export… (Ctrl+Shift+E)" aria-label="Export image" aria-haspopup="dialog" data-ic="download"></button><button class="ib dk" id="tShare" data-tip="Share… (Ctrl+Shift+S)" aria-label="Share painting" aria-haspopup="dialog" data-ic="share"></button><span class="sep dk"></span><button class="ib dk" id="bUndo" data-tip="Undo (Ctrl+Z)" aria-label="Undo" data-ic="undo"></button><button class="ib dk" id="bRedo" data-tip="Redo (Ctrl+Shift+Z)" aria-label="Redo" data-ic="redo"></button><span class="sp dk"></span><span id="docT" class="dk"></span><span class="sp dk"></span><button class="ib dk" id="tRef" data-tip="Reference image" aria-label="Reference image" data-ic="image"></button><button class="ib dk" id="tLay" data-tip="Layers (in Settings)" aria-label="Layers" data-ic="layers"></button><button class="ib dk" id="tHelp" data-tip="Help &amp; shortcuts (?)" aria-label="Help and keyboard shortcuts" aria-haspopup="dialog" data-ic="help"></button><button class="ib dk" id="dSet" data-tip="Settings" aria-label="Settings" data-ic="sliders"></button></div>
 <!-- top-right: tools -->
 <div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dPencil" data-tip="Pencil (G)" aria-label="Pencil" data-ic="pencil"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button><button class="ib" id="dPick" data-tip="Eyedropper (I or Alt+click)" aria-label="Eyedropper" data-ic="pipette"></button>
@@ -431,6 +431,7 @@ body.m #welcome{left:58px!important;right:58px!important;top:calc(58px + env(saf
 <details class="g" open><summary><span data-ic="drop"></span>Paint</summary><div class="gb">
  <div><div class="lab"><span>Medium</span><span id="mv">Watercolour</span></div><input id="medium" type="range" min="0" max="1" step="0.01" value="0"><div class="ends"><span>Water / Ink</span><span>Gouache · Acrylic · Oil</span></div></div>
  <div><div class="lab"><span>Water load</span><span id="wv"></span></div><input id="wload" type="range" min="0" max="1" step="0.01" value="0.7"><div class="ends"><span>Dry brush</span><span>Dripping</span></div></div>
+ <div id="wcOpts"><div class="lab"><span>Edge darkening</span><span id="wrv"></span></div><input id="wrim" type="range" min="0" max="200" step="5" value="100" aria-label="Edge darkening: how much pigment a drying watercolour or ink wash carries to its edge"></div>
  <div><div class="lab"><span>Pigments</span><span id="pn"></span></div><div class="sw" id="sw"></div>
   <label class="pick"><input id="col" type="color" value="#2a6f97"> Custom colour</label></div>
  <div class="btns"><button id="bDry">Dry all</button><button id="bTilt">Tilt canvas</button><button id="bSave">Quick PNG</button></div>
@@ -804,7 +805,7 @@ for(int i=0;i<4;i++){vec2 off=i==0?vec2(tx.x,0):i==1?vec2(-tx.x,0):i==2?vec2(0,t
  vec4 sn=texture(uS,vUv+off);float pin=.2+.15*vnoise((FC.xy+off/tx)*.15);if(wn<.003&&w<pin){qi*=sn.y>.05?sn.y*smoothstep(.45,.75,vnoise((FC.xy+off/tx)*.3+3.)):0.;}
  q[i]=qi*inb(vUv+off);}
 float sum=q.x+q.y+q.z+q.w;q*=min(1.,w*.9/max(sum,1e-9));o=q;}`,
-water:`uniform sampler2D uS,uF,uD,uV,uP;uniform float uRim,uEvap,uEdgeK,uAll,uGran,uLift,uBloom,uDampDec;${O3}
+water:`uniform sampler2D uS,uF,uD,uV,uP;uniform float uRim,uEvap,uEdgeK,uAll,uGran,uLift,uBloom,uDampDec,uDep,uDepK,uDepB;${O3}
 void main(){vec2 ex=vec2(tx.x,0),ey=vec2(0,tx.y);vec4 s=texture(uS,vUv),f=texture(uF,vUv),d=texture(uD,vUv),q=texture(uV,vUv);
 float w=s.x;float outq=q.x+q.y+q.z+q.w;
 float wR=texture(uS,vUv+ex).x,wL=texture(uS,vUv-ex).x,wU=texture(uS,vUv+ey).x,wD=texture(uS,vUv-ey).x;
@@ -849,8 +850,25 @@ float inflow=iR+iL+iU+iD;vec4 lift=d*(uLift*smoothstep(.02,.1,w)+.25*s.y*clamp(i
    off into the surrounding water while the wash dried => pale frosty 'salt' speckles. Now peaks keep >= 70% of the rate and valleys get up
    to 1.8x, at the scale of the paper tooth only => darker grain in the valleys, no pale holes. */
 float phm=0.;for(int i=0;i<6;i++){float an=float(i)*1.0472+.4;phm+=texture(uP,vUv+vec2(cos(an),sin(an))*tx*3.).r;}phm/=6.;float val=clamp((phm-ph)*5.,-1.,1.);
-float rate=.0015+.22*(1.-smoothstep(0.,.05,w));rate*=mix(1.8,1.,gr)*clamp(1.+uGran*(.2+.6*gr)*val,.7,1.8);
-rate=mix(rate,1.,1.-smoothstep(.0008,.004,w));if(uAll>.5){rate=1.;w=0.;}rate=clamp(rate,0.,1.);
+// v0.44 deposition rework (watercolour/ink only; uDep=0 => exactly v0.43). v0.43 settled pigment by water DEPTH (up to 22%/step once
+// w<.05), so a thin wash dropped nearly all its pigment within ~10-40 steps, long before the edge dried, and nothing was left floating to
+// collect at the drying edge. Now pigment stays suspended while the wash is wet and settles in proportion to the water that EVAPORATES
+// (evF = fraction of this pixel's water lost this step, much larger in the fast-drying boundary band), plus the final dump at the drying
+// front below. Capillary outflow towards the evaporating edge (flux + rim drift) then carries the floating pigment out => coffee-ring rim.
+float evF=clamp(uEvap*(1.+uEdgeK*edge)/max(w,2e-4),0.,1.);
+float rateOld=.0015+.22*(1.-smoothstep(0.,.05,w));
+/* Mid settle (.045) + evap only next to PRE-SOAKED paper (damp with little water a few px away).
+   Stroke-self damp on dry paper does NOT unlock this — dry strokes keep rateOld + frontHi=.004 (v0.43 soft edges).
+   Damp-paper washes see soak neighbours → rateNew; wRimX still +38% rim drift at 100%. */
+float rateNew=.0004*uDepB+.045*(1.-smoothstep(0.,.055,w))+uDepK*evF;
+float soak=0.;
+for(int i=0;i<8;i++){float an=float(i)*.785+.2;vec2 dd=vec2(cos(an),sin(an))*tx;vec4 ns=texture(uS,vUv+dd*5.);
+ soak=max(soak,ns.y*(1.-smoothstep(0.,.04,ns.x)));}
+float dampG=smoothstep(.2,.5,soak);
+float rate=mix(rateOld,rateNew,uDep*dampG);
+float gLo=mix(.7,.94,uDep*dampG);rate*=mix(1.8,1.,gr)*clamp(1.+uGran*(.2+.6*gr)*val,gLo,1.8);
+float frontHi=.004;
+rate=mix(rate,1.,1.-smoothstep(.0008,frontHi,w));if(uAll>.5){rate=1.;w=0.;}rate=clamp(rate,0.,1.);
 d+=fn*rate;fn*=1.-rate;float damp=w>.003?min(1.,s.y+.03+w*.6):max(s.y-uDampDec,0.);if(uAll>.5)damp=0.;
 vec4 d0=texture(uD,vUv);o0=vec4(safe1(srnd(s.x,w,0.),4.),srnd(s.y,damp,1.),edge,gr);o1=safe4(srnd4(f,fn,4.),64.);o2=safe4(srnd4(d0,d,8.),256.);}`,
 // ---------- watercolour bristles ----------
@@ -1317,13 +1335,13 @@ let stepN=0;const ACT_EPS=1e-5,WET_EPS=2e-4,FINE=!matchMedia('(pointer:coarse)')
 function step(){if(st.tilt||st.dryAll)simFull();if(!inFrame)actPoll(true);else actPoll(false);if(!awake.size)return 0;const p=params();PERF.stepPx=0;
  /* v0.13: after 45 s idle the sim used to stop dead, freezing any still-wet watercolour (pigment left floating, never dried, no edge rims).
     Now wet water keeps drying with evaporation ramping up (body paint still stops at 45 s as before), so washes always finish drying. */
- const idle=performance.now()-lastAct,fin=hasWater&&drawing==null&&!st.dryAll&&idle>45000,evB=fin?Math.min(1+(idle-45000)/1500,24):1;let rc=simRects();
+ const idle=performance.now()-lastAct,fin=hasWater&&drawing==null&&!st.dryAll&&idle>45000,evB=(fin?Math.min(1+(idle-45000)/1500,24):1)*(st.evMul||1);let rc=simRects();
  /* v0.15: when most of the canvas is active, simulate it as ONE rect (one scratch band, every pixel takes the same code path).
     v0.18: decided on the real active AREA (tight rects), at 85% on desktop (40% on touch devices as before); ?simfull=1 forces it (tests). */
  if(SIMFULL||rc.area>=FULL_FRAC*W*H)rc=[[0,0,W,H]];PERF.lastArea=rc.area!=null?rc.area:W*H;
  const act=(++stepN%8===0&&!st.tilt&&!actPend)?{c:{},w:{},bb:{},bufs:[],nt:NTX*NTY}:null;const ro=st.dryAll?0:1;
  if(hasWater){simPass(P.flux,V,{uS:WT.r.t[0],uV:V.r.t[0],uP:PAPER.t[0]},{uTilt:st.tilt,uG:p.G,uEta:.03},rc,null,ro);
- simPass(P.water,WT,{uS:WT.r.t[0],uF:WT.r.t[1],uD:WT.r.t[2],uV:V.r.t[0],uP:PAPER.t[0]},{uRim:p.rim,uEvap:p.evap*evB,uEdgeK:p.edgeK,uAll:st.dryAll,uGran:p.gran,uLift:p.lift,uBloom:p.bloom,uDampDec:.0009,uFeat:FEAT[surface.type]*(st.feather!=null?st.feather:1),uFibS:surface.scale},rc,act,ro);
+ simPass(P.water,WT,{uS:WT.r.t[0],uF:WT.r.t[1],uD:WT.r.t[2],uV:V.r.t[0],uP:PAPER.t[0]},{uRim:p.rim*wRimX()*(st.rimS!=null?st.rimS:1),uEvap:p.evap*evB,uEdgeK:p.edgeK,uAll:st.dryAll,uGran:p.gran,uLift:p.lift,uBloom:p.bloom,uDampDec:.0009,uDep:wDep(),uDepK:st.depK!=null?st.depK:.12,uDepB:st.depB!=null?st.depB:1,uFeat:FEAT[surface.type]*(st.feather!=null?st.feather:1),uFibS:surface.scale},rc,act,ro);
  if(p.water>.02)simPass(P.capil,WT,{uS:WT.r.t[0],uF:WT.r.t[1],uD:WT.r.t[2],uP:PAPER.t[0]},{uCap:.16},rc,null,ro,2);} // capil never changes attachment 2
  if(!fin)simPass(P.relax,OL,{uO0:OL.r.t[0],uO1:OL.r.t[1],uO2:OL.r.t[2]},{uMu:.2,uAll:st.dryAll,uTilt:st.tilt},rc,act,ro);st.dryAll=0;needRender=true;
  /* v0.14 rules kept: a tile that still holds water never sleeps (its bbox includes wet pixels); flow across a tile border is always computed
@@ -1546,7 +1564,7 @@ const medOf=v=>v<.15?'water':v<.45?'gouache':v<.75?'acrylic':'oil';
 // legacy/continuous: slider position picks the medium along water..oil (ink is chosen from the picker and keeps the slider at 0)
 function setMedium(v,kind){v=+v;st.m=v;st.med=kind||(st.med==='ink'&&v<.15?'ink':medOf(v));$('medium').value=v;
  $('mv').textContent=MEDS[st.med].name+(st.med==='oil'?(v<.9?' (soft)':' (impasto)'):st.med==='acrylic'||st.med==='gouache'?(v<MEDS[st.med].m-.06?' (thinned)':v>MEDS[st.med].m+.06?' (heavy body)':''):'');
- try{syncTB();}catch(_){}}
+ try{syncTB();}catch(_){}{const wo=$('wcOpts');if(wo)wo.style.display=(st.med==='water'||st.med==='ink')?'':'none';}}
 function setMed(kind){setMedium(MEDS[kind].m,kind);}
 $('medium').oninput=e=>setMedium(e.target.value);setMedium(0);
 const setSize=v=>{st.size=+v;$('sv').textContent=v+' px';};$('size').oninput=e=>setSize(e.target.value);setSize(34);
@@ -1576,6 +1594,10 @@ function setKMode(v){st.kmode=v;$('kmode').querySelectorAll('button').forEach(x=
 const setStiff=v=>{st.stiff=+v;$('stiff').value=v;$('kv').textContent=Math.round(v*100)+'%';};$('stiff').oninput=e=>setStiff(e.target.value);setStiff(.5);
 const setBTilt=v=>{st.btilt=+v;$('btilt').value=v;$('tv').textContent=v+'°';};$('btilt').oninput=e=>setBTilt(e.target.value);setBTilt(0);
 const setKAng=v=>{st.kang=+v;$('kang').value=v;$('kav').textContent=(+v)+'°'+(+v<15?' flat':+v>70?' edge':'');};$('kang').oninput=e=>setKAng(e.target.value);setKAng(0);
+// v0.44 Edge darkening (watercolour + ink washes; the water sim only ever holds watercolour/ink, thick media never use it).
+// 0 = v0.43 behaviour (pigment settles by water depth); 100% = pigment floats while wet and settles as the water evaporates; 200% = stronger.
+const wDep=()=>{const v=st.wrim!=null?st.wrim:1;return Math.min(v,1);},wRimX=()=>{const v=st.wrim!=null?st.wrim:1;if(v<=0)return 1;return 1+.38*Math.min(v,1)+(v>1?(v-1)*WRX:0);};let WRX=1;
+const setWRim=v=>{st.wrim=(+v)/100;$('wrim').value=v;$('wrv').textContent=(+v)===0?'off':(+v)+'%';};$('wrim').oninput=e=>setWRim(e.target.value);setWRim(100);
 const setKLift=v=>{st.klift=(+v)/100;$('klift').value=v;$('klv').textContent=(+v)===0?'off':(+v)+'%';};$('klift').oninput=e=>setKLift(e.target.value);setKLift(100);
 const setBAng=v=>{st.bang=+v;$('bang').value=v;$('av').textContent=v+'°';};$('bang').oninput=e=>setBAng(e.target.value);setBAng(0);
 const setWLoad=v=>{st.wload=+v;$('wload').value=v;$('wv').textContent=Math.round(v*100)+'%';};$('wload').oninput=e=>setWLoad(e.target.value);setWLoad(.7);
@@ -1964,7 +1986,7 @@ window.paintAPI={resetPeak:()=>{gpuPeak=gpuBytes;},pause:v=>paused=v,setMedium,s
  setTool,setShape,setKMode,setStiff,setBTilt,setBAng,setFollow:v=>{st.follow=v;$('follow').checked=v;},
  multi(hexes){st.multi=!!hexes;$('multi').checked=!!hexes;st.stripes=hexes?hexes.map(hexKS):[];},tilt:t=>st.tilt=t,
  zoom:(cx,cy,s)=>{fit();const f=view.s*s;view.ox=cv.width/2-cx*W*f;view.oy=cv.height/2-cy*H*f;view.s=f;render();},
- setKAng:v=>setKAng(v),setKLift:v=>setKLift(v),olHeight(){const b=new Float32Array(W*H*4);gl.bindFramebuffer(gl.FRAMEBUFFER,OL.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);gl.readPixels(0,0,W,H,gl.RGBA,gl.FLOAT,b);const o=new Float32Array(W*H);let nan=0;for(let i=0;i<W*H;i++){const v=b[4*i]+b[4*i+1];if(!isFinite(v))nan++;o[i]=v;}return{h:Array.from(o),nan,W,H};},
+ setKAng:v=>setKAng(v),setKLift:v=>setKLift(v),setEvapMul:v=>{st.evMul=+v||1;},/* tests only: speeds up natural drying */setWRim:v=>setWRim(v),setDepK:v=>{st.depK=+v;},setDepB:v=>{st.depB=+v;},setRimS:v=>{st.rimS=+v;},olHeight(){const b=new Float32Array(W*H*4);gl.bindFramebuffer(gl.FRAMEBUFFER,OL.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);gl.readPixels(0,0,W,H,gl.RGBA,gl.FLOAT,b);const o=new Float32Array(W*H);let nan=0;for(let i=0;i<W*H;i++){const v=b[4*i]+b[4*i+1];if(!isFinite(v))nan++;o[i]=v;}return{h:Array.from(o),nan,W,H};},
  volume(){const pr=P.copy3;const b=new Float32Array(W*H*4);gl.bindFramebuffer(gl.FRAMEBUFFER,OL.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);
   gl.readPixels(0,0,W,H,gl.RGBA,gl.FLOAT,b);let v=0,mx=0;for(let i=0;i<W*H;i++){const t=b[4*i]+b[4*i+1];v+=t;if(t>mx)mx=t;}return{v,mx};},
  profile(y){const b=new Float32Array(W*4);gl.bindFramebuffer(gl.FRAMEBUFFER,OL.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);gl.readPixels(0,Math.round(y*H),W,1,gl.RGBA,gl.FLOAT,b);const o=[];for(let i=170;i<300;i+=2)o.push(b[4*i]+b[4*i+1]);return o;},
