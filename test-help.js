@@ -7,7 +7,7 @@ const withQ=(u,q)=>u+(u.includes('?')?'&':'?')+q;
 const VPS=[{name:'desktop',ctx:{viewport:{width:1440,height:900}}},
  {name:'mobile',ctx:{viewport:{width:390,height:844},deviceScaleFactor:3,hasTouch:true,isMobile:true}}];
 // every shortcut row the help lists must be exercised below (keeps the list honest)
-const EXPECT_KEYS=['brush','presets','knife','pencil','undo','redo','export','share','save','open','help','rename','layersel','pan','zoom','zoomkey','fitkey','actual','rotate','keep','pick','trace','traceadj','size','clear','esc'];
+const EXPECT_KEYS=['brush','presets','knife','pencil','undo','redo','export','share','save','open','help','layers','rename','layersel','pan','zoom','zoomkey','fitkey','actual','flip','rotate','keep','pick','clearbrush','trace','traceadj','size','clear','esc','replay'];
 let fails=0,VER='v0.22';const check=(c,m,x)=>{console.log((c?'PASS ':'FAIL ')+m+(x!==undefined&&(!c||process.env.V)?' '+JSON.stringify(x):''));if(!c)fails++;};
 const shotName=(k,vp)=>path.join(__dirname,'screenshot-'+VER+'-'+k+'-'+vp+'.png');
 (async()=>{const b=await chromium.launch({args:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
@@ -86,6 +86,8 @@ for(const vp of VPS){console.log('== '+vp.name);const mob=vp.name==='mobile';con
   await p.keyboard.press('b');let t=await st();await p.keyboard.press('k');let t2=await st();await p.keyboard.press('b');let t3=await st();
   check(t.tool==='brush'&&t2.tool==='knife'&&t3.tool==='brush','B / K switch brush and palette knife',[t.tool,t2.tool,t3.tool]);done.add('brush');done.add('knife');
   await p.keyboard.press('g');let tg=await st();await p.keyboard.press('b');check(tg.tool==='pencil','G switches to pencil',tg.tool);done.add('pencil');
+  {await p.keyboard.press('w');const c1=await p.evaluate(()=>paintAPI.isClr());await p.keyboard.press('w');const c2=await p.evaluate(()=>paintAPI.isClr());check(c1===true&&c2===false,'W toggles the clear water / clear medium brush (v0.46)',{c1,c2});done.add('clearbrush');}
+  {await stroke(p,.3,.4,.6,.45);await blur();await p.keyboard.press('y');await p.waitForTimeout(400);const o1=await p.evaluate(()=>!document.getElementById('rp').hidden);await p.keyboard.press('Escape');await p.waitForTimeout(200);const o2=await p.evaluate(()=>!document.getElementById('rp').hidden);check(o1&&!o2,'Y opens the replay, Esc closes it (v0.47)',{o1,o2});done.add('replay');}
   await blur();await p.keyboard.press('p');await p.waitForTimeout(150);const pp1=await p.evaluate(()=>paintAPI.presetsOpen());await p.keyboard.press('p');await p.waitForTimeout(150);const pp2=await p.evaluate(()=>paintAPI.presetsOpen());
   check(pp1&&!pp2,'P opens and closes the brush presets (v0.23)',[pp1,pp2]);done.add('presets');
   const u0=(await st()).undo;await stroke(p,.25,.55,.55,.6);const u1=(await st()).undo;await p.keyboard.press('Control+z');const u2=await st();await p.keyboard.press('Control+Shift+Z');const u3=await st();
@@ -110,6 +112,10 @@ for(const vp of VPS){console.log('== '+vp.name);const mob=vp.name==='mobile';con
    await p.keyboard.press('Control+1');await p.waitForTimeout(150);const d2=await g();check(Math.abs(d2.s-d2.dpr)<.01,'Ctrl+1 zooms to 100% (v0.27)',d2);done.add('actual');
    await p.keyboard.press('r');await p.waitForTimeout(100);const e2=await g();await p.keyboard.press('Shift+R');await p.keyboard.press('Shift+R');await p.waitForTimeout(100);const f2=await g();
    check(Math.abs(e2.r*180/Math.PI+15)<.5&&Math.abs(f2.r*180/Math.PI-15)<.5,'R / Shift+R rotate the view 15 deg (v0.27)',[e2.r,f2.r]);done.add('rotate');
+   {const fl=()=>p.evaluate(()=>[document.body.classList.contains('fh'),document.body.classList.contains('fv')]);await p.keyboard.press('h');const f1=await fl();await p.keyboard.press('Shift+H');const f2=await fl();await p.keyboard.press('h');await p.keyboard.press('Shift+H');const f3=await fl();
+    check(f1[0]&&!f1[1]&&f2[0]&&f2[1]&&!f3[0]&&!f3[1],'H / Shift+H mirror the view (v0.45)',{f1,f2,f3});done.add('flip');}
+   {const ly=()=>p.evaluate(()=>{const pn=document.getElementById('panel');return pn.classList.contains('open')&&!document.getElementById('lBody').hidden;});const was=await p.evaluate(()=>document.getElementById('panel').classList.contains('open'));if(was)await p.evaluate(()=>document.getElementById('dClose').click());
+    await p.keyboard.press('l');await p.waitForTimeout(150);const l1=await ly();await p.keyboard.press('l');await p.waitForTimeout(150);const l2=await p.evaluate(()=>document.getElementById('panel').classList.contains('open'));check(l1&&!l2,'L opens and closes the Layers tab (v0.45)',{l1,l2});done.add('layers');if(was)await p.evaluate(()=>document.getElementById('dSet').click());}
    await p.keyboard.press('Control+0');await p.waitForTimeout(150);const h2=await g();check(h2.r===0&&h2.home,'Ctrl+0 straightens the view again',h2);}
   await p.evaluate(()=>paintAPI.fit());
   check(!src||/beginStroke\(\{keep:e\.shiftKey\}\)/.test(src),'Shift at stroke start is wired to keep the brush load (source check)');

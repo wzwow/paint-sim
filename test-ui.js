@@ -12,7 +12,7 @@ const VPS=[
   bars:['#barL .ib','#barR .ib','#colc .ib','#rail .vs'],
   opens:[['#dSet','#panel','#dClose'],['#dCol','#cp','#cpClose'],['#tNew','#dlgNew','#nCancel']],settings:'#dSet',undo:'#bUndo',redo:'#bRedo',color:'#dCol',med:'#dMed'},
  {name:'mobile',ctx:{viewport:{width:390,height:844},deviceScaleFactor:3,hasTouch:true,isMobile:true,userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1'},
-  bars:['#barL .ib:not(#tExp)','#barR .ib','#colc .ib','#rail .vs','#viewc>button:not(#vOut):not(#vIn):not(#vRL):not(#vRR)'],
+  bars:['#barL .ib:not(#tExp):not(#tRep)','#barR .ib','#colc .ib','#rail .vs','#viewc>button:not(#vOut):not(#vIn):not(#vRL):not(#vRR)'],
   opens:[['#dSet','#panel','#dClose'],['#dCol','#cp','#cpClose'],['#tNew','#dlgNew','#nCancel']],dialogVia:['#dSet','summary:has-text("Canvas")','#bNew','#dlgNew','#nCancel'],settings:'#dSet',undo:'#bUndo',redo:'#bRedo',color:'#dCol',med:'#dMed'}];
 async function pixelDiff(page,a,b){return page.evaluate(async([a,b])=>{const ld=s=>new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.src='data:image/png;base64,'+s;});const[A,B]=await Promise.all([ld(a),ld(b)]);
  if(A.width!==B.width||A.height!==B.height)return 1;const c=document.createElement('canvas');c.width=A.width;c.height=A.height;const g=c.getContext('2d');g.drawImage(A,0,0);const da=g.getImageData(0,0,c.width,c.height).data;g.clearRect(0,0,c.width,c.height);g.drawImage(B,0,0);const db=g.getImageData(0,0,c.width,c.height).data;
@@ -47,7 +47,9 @@ for(const vp of VPS){cur=vp.name;console.log('== '+vp.name);const ctx=await br.n
   return{dup:Object.entries(ids).filter(([k,v])=>v>1),sums,dupSum:sums.filter((s,i)=>sums.indexOf(s)!==i),one:['#panel','#cp','#dlgNew','#surf','#layers','#expMode','#tb','#c'].map(s=>[s,document.querySelectorAll(s).length])};});
  check(!uq.dup.length,'all element ids unique',uq.dup);check(!uq.dupSum.length,'no duplicated settings sections',uq.dupSum);
  check(uq.one.every(([s,n])=>n===1),'single instance of panel/picker/dialog/Surface/Layers/Export/toolbar/canvas',uq.one);
- for(const need of ['Brush','Paint','Layers','Canvas','Export'])check(uq.sums.some(s=>s.startsWith(need)),'settings section "'+need+'" present');
+ for(const need of ['Brush','Paint','Canvas','Export'])check(uq.sums.some(s=>s.startsWith(need)),'settings section "'+need+'" present');
+ check(!uq.sums.some(s=>/^Layers/.test(s)),'Layers is not a section inside Settings (own tab)',uq.sums);
+ {const lt=await p.evaluate(()=>{const b=document.getElementById('lBody'),pb=document.getElementById('pBody');return{inTab:!!b&&b.contains(document.getElementById('layers'))&&b.contains(document.getElementById('lAdd'))&&b.contains(document.getElementById('lop'))&&b.contains(document.getElementById('lblend')),notInSettings:!!pb&&!pb.contains(document.getElementById('layers')),tabs:document.querySelectorAll('#pTabs [role=tab]').length};});check(lt.inTab&&lt.notInSettings&&lt.tabs===2,'Layers controls live in their own tab, not in Settings',lt);}
  const ovf=async(tag)=>{const o=await p.evaluate(()=>({doc:document.documentElement.scrollWidth-innerWidth,body:document.body.scrollWidth-innerWidth,sx:scrollX,pb:(()=>{const e=document.getElementById('pBody');return e.offsetParent?e.scrollWidth-e.clientWidth:0;})(),
    off:[...document.querySelectorAll('.fl,dialog[open]')].filter(e=>{const c=getComputedStyle(e);return c.display!=='none'&&c.visibility!=='hidden';}).map(e=>[e.id,e.getBoundingClientRect()]).filter(([i,b])=>b.left<-1||b.right>innerWidth+1).map(x=>x[0])}));
   check(o.doc<=0&&o.body<=0&&o.sx===0&&o.pb<=0&&!o.off.length,'no horizontal overflow ('+tag+')',o);};

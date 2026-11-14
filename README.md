@@ -21,6 +21,7 @@ Paint in the browser with watercolour, gouache, acrylic, oil, ink and pencil. Br
 - **Lighting and relief**, so thick oil catches the light; plus a greyscale value check and a flat view that hides lighting
 - **Colour tools:** pigments, a wheel or square picker, HSB/RGB numbers, warmer/cooler/lighter/darker (mixed as paint), pins, recent colours, and an eyedropper
 - **View controls:** fit, 100%, zoom, rotate, and a left–right or upside-down **flip** to check the drawing (the painting itself is not flipped)
+- **Replay and time-lapse video:** every stroke is recorded as you paint, so the replay button (or Y) paints the picture again from a blank canvas, stroke by stroke — play, pause, scrub, 1× to 64× or fit to 30 seconds — without touching your painting. **Video** saves a 15, 30 or 60 second time-lapse (MP4 where the browser can encode H.264, otherwise WebM) to download or share. On a phone, Replay is in the Share sheet. Paintings started before v0.47 have no recording.
 - **Share a PNG** with an editable copy of the project inside — open it again in Medium and keep painting
 - **Save and open** `.mpaint` project files; export PNG, JPEG or WebP, with or without the paper, at 1× or 2×
 - **Install as an app** (PWA) and keep working **offline**; work is **autosaved** on your device
@@ -34,13 +35,15 @@ Paint in the browser with watercolour, gouache, acrylic, oil, ink and pencil. Br
 
 <img src="docs/screenshots/layers.jpg" alt="The Layers tab, separate from Settings, on the desktop">
 
+<img src="docs/screenshots/replay.jpg" alt="Replay: the painting is painted again stroke by stroke, with play, scrub, speed and Video controls">
+
 ## How to use
 
 On a computer, use a mouse or a pressure-sensitive pen. Pick a medium and a brush preset, choose a colour, and paint. Size, Flow and Opacity sit under the tools on the left; colours are on the right; canvas controls (fit, zoom, rotate, flip, lighting, clear layer) run along the bottom.
 
 On a phone or tablet the layout is the same, so nothing is hidden in a different place. A keyboard is optional. The S Pen side button can open a quick colour ring (this has not been widely tested on a real device yet).
 
-Open **Layers** from the stacked-squares button, or press L. Open **Settings** from the sliders button. Help and every shortcut is under **?** or F1.
+Open **Layers** from the stacked-squares button, or press L. Open **Settings** from the sliders button. Help and every shortcut is under **?** or F1. Watch the painting being made again with the replay button (on a phone: **Share → Replay**).
 
 ## Keyboard shortcuts
 
@@ -77,6 +80,7 @@ On a Mac, use ⌘ wherever this table says Ctrl. `[` and `]` are the square-brac
 | Shift+T | Move, resize or turn the trace |
 | [ / ] | Brush, knife or pencil size smaller / bigger (Shift for bigger steps) |
 | Shift+Delete or Shift+Backspace | Clear the current layer (asks first; you can undo it) |
+| Y | Replay the painting and make a time-lapse video (Space plays or pauses, Esc closes) |
 | Esc | Close the colour picker, the Medium menu, help or a dialog |
 
 The view bar also has **Shift+L** for light and relief, **Shift+V** for a greyscale value check, and **Shift+F** for a flat view with lighting hidden.
