@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v0.47</title>
+<title>Medium — paint v0.48</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="app-version" content="medium-v0.47">
+<meta name="app-version" content="medium-v0.48">
 <meta name="theme-color" content="#161618">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -32,7 +32,7 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stro
 body.m [data-tip]:hover::after{display:none}
 /* top-left */
 #barL{top:12px;left:12px;display:flex;align-items:center;gap:2px;padding:4px}
-.brand{display:flex;align-items:center;gap:8px;padding:0 10px 0 8px;font-weight:650;font-size:14px;letter-spacing:.01em}
+.brand{position:relative;display:flex;align-items:center;gap:8px;padding:0 10px 0 8px;font-weight:650;font-size:14px;letter-spacing:.01em}
 .logo{width:22px;height:22px;border-radius:7px;background:conic-gradient(from 200deg,#6ea8ff,#b67cff,#ff8a6e,#ffd166,#6ee7b7,#6ea8ff);box-shadow:inset 0 0 0 1px #fff3}
 .ver{font-size:10.5px;font-weight:700;color:var(--acc);background:var(--accS);padding:2px 6px;border-radius:6px;letter-spacing:.04em}
 /* top-right */
@@ -385,7 +385,7 @@ body:not(.m) #rail.fit .vs{height:var(--vsH)!important}body:not(.m) #rail.tight{
 #rpPB{height:6px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}#rpPB i{display:block;height:100%;width:0;background:var(--acc);transition:width .2s}
 #rpPrev{width:100%;max-height:34vh;border-radius:10px;background:#000}
 .rpVb{display:flex;gap:8px}#rp [hidden]{display:none!important}.rpVb .btn{flex:1 1 0}
-body.m #barL #tRep{display:none!important}#shRep{display:flex;align-items:center;gap:6px}
+body.m #barL #tRep{display:none!important}.recDot{position:absolute;top:3px;right:1px;width:7px;height:7px;border-radius:50%;background:#e5383b;box-shadow:0 0 0 1.5px var(--bg,#fff);pointer-events:auto;animation:recPulse 2.4s ease-in-out infinite}.recDot[hidden]{display:none}@keyframes recPulse{50%{opacity:.45}}@media (prefers-reduced-motion:reduce){.recDot{animation:none}}body.m #barL .brand .recDot{top:4px;right:-1px}#shRecW{margin-top:2px}#shRecW .hint,#gRec .hint{margin-top:4px}#shRep{display:flex;align-items:center;gap:6px}
 @media (max-width:620px){#rpBar{gap:2px}#rpTime{min-width:76px}}
 /* inside the replay iframe: canvas only */
 body.rp>*:not(#stage){display:none!important}body.rp #trace,body.rp #cur,body.rp #msg{display:none!important}body.rp #c{cursor:default;touch-action:auto}
@@ -406,7 +406,7 @@ body.rp.vexp #c{object-fit:contain}
 </div>
 <div id="viewc" role="toolbar" aria-label="Canvas view"><button id="vFit" data-ic="fit" data-tip="Fit to screen (Ctrl+0)" aria-label="Fit to screen"></button><button id="v100" data-tip="Zoom to 100% (Ctrl+1)" aria-label="Zoom to 100%">1:1</button><button id="vOut" data-ic="minus" data-tip="Zoom out (Ctrl+−)" aria-label="Zoom out"></button><button id="zoomv" data-tip="Zoom: click for 100% (Ctrl+1), again to fit (Ctrl+0)" aria-label="Zoom level">100%</button><button id="vIn" data-ic="plus" data-tip="Zoom in (Ctrl++)" aria-label="Zoom in"></button><span class="vsep"></span><button id="vRL" data-ic="rotl" data-tip="Rotate view left 15° (Shift+R)" aria-label="Rotate view left"></button><button id="vRR" data-ic="rotr" data-tip="Rotate view right 15° (R)" aria-label="Rotate view right"></button><button id="rotv" disabled data-tip="Straighten the view (shows current angle)" aria-label="Reset rotation">0°</button><button id="vFH" data-ic="fliph" data-tip="Mirror view left–right (H)" aria-label="Flip view horizontally" aria-pressed="false"></button><button id="vFV" data-ic="flipv" data-tip="Mirror view upside down (Shift+H)" aria-label="Flip view vertically" aria-pressed="false"></button><button id="vSun" data-ic="sun" data-tip="Light &amp; relief (Shift+L)" aria-label="Light and relief" aria-haspopup="dialog" aria-expanded="false" aria-controls="lp"></button><button id="vGrey" data-ic="grey" data-tip="Value check: greyscale view (Shift+V)" aria-label="Greyscale value check" aria-pressed="false"></button><button id="vFlat" data-ic="flat" data-tip="Flat view: hide lighting to judge colour (Shift+F)" aria-label="Flat view" aria-pressed="false"></button><span class="vsep"></span><button id="vClr" data-ic="trash" data-tip="Clear layer… (Shift+Delete)" aria-label="Clear layer" aria-haspopup="dialog"></button></div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.47</span></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.48</span><span id="recDot" class="recDot" role="img" aria-label="Recording strokes for replay" title="Recording strokes for replay (Settings › Replay &amp; recording)" hidden></span></div>
  <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tExp" data-tip="Export… (Ctrl+Shift+E)" aria-label="Export image" aria-haspopup="dialog" data-ic="download"></button><button class="ib dk" id="tShare" data-tip="Share… (Ctrl+Shift+S)" aria-label="Share painting" aria-haspopup="dialog" data-ic="share"></button><button class="ib dk" id="tRep" data-tip="Replay &amp; time-lapse video (Y)" aria-label="Replay painting" aria-haspopup="dialog" aria-expanded="false" data-ic="replay"></button><span class="sep dk"></span><button class="ib dk" id="bUndo" data-tip="Undo (Ctrl+Z)" aria-label="Undo" data-ic="undo"></button><button class="ib dk" id="bRedo" data-tip="Redo (Ctrl+Shift+Z)" aria-label="Redo" data-ic="redo"></button><span class="sp dk"></span><span id="docT" class="dk"></span><span class="sp dk"></span><button class="ib dk" id="tRef" data-tip="Reference image" aria-label="Reference image" data-ic="image"></button><button class="ib dk" id="tLay" data-tip="Layers (L)" aria-label="Layers" aria-expanded="false" aria-controls="panel" data-ic="layers"></button><button class="ib dk" id="tHelp" data-tip="Help &amp; shortcuts (?)" aria-label="Help and keyboard shortcuts" aria-haspopup="dialog" data-ic="help"></button><button class="ib dk" id="dSet" data-tip="Settings" aria-label="Settings" data-ic="sliders"></button></div>
 <!-- top-right: tools -->
 <div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dPencil" data-tip="Pencil (G)" aria-label="Pencil" data-ic="pencil"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button><button class="ib" id="dPick" data-tip="Eyedropper (I or Alt+click)" aria-label="Eyedropper" data-ic="pipette"></button>
@@ -501,6 +501,7 @@ body.rp.vexp #c{object-fit:contain}
  <div class="hint" style="margin-top:6px">Tracing lays the reference over the canvas, see-through, so you can follow its shapes. Use Move / resize (or Shift+T) to drag it into place, pinch or scroll to resize and twist or Shift+scroll to turn it; painting pauses until you tap Done. It moves with zoom and rotation and is never painted or exported.</div>
  <div class="hint" id="refMsg" aria-live="polite" style="margin-top:8px">No reference image yet.</div>
  <input type="file" id="refFile" accept="image/*" style="display:none"></div></div></details>
+<details class="g" id="gRec"><summary><span data-ic="replay"></span>Replay &amp; recording</summary><div class="gb"><div><label class="chk" style="margin-top:0"><input type="checkbox" id="recOn"> Record strokes for replay &amp; time-lapse</label><div class="hint" id="recSt" aria-live="polite"></div><div class="row2" style="margin-top:8px"><button id="bRecPlay" aria-haspopup="dialog">Replay…</button><button id="bRecClr" disabled>Clear recording</button></div><div class="hint">Off by default. When on, a small red dot shows by the version number, and the recording is kept with your painting (autosave, project files, shared pictures).</div></div></div></details>
 <details class="g"><summary><span data-ic="download"></span>Export &amp; projects</summary><div class="gb">
  <div><button id="bExpDlg" class="btn pri" style="width:100%" aria-haspopup="dialog"><span data-ic="download"></span>Export image…</button><div class="hint" style="margin-top:8px">PNG, JPEG or WebP · with paper or transparent · all layers or the current one · 1× or 2×</div></div>
  <div><div class="lab"><span>Maps &amp; extras</span></div><select id="expMode" aria-label="Map or extra to export"><option value="flat">PNG – flat colour (unlit)</option><option value="height">Height map</option><option value="normal">Normal map</option><option value="layers">Transparent PNG per layer</option><option value="lit">PNG – lit relief (as seen)</option></select>
@@ -530,6 +531,7 @@ body.rp.vexp #c{object-fit:contain}
  <div id="shInfo"></div>
  <button id="shMore" class="lnk" type="button">More export options (JPEG, transparent, 2×)…</button>
  <button id="shRep" class="lnk" type="button">Replay the painting or make a time-lapse video…</button>
+ <div id="shRecW"><label class="chk"><input type="checkbox" id="shRec"> Record strokes for replay &amp; time-lapse</label><div class="hint" id="shRecSt" aria-live="polite"></div></div>
  <div class="exBtns"><button id="shClose" class="btn">Close</button><button id="shCopy" class="btn" hidden>Copy picture</button><button id="shDl" class="btn"><span data-ic="download"></span>Download</button><button id="shGo" class="btn pri" hidden><span data-ic="share"></span><span id="shGoT">Share…</span></button></div>
  <div id="shSt" role="status" aria-live="polite"></div></dialog>
 <dialog id="dlgExp" aria-labelledby="exT" aria-describedby="exInfo"><h2 id="exT">Export image</h2><div class="sub2">Pick a format and what to include.</div>
@@ -607,7 +609,7 @@ body.rp.vexp #c{object-fit:contain}
   <li><b>Export image</b>: <span class="dk">the download button at the top left, <span class="kmod">Ctrl</span>+Shift+E, or </span>Settings › Export &amp; projects. Choose PNG, JPEG or WebP; with paper or transparent; all visible layers or the current one; 1× or 2×.<span class="mo"> Share sends it straight to another app.</span></li>
   <li><b>Save project</b> keeps your layers and paint so you can open the file and carry on later.</li>
   <li><b>Maps &amp; extras</b> exports height and normal maps, or one PNG per layer.</li>
-  <li><b>Replay &amp; time-lapse</b>: the replay button at the top<span class="dk"> (or Y)</span> — on a phone, <b>Share → Replay</b> — paints your picture again from a blank canvas, stroke by stroke, at the speed you choose. <b>Video</b> saves it as a 15, 30 or 60 second time-lapse (MP4, or WebM in some browsers). Every stroke is recorded automatically and kept in autosave, project files and shared pictures. Paintings started before v0.47 can't be replayed.</li>
+  <li><b>Replay &amp; time-lapse</b>: the replay button at the top<span class="dk"> (or Y)</span> — on a phone, <b>Share → Replay</b> — paints your picture again from a blank canvas, stroke by stroke, at the speed you choose. <b>Video</b> saves it as a 15, 30 or 60 second time-lapse (MP4, or WebM in some browsers). Recording is <b>off by default</b>: turn on <b>Record strokes</b> in Settings › Replay &amp; recording or in the Share sheet. While it's on, a small red dot shows by the version number and the strokes are kept in autosave, project files and shared pictures. Replay always starts from blank paper, so recording starts on a blank canvas: switching it on after you've painted starts it with your next new canvas. Paintings with a recording can still be replayed when recording is off.</li>
   <li><b>Install as an app</b>: Settings › Install &amp; offline<span class="dk">, or the install icon in Chrome's address bar</span><span class="mo">, or your browser menu › Add to Home screen</span>. It then opens in its own window and works offline; your autosaved painting is shared with the browser tab.</li></ul></section>
  <section class="hSec" id="hsKeys"><h3><span data-ic="keys"></span>Keyboard shortcuts</h3><table class="hKeys" id="hKeys"><tbody></tbody></table><p class="hNote mo">Shortcuts need a keyboard, for example on a tablet with a keyboard cover.</p></section>
  <div class="hFoot"><span>Medium <span id="hVer"></span></span><button class="btn pri" id="hDone">Done</button></div>
@@ -1160,21 +1162,23 @@ const st={phard:.5,pgrain:.5,pcol:'g',m:0,med:'water',size:34,ks:hexKS(PIG[0][1]
    the same inputs. Replay runs in a sandbox copy of the app (the ?replay=1 iframe), never on the real painting. */
 const REPLAY=new URLSearchParams(location.search).has('replay');const SANDBOX=THUMBS||REPLAY;
 let REC=null,RNG=Math.random,VT=null,VFIX=null;const rnd=()=>RNG();
+// v0.48: recording is off unless the user switches it on (remembered in localStorage 'recordStrokes')
+let RECPREF=false;try{RECPREF=localStorage.getItem('recordStrokes')==='1';}catch(_){}
 const now_=()=>VT!=null?VT:performance.now(); // sim clock: real time while painting; the recorded time while replaying
 const REC_MAXS=1500000,REC_MAXE=400000,REC_SW=9; // caps: ~1.5 M pen samples (~54 MB) and 400 k other entries, then recording stops
 function recT(){return performance.now()-REC.t0+REC.tOff;}
-function recNew(){const t=performance.now();return{on:!SANDBOX,W,H,sc0:stepN,pn0:t,t0:t,tOff:0,ev:[],S:new Float32Array(REC_SW*4096),ns:0,M:new Float64Array(3*1024),nm:0,last:null,stroke:null,full:false,nonblank:false,lm:-1};}
+function recNew(){const t=performance.now();return{on:!SANDBOX&&RECPREF,W,H,sc0:stepN,pn0:t,t0:t,tOff:0,ev:[],S:new Float32Array(REC_SW*4096),ns:0,M:new Float64Array(3*1024),nm:0,last:null,stroke:null,full:false,nonblank:false,lm:-1,dirty:false,fz:null};}
 function recLive(){return!!(REC&&REC.on&&!REC.full);}
 function recSnap(){const o={};const put=(p,obj,skip)=>{for(const k in obj){if(k===skip)continue;const v=obj[k];o[p+k]=v!==null&&typeof v==='object'?'\u0001'+JSON.stringify(v):v;}};
  put('s.',st,'dryAll');put('f.',surface);put('l.',LT);put('c.',CLR);return o;}
 function recCap(){if(REC.ev.length>=REC_MAXE||REC.ns>=REC_MAXS){REC.full=true;return false;}return true;}
 function recSync(){if(!recLive())return;const s=recSnap();if(!REC.last){REC.last=s;REC.ev.push(['S',stepN,recT(),s]);return;}
  let d=null;for(const k in s)if(s[k]!==REC.last[k])(d||(d={}))[k]=s[k];if(d){REC.last=s;if(recCap())REC.ev.push(['s',stepN,recT(),d]);}}
-function recEv(type,...a){if(!recLive())return;recSync();if(!recCap())return;REC.ev.push([type,stepN,recT(),...a]);}
+function recEv(type,...a){if(!recLive()){if(REC&&!REPLAY)REC.dirty=true;return;}recSync();if(!recCap())return;REC.ev.push([type,stepN,recT(),...a]);}
 function recMark(){if(!recLive()||stepN===REC.lm)return;REC.lm=stepN;if(REC.nm*3+3>REC.M.length){const n=new Float64Array(REC.M.length*2);n.set(REC.M);REC.M=n;}
  const q=REC.nm++*3;REC.M[q]=REC.ev.length;REC.M[q+1]=stepN;REC.M[q+2]=recT();}
 function recStepHook(){if(!recLive())return;recSync();if((stepN&7)===0)recMark();}
-function recBegin(o){if(REPLAY)return;if(!recLive()){RNG=Math.random;return;}recSync();if(!recCap()){RNG=Math.random;return;}
+function recBegin(o){if(REPLAY)return;if(!recLive()){if(REC)REC.dirty=true;RNG=Math.random;return;}recSync();if(!recCap()){RNG=Math.random;return;}
  const seed=(Math.random()*4294967296)>>>0;RNG=mulberry(seed);
  REC.ev.push(['b',stepN,recT(),seed,o&&o.keep?1:0,o&&o.load!=null?+o.load:null,o&&o.dir?[+o.dir[0],+o.dir[1]]:null,drawing!=null?1:0]);REC.stroke={sc:stepN,tms0:null};}
 function recPt(x,y,pres,tl,tms){if(REPLAY||!REC||!REC.stroke||!recLive())return;if(REC.ns>=REC_MAXS){REC.full=true;return;}
@@ -1185,10 +1189,10 @@ function recPt(x,y,pres,tl,tms){if(REPLAY||!REC||!REC.stroke||!recLive())return;
 function recEnd(){if(REPLAY||!REC||!REC.stroke)return;if(recLive())REC.ev.push(['e',stepN,recT(),strokePen?1:0]);REC.stroke=null;}
 // fresh brush for a fresh recording (replay starts from the same clean brush)
 function resetBrushState(){makeBristles(true);lastLoadKS=null;dir=[1,0];for(const p of [BS,KN]){clr(p.r);clr(p.w);}}
-function recStart(){if(SANDBOX)return;REC=recNew();REDO.length=0;resetBrushState();recSync();}
-function recExport(){const r=REC;return{v:1,W:r.W,H:r.H,sc0:r.sc0,pn0:r.pn0,endSc:stepN,endT:recT(),full:r.full,ev:r.ev,ns:r.ns,nm:r.nm,S:r.S.slice(0,r.ns*REC_SW),M:r.M.slice(0,r.nm*3)};}
-function recBytes(){if(!REC||SANDBOX||REC.nonblank||!REC.on)return null;const r=REC;
- const js=new TextEncoder().encode(JSON.stringify({v:1,W:r.W,H:r.H,sc0:r.sc0,pn0:r.pn0,endSc:stepN,endT:recT(),full:r.full,last:r.last,ev:r.ev,ns:r.ns,nm:r.nm}));
+function recStart(){if(SANDBOX)return;REC=recNew();REDO.length=0;resetBrushState();recSync();try{recUI();}catch(_){}}
+function recExport(){const r=REC;return{v:1,W:r.W,H:r.H,sc0:r.sc0,pn0:r.pn0,endSc:r.fz?r.fz.sc:stepN,endT:r.fz?r.fz.t:recT(),full:r.full,ev:r.ev,ns:r.ns,nm:r.nm,S:r.S.slice(0,r.ns*REC_SW),M:r.M.slice(0,r.nm*3)};}
+function recBytes(){if(!REC||SANDBOX||REC.nonblank||!REC.ev.length)return null;const r=REC;
+ const js=new TextEncoder().encode(JSON.stringify({v:1,W:r.W,H:r.H,sc0:r.sc0,pn0:r.pn0,endSc:r.fz?r.fz.sc:stepN,endT:r.fz?r.fz.t:recT(),full:r.full,last:r.last,ev:r.ev,ns:r.ns,nm:r.nm}));
  const pad=n=>(8-n%8)%8,h=16+js.length,p1=pad(h),sb=r.ns*REC_SW*4,p2=pad(h+p1+sb),mb=r.nm*24;
  const out=new Uint8Array(h+p1+sb+p2+mb),dv=new DataView(out.buffer);out.set([77,82,69,67],0);dv.setUint32(4,1,true);dv.setUint32(8,js.length,true);out.set(js,16);
  out.set(new Uint8Array(r.S.buffer,0,sb),h+p1);out.set(new Uint8Array(r.M.buffer,0,mb),h+p1+sb+p2);return out;}
@@ -1196,10 +1200,12 @@ function recParse(b){if(!b||b.length<16||b[0]!==77||b[1]!==82||b[2]!==69||b[3]!=
  const j=JSON.parse(new TextDecoder().decode(b.subarray(16,16+jl)));const pad=n=>(8-n%8)%8,h=16+jl,p1=pad(h),sb=j.ns*REC_SW*4,p2=pad(h+p1+sb),mb=j.nm*24;
  j.S=new Float32Array(b.slice(h+p1,h+p1+sb).buffer);j.M=new Float64Array(b.slice(h+p1+sb+p2,h+p1+sb+p2+mb).buffer);return j;}
 // a reopened project: carry on its recording (or, for paintings from before v0.47, mark it as not replayable)
-function recAttach(j){if(SANDBOX||!REC)return;if(!j||j.v!==1||j.W!==W||j.H!==H){REC.nonblank=true;REC.on=false;return;}
+function recAttach(j){if(SANDBOX||!REC)return;if(!j||j.v!==1||j.W!==W||j.H!==H){REC.nonblank=true;REC.on=false;try{recUI();}catch(_){}return;}
  const r=recNew();Object.assign(r,{W:j.W,H:j.H,sc0:j.sc0,pn0:j.pn0,ev:j.ev,full:!!j.full,last:j.last,ns:j.ns,nm:j.nm});
  r.S=new Float32Array(Math.max(REC_SW*4096,j.S.length*2));r.S.set(j.S);r.M=new Float64Array(Math.max(3072,j.M.length*2));r.M.set(j.M);
- r.tOff=j.endT+1000;REC=r;stepN=Math.max(0,j.endSc|0);resetBrushState();REC.ev.push(['O',stepN,recT()]);}
+ r.tOff=j.endT+1000;REC=r;stepN=Math.max(0,j.endSc|0);resetBrushState();REC.ev.push(['O',stepN,recT()]);if(!RECPREF)recFreeze();try{recUI();}catch(_){}}
+// v0.48 switching recording off keeps what was recorded (still replayable and saved) but captures nothing more
+function recFreeze(){if(!REC)return;if(REC.stroke){REC.ev.push(['e',stepN,recT(),strokePen?1:0]);REC.stroke=null;}REC.fz={sc:stepN,t:recT(),u:SNAP.length,r:REDO.length};REC.on=false;REC.dirty=false;}
 const sm=(a,b,x)=>{const t=Math.min(Math.max((x-a)/(b-a),0),1);return t*t*(3-2*t);};
 const cl=(x,a=0,b=1)=>Math.min(Math.max(x,a),b);
 function params(){const m=st.m,body=sm(.08,.55,m);const p={
@@ -2661,7 +2667,7 @@ if(REPLAY){document.body.classList.add('rp');paused=true;for(const el of documen
    case 'rpPlay':if(RP.vid)break;if(RP.done)rpReset();RP.playing=true;RP.last=0;break;
    case 'rpPause':RP.playing=false;RP.resume=false;break;
    case 'rpSpeed':RP.speed=Math.max(.05,+d.speed||1);break;
-   case 'rpSeek':{if(RP.vid||!RP.rec)break;const t=Math.max(0,Math.min(RP.D,+d.tau||0));RP.resume=!!d.play;RP.playing=false;if(t<RP.clock||RP.done&&t<RP.D)rpReset();RP.ff=t;break;}
+   case 'rpSeek':{if(RP.vid||!RP.rec)break;const t=Math.max(0,Math.min(RP.D,+d.tau||0));RP.resume=!!d.play;RP.playing=false;if(t<RP.clock||RP.ff!=null&&t<RP.ff||RP.done&&t<RP.D)rpReset();RP.ff=t;break;}
    case 'rpVideo':rpVideo(d.o||{});break;
    case 'rpCancel':if(RP.vid)RP.vid.cancel=true;break;
    case 'rpSnap':{render();const c=exportData('lit')[0][1];parent.postMessage({type:'rpSnap',url:c.toDataURL('image/png'),clock:RP.clock,done:RP.done,stepN},'*');break;}
@@ -2672,7 +2678,7 @@ if(REPLAY){document.body.classList.add('rp');paused=true;for(const el of documen
 // its undo history and its wet paint are left exactly as they were (the real canvas is paused while the replay is open). ----
 const rpEl=$('rp');let rpFr=null;
 const rpS={open:false,ready:false,D:0,clock:0,playing:false,done:false,ff:false,full:false,wasPaused:false,drag:false,vfmt:null,busy:false,vid:null,url:null,timer:0,snap:null,len:30};
-function rpHas(){return!!(REC&&REC.on&&!REC.nonblank&&REC.ev.some(e=>e[0]==='b'||e[0]==='C'||e[0]==='L'||e[0]==='D'));}
+function rpHas(){return!!(REC&&!REC.nonblank&&REC.ev.some(e=>e[0]==='b'||e[0]==='C'||e[0]==='L'||e[0]==='D'));}
 function rpFmtT(ms,dec){if(dec){const s=Math.max(0,ms/1000);return Math.floor(s/60)+':'+(s%60).toFixed(1).padStart(4,'0');}const s=Math.max(0,Math.round(ms/1000));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
 function rpMsg(t){const m=$('rpMsg');m.textContent=t||'';m.hidden=!t;}
 function rpSend(m){if(rpFr&&rpFr.contentWindow)rpFr.contentWindow.postMessage(m,'*');}
@@ -2683,8 +2689,7 @@ function rpUI(){const sp=rpSpeed(),pl=rpS.playing||rpS.ff&&rpS.playing;const b=$
  const dis=!rpS.ready||rpS.busy;['rpPlay','rpBack','rpPos','rpSpd','rpVid'].forEach(id=>$(id).disabled=dis);
  $('rpNote').textContent=rpS.ff?'Catching up…':rpS.full?'Recording limit reached: the replay ends early.':'';}
 function openReplay(){if(rpS.open)return false;if(document.querySelector('dialog[open]'))return false;
- if(!REC||REC.nonblank||!REC.on){toast('This painting was started before Medium recorded strokes, so it can’t be replayed. Paintings you start now are recorded.',6000);return false;}
- if(!rpHas()){toast('Nothing to replay yet. Paint something first.',3000);return false;}
+ if(!rpHas()){recNoReplay();return false;}
  try{closeCP();closeMP();if(bpIsOpen())bpClose();if(document.body.classList.contains('m'))setPanel(false);}catch(_){}
  Object.assign(rpS,{open:true,ready:false,D:0,clock:0,playing:false,done:false,ff:false,busy:false,vfmt:null});rpS.wasPaused=paused;paused=true;
  rpEl.hidden=false;document.body.classList.add('rpOn');$('tRep').classList.add('on');$('tRep').setAttribute('aria-expanded','true');rpVidReset();$('rpV').hidden=true;$('rpVid').classList.remove('on');
@@ -2746,9 +2751,40 @@ window.addEventListener('keydown',e=>{if(!rpS.open)return;const t=e.target,tg=t&
  else if((k==='ArrowLeft'||k==='ArrowRight')&&tg!=='INPUT'&&tg!=='SELECT'){e.preventDefault();rpSeek(rpS.clock+(k==='ArrowRight'?1:-1)*rpS.D*.05,rpS.playing);}},true);
 document.addEventListener('keydown',e=>{if(rpS.open||e.ctrlKey||e.metaKey||e.altKey||e.shiftKey||e.repeat||(e.key!=='y'&&e.key!=='Y'))return;const t=e.target,tg=t&&t.tagName;
  if(t&&(t.isContentEditable||tg==='TEXTAREA'||tg==='SELECT'||tg==='INPUT'&&!/^(range|checkbox|radio|button|submit|color)$/.test(t.type)))return;if(document.querySelector('dialog[open]'))return;e.preventDefault();openReplay();});
-Object.assign(window.paintAPI,{openReplay,closeReplay,replayState:()=>Object.assign({},rpS,{vid:rpS.vid?{name:rpS.vid.file.name,size:rpS.vid.file.size,type:rpS.vid.file.type,dur:rpS.vid.d.dur,frames:rpS.vid.d.frames}:null,snap:null}),
+// ---- v0.48 Record switch (Settings › Replay & recording, and the Share sheet), red-dot indicator, Clear recording ----
+const REC_OFF_MSG='Recording is off. Turn it on in Settings to replay future strokes.';
+function recState(){if(!REC)return'none';if(recLive())return'live';if(REC.on&&REC.full)return'full';if(RECPREF)return'pending';return'off';}
+function recUI(){if(SANDBOX)return;const s=recState(),has=rpHas();
+ const t=s==='live'?'Recording. Replay and time-lapse video use these strokes; they are saved with your painting.':
+  s==='full'?'Recording limit reached: newer strokes aren’t recorded and the replay ends early.':
+  s==='pending'?'Starts with your next new canvas: this painting already has strokes that weren’t recorded, and replay always starts from blank paper.'+(has?' Its earlier recording can still be replayed.':''):
+  'Off: strokes aren’t recorded.'+(has?' This painting’s earlier recording can still be replayed.':'');
+ for(const id of ['recOn','shRec']){const c=$(id);if(c)c.checked=RECPREF;}for(const id of ['recSt','shRecSt']){const h=$(id);if(h)h.textContent=t;}
+ const d=$('recDot');if(d)d.hidden=s!=='live';const b=$('bRecClr');if(b){b.disabled=!has;if(!has)recClrArm(false);}}
+function recTryResume(){if(!REC||recLive()||REC.nonblank||REC.full||REC.dirty)return false;
+ if(REC.fz){if(SNAP.length!==REC.fz.u||REDO.length!==REC.fz.r)return false;REC.on=true;REC.fz=null;recSync();return true;}
+ if(!REC.ev.length&&!SNAP.length){recStart();return true;}return false;}
+function recSetPref(on,quiet){on=!!on;RECPREF=on;try{localStorage.setItem('recordStrokes',on?'1':'0');}catch(_){}
+ let msg;if(SANDBOX)return;
+ if(on){if(recLive()||recTryResume())msg='Recording is on. Your strokes are recorded for replay and time-lapse video.';
+  else msg='Recording is on. It starts with your next new canvas, because replay always starts from blank paper.';}
+ else{if(REC&&REC.on)recFreeze();msg='Recording is off. New strokes aren’t recorded.'+(rpHas()?' What was already recorded can still be replayed; use Clear recording to remove it.':'');}
+ recUI();try{asDirty=true;}catch(_){}
+ if(!quiet)toast(msg,5000,on&&!recLive()?[['New canvas',()=>{try{$('tNew').click();}catch(_){}}]]:null);return recState();}
+function recNoReplay(){if(!REC||REC.nonblank){toast(RECPREF?'This painting has no recording, so it can’t be replayed. Recording starts with your next new canvas.':REC_OFF_MSG,6000,RECPREF?null:[['Turn on',()=>recSetPref(true)]]);return;}
+ if(!RECPREF&&!recLive()){toast(REC_OFF_MSG,6000,[['Turn on',()=>recSetPref(true)]]);return;}
+ if(!recLive()){toast('Nothing recorded yet. Recording starts with your next new canvas.',5000,[['New canvas',()=>{try{$('tNew').click();}catch(_){}}]]);return;}
+ toast('Nothing to replay yet. Paint something first.',3000);}
+var recClrT=0;function recClrArm(on){const b=$('bRecClr');if(!b)return;clearTimeout(recClrT);b.dataset.arm=on?'1':'';b.textContent=on?'Tap again to clear':'Clear recording';if(on)recClrT=setTimeout(()=>recClrArm(false),4000);}
+function recClear(){if(!REC||SANDBOX||!rpHas())return false;REC=recNew();REC.on=false;REC.dirty=true;REC.nonblank=false;recClrArm(false);recUI();try{asDirty=true;}catch(_){}
+ toast('Recording cleared.'+(RECPREF?' A new recording starts with your next new canvas.':''),4500);return true;}
+if(!SANDBOX){$('recOn').onchange=e=>recSetPref(e.target.checked);$('shRec').onchange=e=>recSetPref(e.target.checked);
+ $('bRecClr').onclick=()=>{if($('bRecClr').dataset.arm==='1')recClear();else recClrArm(true);};
+ $('bRecPlay').onclick=()=>{openReplay();};
+ setInterval(recUI,1500);recUI();}
+Object.assign(window.paintAPI,{recSetPref,recClear,recState,recPref:()=>RECPREF,openReplay,closeReplay,replayState:()=>Object.assign({},rpS,{vid:rpS.vid?{name:rpS.vid.file.name,size:rpS.vid.file.size,type:rpS.vid.file.type,dur:rpS.vid.d.dur,frames:rpS.vid.d.frames}:null,snap:null}),
  replaySnap:()=>{rpS.snap=null;rpSend({type:'rpSnap'});},replaySnapResult:()=>rpS.snap,replayVideoBlob:()=>rpS.vid&&rpS.vid.file,
- recInfo:()=>REC?{on:REC.on,nonblank:REC.nonblank,full:REC.full,events:REC.ev.length,samples:REC.ns,marks:REC.nm,bytes:(recBytes()||[]).length}:null,recExport:()=>REC&&recExport(),recBytes:()=>recBytes()});
+ recInfo:()=>REC?{on:REC.on,live:recLive(),dirty:!!REC.dirty,frozen:!!REC.fz,nonblank:REC.nonblank,full:REC.full,events:REC.ev.length,samples:REC.ns,marks:REC.nm,bytes:(recBytes()||[]).length}:null,recExport:()=>REC&&recExport(),recBytes:()=>recBytes()});
 // ---- v0.26 installable app + offline: manifest + icons in <head>, service worker sw.js (pages network-first, icons cache-first) ----
 // Registered only over http(s) (not file://), never in the ?thumbs=1 preset iframe, and not under automation unless ?sw=1.
 const SWQ=new URLSearchParams(location.search).get('sw');

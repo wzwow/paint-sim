@@ -16,6 +16,8 @@ for(const vp of VPS){console.log('== '+vp.name);const mob=vp.name==='mobile';con
  const watch=p=>{p.on('pageerror',e=>errs.push(''+e));p.on('console',m=>{if(m.type()==='error'&&!/ReadPixels/.test(m.text()))errs.push(m.text());});};
  const p=await ctx.newPage();watch(p);
  await p.goto(BASEURL);await p.waitForFunction(()=>window.paintAPI&&paintAPI.openHelp,null,{timeout:30000});await p.waitForTimeout(900);
+ // v0.48: recording is off by default; switch it on (blank canvas, so it records straight away) for the Y shortcut check
+ await p.evaluate(()=>paintAPI.recSetPref&&paintAPI.recSetPref(true,true));
  const vi=await p.evaluate(()=>({t:document.title,b:document.getElementById('ver').textContent}));const m=/v\d+(\.\d+)*/.exec(vi.t);
  if(m)VER=m[0];check(m&&vi.b===m[0],'title and badge show the same version ('+VER+')',vi);
  const isMob=await p.evaluate(()=>document.body.classList.contains('m'));check(isMob===mob,'layout mode',{isMob});
@@ -87,7 +89,8 @@ for(const vp of VPS){console.log('== '+vp.name);const mob=vp.name==='mobile';con
   check(t.tool==='brush'&&t2.tool==='knife'&&t3.tool==='brush','B / K switch brush and palette knife',[t.tool,t2.tool,t3.tool]);done.add('brush');done.add('knife');
   await p.keyboard.press('g');let tg=await st();await p.keyboard.press('b');check(tg.tool==='pencil','G switches to pencil',tg.tool);done.add('pencil');
   {await p.keyboard.press('w');const c1=await p.evaluate(()=>paintAPI.isClr());await p.keyboard.press('w');const c2=await p.evaluate(()=>paintAPI.isClr());check(c1===true&&c2===false,'W toggles the clear water / clear medium brush (v0.46)',{c1,c2});done.add('clearbrush');}
-  {await stroke(p,.3,.4,.6,.45);await blur();await p.keyboard.press('y');await p.waitForTimeout(400);const o1=await p.evaluate(()=>!document.getElementById('rp').hidden);await p.keyboard.press('Escape');await p.waitForTimeout(200);const o2=await p.evaluate(()=>!document.getElementById('rp').hidden);check(o1&&!o2,'Y opens the replay, Esc closes it (v0.47)',{o1,o2});done.add('replay');}
+  {await stroke(p,.3,.4,.6,.45);await blur();await p.keyboard.press('y');await p.waitForTimeout(400);const o1=await p.evaluate(()=>!document.getElementById('rp').hidden);await p.keyboard.press('Escape');await p.waitForTimeout(200);const o2=await p.evaluate(()=>!document.getElementById('rp').hidden);check(o1&&!o2,'Y opens the replay, Esc closes it (v0.47)',{o1,o2});
+   await p.evaluate(()=>{paintAPI.recSetPref(false,true);paintAPI.recClear();});await blur();await p.keyboard.press('y');await p.waitForTimeout(400);const o3=await p.evaluate(()=>({open:!document.getElementById('rp').hidden,t:document.getElementById('toast').textContent}));check(!o3.open&&/Recording is off/.test(o3.t),'Y with Record off: friendly message, no replay (v0.48)',o3);done.add('replay');}
   await blur();await p.keyboard.press('p');await p.waitForTimeout(150);const pp1=await p.evaluate(()=>paintAPI.presetsOpen());await p.keyboard.press('p');await p.waitForTimeout(150);const pp2=await p.evaluate(()=>paintAPI.presetsOpen());
   check(pp1&&!pp2,'P opens and closes the brush presets (v0.23)',[pp1,pp2]);done.add('presets');
   const u0=(await st()).undo;await stroke(p,.25,.55,.55,.6);const u1=(await st()).undo;await p.keyboard.press('Control+z');const u2=await st();await p.keyboard.press('Control+Shift+Z');const u3=await st();
