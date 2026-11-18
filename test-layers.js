@@ -12,7 +12,7 @@ for(const vp of VPS){console.log('== '+vp.name);const ctx=await b.newContext(vp.
  const names=()=>p.evaluate(()=>paintAPI.layers().map(l=>l.name));
  const active=()=>p.evaluate(()=>{const r=document.querySelector('#layers .ly.on .nm');return r?r.textContent:null;});
  await p.evaluate(()=>{const pn=document.getElementById('panel');if(!pn.classList.contains('open'))document.getElementById(document.body.classList.contains('m')?'tSet':'dSet').click();
-  const d=document.getElementById('layers').closest('details');d.open=true;});await p.waitForTimeout(400);
+  document.getElementById('pTabLay').click();});await p.waitForTimeout(400);
  await p.evaluate(()=>document.getElementById('lRen').scrollIntoView({block:'center'}));await p.waitForTimeout(200);
  await tap('#lAdd');const n0=await names();check(n0.length===2,'add layer',n0);
  // rename via button

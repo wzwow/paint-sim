@@ -23,7 +23,7 @@ const lum=(r,g,b)=>.2126*r+.7152*g+.0722*b;
 function region(img,y0,y1){const{w,h,px}=img;const Y0=Math.floor(y0*h),Y1=Math.floor(y1*h);let n0=0,n=0,solid=[],edge=[];
  for(let y=Y0;y<Y1;y++)for(let x=0;x<w;x++){const i=(y*w+x)*4,a=px[i+3];n++;if(a===0){n0++;continue;}const L=lum(px[i],px[i+1],px[i+2]);if(a>=200)solid.push(L);else if(a>=8&&a<=128)edge.push(L);}
  const mean=v=>v.length?v.reduce((s,x)=>s+x,0)/v.length:NaN;const pct=(v,p)=>{const s=[...v].sort((a,b)=>a-b);return s.length?s[Math.floor(p*(s.length-1))]:NaN;};
- return{n,n0,solid:solid.length,edge:edge.length,solidMean:mean(solid),edgeMean:mean(edge),solidP10:pct(solid,.1),edgeDarkFrac:edge.length?edge.filter(L=>L<pct(solid,.1)-12).length/edge.length:0};}
+ return{n,n0,solid:solid.length,edge:edge.length,solidMean:mean(solid),edgeMean:mean(edge),solidP10:pct(solid,.1),edgeDarkFrac:edge.length?(()=>{const t=pct(solid,.1)-12;return edge.filter(L=>L<t).length/edge.length;})():0};} // v0.45: percentile computed once (was re-sorted per pixel)
 (async()=>{const b=await chromium.launch({args:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
 for(const vp of VPS){console.log('== '+vp.name);const mob=vp.name==='mobile';const ctx=await b.newContext(Object.assign({acceptDownloads:true},vp.ctx));
  if(mob)await ctx.addInitScript(()=>{window.__shared=[];navigator.canShare=d=>!!(d&&d.files&&d.files.length&&d.files.every(f=>/^image\//.test(f.type)));

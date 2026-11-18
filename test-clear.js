@@ -20,7 +20,7 @@ await p.mouse.click(5,450);await p.keyboard.press('Shift+Delete');await p.waitFo
 await p.keyboard.press('Shift+Backspace');await p.waitForTimeout(200);check(await dl(),'Shift+Backspace opens confirm');await p.click('#clLayer');await p.waitForTimeout(300);check(!(await has()),'cleared via shortcut');
 await p.keyboard.press('Control+z');await p.waitForTimeout(300);
 // layer row bin
-await p.evaluate(()=>{if(!document.getElementById('panel').classList.contains('open'))document.getElementById('dSet').click();});await p.waitForTimeout(400);await p.evaluate(()=>{document.getElementById('lAdd').closest('details').open=true;document.getElementById('lAdd').click();});await p.waitForTimeout(300);
+await p.evaluate(()=>{if(!document.getElementById('panel').classList.contains('open'))document.getElementById('dSet').click();});await p.waitForTimeout(400);await p.evaluate(()=>{document.getElementById('pTabLay').click();document.getElementById('lAdd').click();});await p.waitForTimeout(300);
 const rb=await p.evaluate(()=>{const r=[...document.querySelectorAll('#layers .ly')];return{n:r.length,bins:r.filter(x=>x.querySelector('.lclr')).length,onBin:!!document.querySelector('#layers .ly.on .lclr')};});
 check(rb.bins===1&&rb.onBin,'active layer row has a bin',rb);
 const ai=await p.evaluate(()=>paintAPI.layers().findIndex(l=>l.active));await p.evaluate(()=>document.querySelector('#layers .ly.on .lclr').scrollIntoView({block:'center'}));await p.waitForTimeout(150);await p.click('#layers .ly.on .lclr');await p.waitForTimeout(200);

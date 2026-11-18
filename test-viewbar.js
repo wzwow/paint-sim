@@ -2,7 +2,7 @@
 const {chromium}=require('playwright');const path=require('path');
 const tgt=process.argv[2]||'index.html';const URL=/^(https?|file):/.test(tgt)?tgt:'file://'+path.resolve(__dirname,tgt);
 let fails=0;const check=(c,m,x)=>{console.log((c?'PASS ':'FAIL ')+m+(x!==undefined?' '+JSON.stringify(x):''));if(!c)fails++;};
-const IDS=['vFit','v100','vOut','zoomv','vIn','vRL','vRR','rotv','vSun','vGrey','vFlat','vClr'];
+const IDS=['vFit','v100','vOut','zoomv','vIn','vRL','vRR','rotv','vFH','vFV','vSun','vGrey','vFlat','vClr'];
 (async()=>{const b=await chromium.launch({args:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
 try{for(const [w,h] of [[2191,1304],[1280,800]]){console.log('== '+w+'x'+h);const ctx=await b.newContext({viewport:{width:w,height:h},deviceScaleFactor:1});const p=await ctx.newPage();const errs=[];
  p.on('pageerror',e=>errs.push(''+e));

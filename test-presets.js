@@ -72,7 +72,7 @@ for(const vp of [{name:'desktop',o:{viewport:{width:1440,height:900}}},{name:'mo
  await p.evaluate(id=>paintAPI.applyPreset(id),cid);await p.waitForTimeout(200);
  // escape / outside closes
  if(!mob){await p.keyboard.press('Escape');await p.waitForTimeout(150);check(!(await p.evaluate(()=>paintAPI.presetsOpen())),T('Escape closes the picker'));await p.keyboard.press('p');await p.waitForTimeout(150);check(await p.evaluate(()=>paintAPI.presetsOpen()),T('P opens it'));await p.keyboard.press('p');}
- else{await p.evaluate(()=>paintAPI.openPresets());await p.touchscreen.tap(195,60);await p.waitForTimeout(200);check(!(await p.evaluate(()=>paintAPI.presetsOpen())),T('tapping outside closes the picker'));}
+ else{await p.evaluate(()=>{paintAPI.openPresets();document.getElementById('bp').scrollTop=0;});await p.waitForTimeout(100);/* v0.45: list scrolled to the top so Chrome's touch adjustment can't snap this near-edge tap onto a card */await p.touchscreen.tap(195,60);await p.waitForTimeout(200);check(!(await p.evaluate(()=>paintAPI.presetsOpen())),T('tapping outside closes the picker'));}
  // reload: persistence + cache
  await p.reload();await p.waitForFunction(()=>window.paintAPI&&paintAPI.presets,null,{timeout:30000});await p.waitForTimeout(500);
  const rl=await p.evaluate(id=>({c:paintAPI.presets().filter(q=>q.custom).map(q=>q.name),s:paintAPI.presetState(),size:+document.getElementById('size').value,med:paintAPI.medium(),th:paintAPI.presets().every(q=>!!paintAPI.presetThumb(q.id))}),cid);

@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v0.48</title>
+<title>Medium — paint v0.49</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="app-version" content="medium-v0.48">
+<meta name="app-version" content="medium-v0.49">
 <meta name="theme-color" content="#161618">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -406,7 +406,7 @@ body.rp.vexp #c{object-fit:contain}
 </div>
 <div id="viewc" role="toolbar" aria-label="Canvas view"><button id="vFit" data-ic="fit" data-tip="Fit to screen (Ctrl+0)" aria-label="Fit to screen"></button><button id="v100" data-tip="Zoom to 100% (Ctrl+1)" aria-label="Zoom to 100%">1:1</button><button id="vOut" data-ic="minus" data-tip="Zoom out (Ctrl+−)" aria-label="Zoom out"></button><button id="zoomv" data-tip="Zoom: click for 100% (Ctrl+1), again to fit (Ctrl+0)" aria-label="Zoom level">100%</button><button id="vIn" data-ic="plus" data-tip="Zoom in (Ctrl++)" aria-label="Zoom in"></button><span class="vsep"></span><button id="vRL" data-ic="rotl" data-tip="Rotate view left 15° (Shift+R)" aria-label="Rotate view left"></button><button id="vRR" data-ic="rotr" data-tip="Rotate view right 15° (R)" aria-label="Rotate view right"></button><button id="rotv" disabled data-tip="Straighten the view (shows current angle)" aria-label="Reset rotation">0°</button><button id="vFH" data-ic="fliph" data-tip="Mirror view left–right (H)" aria-label="Flip view horizontally" aria-pressed="false"></button><button id="vFV" data-ic="flipv" data-tip="Mirror view upside down (Shift+H)" aria-label="Flip view vertically" aria-pressed="false"></button><button id="vSun" data-ic="sun" data-tip="Light &amp; relief (Shift+L)" aria-label="Light and relief" aria-haspopup="dialog" aria-expanded="false" aria-controls="lp"></button><button id="vGrey" data-ic="grey" data-tip="Value check: greyscale view (Shift+V)" aria-label="Greyscale value check" aria-pressed="false"></button><button id="vFlat" data-ic="flat" data-tip="Flat view: hide lighting to judge colour (Shift+F)" aria-label="Flat view" aria-pressed="false"></button><span class="vsep"></span><button id="vClr" data-ic="trash" data-tip="Clear layer… (Shift+Delete)" aria-label="Clear layer" aria-haspopup="dialog"></button></div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.48</span><span id="recDot" class="recDot" role="img" aria-label="Recording strokes for replay" title="Recording strokes for replay (Settings › Replay &amp; recording)" hidden></span></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.49</span><span id="recDot" class="recDot" role="img" aria-label="Recording strokes for replay" title="Recording strokes for replay (Settings › Replay &amp; recording)" hidden></span></div>
  <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tExp" data-tip="Export… (Ctrl+Shift+E)" aria-label="Export image" aria-haspopup="dialog" data-ic="download"></button><button class="ib dk" id="tShare" data-tip="Share… (Ctrl+Shift+S)" aria-label="Share painting" aria-haspopup="dialog" data-ic="share"></button><button class="ib dk" id="tRep" data-tip="Replay &amp; time-lapse video (Y)" aria-label="Replay painting" aria-haspopup="dialog" aria-expanded="false" data-ic="replay"></button><span class="sep dk"></span><button class="ib dk" id="bUndo" data-tip="Undo (Ctrl+Z)" aria-label="Undo" data-ic="undo"></button><button class="ib dk" id="bRedo" data-tip="Redo (Ctrl+Shift+Z)" aria-label="Redo" data-ic="redo"></button><span class="sp dk"></span><span id="docT" class="dk"></span><span class="sp dk"></span><button class="ib dk" id="tRef" data-tip="Reference image" aria-label="Reference image" data-ic="image"></button><button class="ib dk" id="tLay" data-tip="Layers (L)" aria-label="Layers" aria-expanded="false" aria-controls="panel" data-ic="layers"></button><button class="ib dk" id="tHelp" data-tip="Help &amp; shortcuts (?)" aria-label="Help and keyboard shortcuts" aria-haspopup="dialog" data-ic="help"></button><button class="ib dk" id="dSet" data-tip="Settings" aria-label="Settings" data-ic="sliders"></button></div>
 <!-- top-right: tools -->
 <div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dPencil" data-tip="Pencil (G)" aria-label="Pencil" data-ic="pencil"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button><button class="ib" id="dPick" data-tip="Eyedropper (I or Alt+click)" aria-label="Eyedropper" data-ic="pipette"></button>
@@ -878,7 +878,7 @@ for(int i=0;i<4;i++){vec2 off=i==0?vec2(tx.x,0):i==1?vec2(-tx.x,0):i==2?vec2(0,t
  vec4 sn=texture(uS,vUv+off);float pin=.2+.15*vnoise((FC.xy+off/tx)*.15);if(wn<.003&&w<pin){qi*=sn.y>.05?sn.y*smoothstep(.45,.75,vnoise((FC.xy+off/tx)*.3+3.)):0.;}
  q[i]=qi*inb(vUv+off);}
 float sum=q.x+q.y+q.z+q.w;q*=min(1.,w*.9/max(sum,1e-9));o=q;}`,
-water:`uniform sampler2D uS,uF,uD,uV,uP;uniform float uRim,uEvap,uEdgeK,uAll,uGran,uLift,uBloom,uDampDec,uDep,uDepK,uDepB;${O3}
+water:`uniform sampler2D uS,uF,uD,uV,uP;uniform float uRim,uEvap,uEdgeK,uAll,uGran,uLift,uBloom,uDampDec,uDep,uDepK,uDepB,uDotK,uDotB,uDrG;${O3}
 void main(){vec2 ex=vec2(tx.x,0),ey=vec2(0,tx.y);vec4 s=texture(uS,vUv),f=texture(uF,vUv),d=texture(uD,vUv),q=texture(uV,vUv);
 float w=s.x;float outq=q.x+q.y+q.z+q.w;
 float wR=texture(uS,vUv+ex).x,wL=texture(uS,vUv-ex).x,wU=texture(uS,vUv+ey).x,wD=texture(uS,vUv-ey).x;
@@ -904,8 +904,12 @@ fn+=kd.x*(fR-f)*min(mc,step(.003,wR))+kd.y*(fL-f)*min(mc,step(.003,wL))+kd.z*(fU
 // pigment grew exponentially (measured 5 -> 1e19 in 1500 steps on RGBA32F; on RGBA16F it hit 65504 -> Inf -> NaN, which spread through
 // the wash as blocks). Now: total outflow <= uRim (never negative => exactly conservative), and a pair stops exchanging once the receiving
 // pixel's concentration reaches RIMC x the sender's. Every factor is computed from both pixels' values, so the pair flux is antisymmetric.
+/* v0.49: with Edge darkening on, rim drift only acts between pixels where the thinner one is nearly dry (the drying edge). Inside a
+   wash the thinnest water (over paper bumps) used to collect floating pigment from all round, several times the wash concentration,
+   which then settled as small dark dots. The pair factor uses both pixels' values => still antisymmetric / conserved. */
+float rimG=min(uDep,1.)*uDrG;
 {const float RIMC=3.;vec4 fo=vec4(0);float cM=dot(f,vec4(1))/max(w,1e-3);for(int i=0;i<4;i++){vec2 off=i==0?ex:i==1?-ex:i==2?ey:-ey;float wN=texture(uS,vUv+off).x;vec4 fN=texture(uF,vUv+off);
-  float cN=dot(fN,vec4(1))/max(wN,1e-3);float ok=step(.0008,w)*step(.0008,wN);
+  float cN=dot(fN,vec4(1))/max(wN,1e-3);float ok=step(.0008,w)*step(.0008,wN)*mix(1.,1.-smoothstep(.012,.035,min(w,wN)),rimG);
   float inK=clamp((wN-w)/max(wN,1e-5),0.,1.)*clamp(1.-cM/(RIMC*cN+1e-6),0.,1.),outK=clamp((w-wN)/max(w,1e-5),0.,1.)*clamp(1.-cN/(RIMC*cM+1e-6),0.,1.);
   fo+=ok*uRim*.25*(inK*fN-outK*f);}
  fn+=fo;}
@@ -940,6 +944,13 @@ for(int i=0;i<8;i++){float an=float(i)*.785+.2;vec2 dd=vec2(cos(an),sin(an))*tx;
 float dampG=smoothstep(.2,.5,soak);
 float rate=mix(rateOld,rateNew,uDep*dampG);
 float gLo=mix(.7,.94,uDep*dampG);rate*=mix(1.8,1.,gr)*clamp(1.+uGran*(.2+.6*gr)*val,gLo,1.8);
+/* v0.49 dark-dot fix: with the v0.44 deposition pigment floats for a long time, and a few paper pits (odd/even texels) kept settling
+   it while their neighbours stayed in balance with lifting, so over a long wet phase they soaked up pigment from the whole pool => small
+   dark dots (deposit up to ~25x the wash). Now a texel whose deposit is already well above the darkest of its 4 direct neighbours stops
+   settling more (the pigment stays afloat and settles next door or at the drying front). Smooth washes, rims and paper grain (neighbours
+   comparable) are unaffected; uDep=0 => exactly v0.43. */
+{vec4 I=vec4(1);float dC=dot(d,I),dN=max(max(dot(texture(uD,vUv+ex),I),dot(texture(uD,vUv-ex),I)),max(dot(texture(uD,vUv+ey),I),dot(texture(uD,vUv-ey),I)));
+ float lim=uDotK*dN+uDotB;rate*=1.-min(uDep,1.)*smoothstep(lim,lim*1.4+.5,dC);}
 float frontHi=.004;
 rate=mix(rate,1.,1.-smoothstep(.0008,frontHi,w));if(uAll>.5){rate=1.;w=0.;}rate=clamp(rate,0.,1.);
 d+=fn*rate;fn*=1.-rate;float damp=w>.003?min(1.,s.y+.03+w*.6):max(s.y-uDampDec,0.);if(uAll>.5)damp=0.;
@@ -1475,7 +1486,7 @@ function step(){recStepHook();if(st.tilt||st.dryAll)simFull();if(!inFrame)actPol
  if(SIMFULL||rc.area>=FULL_FRAC*W*H)rc=[[0,0,W,H]];PERF.lastArea=rc.area!=null?rc.area:W*H;
  const act=(++stepN%8===0&&!st.tilt&&!actPend)?{c:{},w:{},bb:{},bufs:[],nt:NTX*NTY}:null;const ro=st.dryAll?0:1;
  if(hasWater){simPass(P.flux,V,{uS:WT.r.t[0],uV:V.r.t[0],uP:PAPER.t[0]},{uTilt:st.tilt,uG:p.G,uEta:.03},rc,null,ro);
- simPass(P.water,WT,{uS:WT.r.t[0],uF:WT.r.t[1],uD:WT.r.t[2],uV:V.r.t[0],uP:PAPER.t[0]},{uRim:p.rim*wRimX()*(st.rimS!=null?st.rimS:1),uEvap:p.evap*evB,uEdgeK:p.edgeK,uAll:st.dryAll,uGran:p.gran,uLift:p.lift,uBloom:p.bloom,uDampDec:.0009,uDep:wDep(),uDepK:st.depK!=null?st.depK:.12,uDepB:st.depB!=null?st.depB:1,uFeat:FEAT[surface.type]*(st.feather!=null?st.feather:1),uFibS:surface.scale},rc,act,ro);
+ simPass(P.water,WT,{uS:WT.r.t[0],uF:WT.r.t[1],uD:WT.r.t[2],uV:V.r.t[0],uP:PAPER.t[0]},{uRim:p.rim*wRimX()*(st.rimS!=null?st.rimS:1),uEvap:p.evap*evB,uEdgeK:p.edgeK,uAll:st.dryAll,uGran:p.gran,uLift:p.lift,uBloom:p.bloom,uDampDec:.0009,uDep:wDep(),uDepK:st.depK!=null?st.depK:.12,uDepB:st.depB!=null?st.depB:1,uDotK:st.dotK!=null?st.dotK:2.5,uDotB:st.dotB!=null?st.dotB:1.5,uDrG:st.drG!=null?st.drG:1,uFeat:FEAT[surface.type]*(st.feather!=null?st.feather:1),uFibS:surface.scale},rc,act,ro);
  if(p.water>.02)simPass(P.capil,WT,{uS:WT.r.t[0],uF:WT.r.t[1],uD:WT.r.t[2],uP:PAPER.t[0]},{uCap:.16},rc,null,ro,2);} // capil never changes attachment 2
  if(!fin)simPass(P.relax,OL,{uO0:OL.r.t[0],uO1:OL.r.t[1],uO2:OL.r.t[2]},{uMu:.2,uAll:st.dryAll,uTilt:st.tilt},rc,act,ro);st.dryAll=0;needRender=true;
  /* v0.14 rules kept: a tile that still holds water never sleeps (its bbox includes wet pixels); flow across a tile border is always computed
@@ -2156,7 +2167,7 @@ window.paintAPI={flip:()=>Object.assign({},FLIP),setFlip,sheetRect:()=>{const d=
  setTool,setShape,setKMode,setStiff,setBTilt,setBAng,setFollow:v=>{st.follow=v;$('follow').checked=v;},
  multi(hexes){st.multi=!!hexes;$('multi').checked=!!hexes;st.stripes=hexes?hexes.map(hexKS):[];},tilt:t=>st.tilt=t,
  zoom:(cx,cy,s)=>{fit();const f=view.s*s;view.ox=cv.width/2-cx*W*f;view.oy=cv.height/2-cy*H*f;view.s=f;render();},
- setKAng:v=>setKAng(v),setKLift:v=>setKLift(v),setClr:o=>Object.assign(CLR,o),isClr:()=>isClr(),setEvapMul:v=>{st.evMul=+v||1;},/* tests only: speeds up natural drying */setWRim:v=>setWRim(v),setDepK:v=>{st.depK=+v;},setDepB:v=>{st.depB=+v;},setRimS:v=>{st.rimS=+v;},olMass(){const b=new Float32Array(W*H*4);gl.bindFramebuffer(gl.FRAMEBUFFER,OL.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT1);gl.readPixels(0,0,W,H,gl.RGBA,gl.FLOAT,b);gl.readBuffer(gl.COLOR_ATTACHMENT0);const o=new Float32Array(W*H);for(let i=0;i<W*H;i++)o[i]=b[4*i]+b[4*i+1]+b[4*i+2]+b[4*i+3];return{h:Array.from(o),W,H};},/* tests only: wet pigment mass per pixel */olHeight(){const b=new Float32Array(W*H*4);gl.bindFramebuffer(gl.FRAMEBUFFER,OL.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);gl.readPixels(0,0,W,H,gl.RGBA,gl.FLOAT,b);const o=new Float32Array(W*H);let nan=0;for(let i=0;i<W*H;i++){const v=b[4*i]+b[4*i+1];if(!isFinite(v))nan++;o[i]=v;}return{h:Array.from(o),nan,W,H};},
+ setKAng:v=>setKAng(v),setKLift:v=>setKLift(v),setClr:o=>Object.assign(CLR,o),isClr:()=>isClr(),setEvapMul:v=>{st.evMul=+v||1;},setDotCap:(k,b,g)=>{st.dotK=k;st.dotB=b;if(g!=null)st.drG=g;},/* tests only: v0.49 dot cap (k=1e9 => off) *//* tests only: speeds up natural drying */setWRim:v=>setWRim(v),setDepK:v=>{st.depK=+v;},setDepB:v=>{st.depB=+v;},setRimS:v=>{st.rimS=+v;},olMass(){const b=new Float32Array(W*H*4);gl.bindFramebuffer(gl.FRAMEBUFFER,OL.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT1);gl.readPixels(0,0,W,H,gl.RGBA,gl.FLOAT,b);gl.readBuffer(gl.COLOR_ATTACHMENT0);const o=new Float32Array(W*H);for(let i=0;i<W*H;i++)o[i]=b[4*i]+b[4*i+1]+b[4*i+2]+b[4*i+3];return{h:Array.from(o),W,H};},/* tests only: wet pigment mass per pixel */olHeight(){const b=new Float32Array(W*H*4);gl.bindFramebuffer(gl.FRAMEBUFFER,OL.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);gl.readPixels(0,0,W,H,gl.RGBA,gl.FLOAT,b);const o=new Float32Array(W*H);let nan=0;for(let i=0;i<W*H;i++){const v=b[4*i]+b[4*i+1];if(!isFinite(v))nan++;o[i]=v;}return{h:Array.from(o),nan,W,H};},
  volume(){const pr=P.copy3;const b=new Float32Array(W*H*4);gl.bindFramebuffer(gl.FRAMEBUFFER,OL.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);
   gl.readPixels(0,0,W,H,gl.RGBA,gl.FLOAT,b);let v=0,mx=0;for(let i=0;i<W*H;i++){const t=b[4*i]+b[4*i+1];v+=t;if(t>mx)mx=t;}return{v,mx};},
  profile(y){const b=new Float32Array(W*4);gl.bindFramebuffer(gl.FRAMEBUFFER,OL.r.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);gl.readPixels(0,Math.round(y*H),W,1,gl.RGBA,gl.FLOAT,b);const o=[];for(let i=170;i<300;i+=2)o.push(b[4*i]+b[4*i+1]);return o;},

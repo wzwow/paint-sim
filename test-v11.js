@@ -30,10 +30,10 @@ const watch=(p,tag)=>{p.on('pageerror',x=>errs.push(tag+': '+x));p.on('console',
  ok(a.undo===u0-2&&a.redo===2,'desktop undo x2');ok(bR.undo===u0-1&&bR.redo===1,'desktop redo button');ok(c2.undo===u0&&c2.redo===0,'desktop kbd redo');
  out.desktopUndo={u0,afterUndo2:[a.undo,a.redo],afterRedo:[bR.undo,bR.redo],afterKbd:[c2.undo,c2.redo]};
  // layers: add layer, paint, undo-redo layer op
- await p.click('summary:has-text("Layers")');await p.click('#lAdd');await stroke(...P(.2,.4),...P(.8,.45));await p.waitForTimeout(300);
+ await p.click('#pTabLay');await p.click('#lAdd');await stroke(...P(.2,.4),...P(.8,.45));await p.waitForTimeout(300);
  const L1=await p.evaluate(()=>document.querySelectorAll('.ly').length);await p.click('#bUndo');await p.click('#bUndo');const L2=await p.evaluate(()=>document.querySelectorAll('.ly').length);await p.click('#bRedo');await p.click('#bRedo');const L3=await p.evaluate(()=>document.querySelectorAll('.ly').length);
  ok(L1===2&&L2===1&&L3===2,'layer undo/redo');out.layersUndoRedo=[L1,L2,L3];
- await p.click('summary:has-text("Layers")');
+ await p.click('#pTabSet');
  await p.click('#tNew');await p.waitForTimeout(150);ok(await p.isVisible('#dlgNew'),'desktop new dialog');await p.click('#nCancel');
  await p.mouse.move(r.x+r.w*.5,r.y+r.h*.5);
  out.desktop=await p.evaluate(()=>{const ids={};document.querySelectorAll('[id]').forEach(e=>ids[e.id]=(ids[e.id]||0)+1);return{dupIds:Object.entries(ids).filter(([k,v])=>v>1),mobile:document.body.classList.contains('m'),panelOpen:document.getElementById('panel').classList.contains('open'),ver:document.getElementById('ver').textContent,info:paintAPI.info()};});
