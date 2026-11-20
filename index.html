@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Medium — paint v0.51</title>
+<title>Medium — paint v0.52</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="app-version" content="medium-v0.51">
+<meta name="app-version" content="medium-v0.52">
 <meta name="theme-color" content="#161618">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -91,10 +91,10 @@ select{width:100%;min-height:36px;padding:6px 10px;border:0;border-radius:10px;b
 input[type=color]{width:34px;height:26px;border:0;border-radius:8px;background:none;padding:0;cursor:pointer}
 .pick{display:flex;align-items:center;gap:10px;margin-top:10px;color:var(--mute);font-size:12.5px}
 #layers{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
-.ly{display:flex;align-items:center;gap:8px;min-height:40px;padding:4px 10px 4px 4px;border-radius:10px;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px var(--line);cursor:pointer;font-size:12.5px}
+.ly{display:flex;align-items:center;gap:8px;min-height:44px;padding:4px 10px 4px 4px;border-radius:10px;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px var(--line);cursor:pointer;font-size:12.5px}
 .ly.on{background:var(--accS);box-shadow:inset 0 0 0 1px rgba(110,168,255,.45)}
 .ly .eye{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--ink)}.ly .eye.off{color:var(--dim)}.ly .eye svg{width:17px;height:17px}
-.ly .nm{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.ly .eye{border:0;background:none;padding:0;cursor:pointer;flex:none}.ly .eye:focus-visible,.ly:focus-visible{outline:2px solid var(--acc,#6ea8ff);outline-offset:1px}.ly:focus{outline:none}.ly .nmi{flex:1;min-width:0;height:30px;padding:0 8px;border:0;border-radius:7px;background:rgba(0,0,0,.35);color:var(--ink);font:inherit;box-shadow:inset 0 0 0 1px rgba(110,168,255,.7);outline:none}#layers{display:flex;flex-direction:column;gap:6px}.ly .bm{color:var(--mute);font-size:10.5px}
+.ly .nm{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.ly .lthb{flex:none;width:48px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:6px}.ly .lth{display:block;max-width:48px;max-height:36px;border-radius:3px;box-shadow:0 0 0 1px var(--line);background-color:#fff;background-image:linear-gradient(45deg,#d6d6d6 25%,transparent 25%,transparent 75%,#d6d6d6 75%),linear-gradient(45deg,#d6d6d6 25%,transparent 25%,transparent 75%,#d6d6d6 75%);background-size:8px 8px;background-position:0 0,4px 4px}.ly.on .lth{box-shadow:0 0 0 1.5px rgba(110,168,255,.9)}.ly.hid .lthb{opacity:.4}.ly .eye{border:0;background:none;padding:0;cursor:pointer;flex:none}.ly .eye:focus-visible,.ly:focus-visible{outline:2px solid var(--acc,#6ea8ff);outline-offset:1px}.ly:focus{outline:none}.ly .nmi{flex:1;min-width:0;height:30px;padding:0 8px;border:0;border-radius:7px;background:rgba(0,0,0,.35);color:var(--ink);font:inherit;box-shadow:inset 0 0 0 1px rgba(110,168,255,.7);outline:none}#layers{display:flex;flex-direction:column;gap:6px}.ly .bm{color:var(--mute);font-size:10.5px}
 .hint{font-size:11.5px;color:var(--mute);line-height:1.55}
 #viewc{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);z-index:9;display:flex;align-items:center;gap:2px;background:var(--glass);border:1px solid var(--line);border-radius:11px;padding:3px;box-shadow:var(--sh)}
 #viewc button{background:none;border:0;color:var(--mute);border-radius:8px;height:28px;min-width:28px;padding:0 6px;display:grid;place-items:center;cursor:pointer;font:600 11px/1 system-ui;font-variant-numeric:tabular-nums}
@@ -407,7 +407,7 @@ body.rp.vexp #c{object-fit:contain}
 </div>
 <div id="viewc" role="toolbar" aria-label="Canvas view"><button id="vFit" data-ic="fit" data-tip="Fit to screen (Ctrl+0)" aria-label="Fit to screen"></button><button id="v100" data-tip="Zoom to 100% (Ctrl+1)" aria-label="Zoom to 100%">1:1</button><button id="vOut" data-ic="minus" data-tip="Zoom out (Ctrl+−)" aria-label="Zoom out"></button><button id="zoomv" data-tip="Zoom: click for 100% (Ctrl+1), again to fit (Ctrl+0)" aria-label="Zoom level">100%</button><button id="vIn" data-ic="plus" data-tip="Zoom in (Ctrl++)" aria-label="Zoom in"></button><span class="vsep"></span><button id="vRL" data-ic="rotl" data-tip="Rotate view left 15° (Shift+R)" aria-label="Rotate view left"></button><button id="vRR" data-ic="rotr" data-tip="Rotate view right 15° (R)" aria-label="Rotate view right"></button><button id="rotv" disabled data-tip="Straighten the view (shows current angle)" aria-label="Reset rotation">0°</button><button id="vFH" data-ic="fliph" data-tip="Mirror view left–right (H)" aria-label="Flip view horizontally" aria-pressed="false"></button><button id="vFV" data-ic="flipv" data-tip="Mirror view upside down (Shift+H)" aria-label="Flip view vertically" aria-pressed="false"></button><button id="vSun" data-ic="sun" data-tip="Light &amp; relief (Shift+L)" aria-label="Light and relief" aria-haspopup="dialog" aria-expanded="false" aria-controls="lp"></button><button id="vGrey" data-ic="grey" data-tip="Value check: greyscale view (Shift+V)" aria-label="Greyscale value check" aria-pressed="false"></button><button id="vFlat" data-ic="flat" data-tip="Flat view: hide lighting to judge colour (Shift+F)" aria-label="Flat view" aria-pressed="false"></button><span class="vsep"></span><button id="vClr" data-ic="trash" data-tip="Clear layer… (Shift+Delete)" aria-label="Clear layer" aria-haspopup="dialog"></button></div>
 <!-- top-left: brand + document actions -->
-<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.51</span><span id="recDot" class="recDot" role="img" aria-label="Recording strokes for replay" title="Recording strokes for replay (Settings › Replay &amp; recording)" hidden></span></div>
+<div id="barL" class="fl"><div class="brand"><span class="logo"></span>Medium<span class="ver" id="ver">v0.52</span><span id="recDot" class="recDot" role="img" aria-label="Recording strokes for replay" title="Recording strokes for replay (Settings › Replay &amp; recording)" hidden></span></div>
  <span class="sep dk"></span><button class="ib dk" id="tNew" data-tip="New canvas" aria-label="New canvas" data-ic="file"></button><button class="ib dk" id="tExp" data-tip="Export… (Ctrl+Shift+E)" aria-label="Export image" aria-haspopup="dialog" data-ic="download"></button><button class="ib dk" id="tShare" data-tip="Share… (Ctrl+Shift+S)" aria-label="Share painting" aria-haspopup="dialog" data-ic="share"></button><button class="ib dk" id="tRep" data-tip="Replay &amp; time-lapse video (Y)" aria-label="Replay painting" aria-haspopup="dialog" aria-expanded="false" data-ic="replay"></button><span class="sep dk"></span><button class="ib dk" id="bUndo" data-tip="Undo (Ctrl+Z)" aria-label="Undo" data-ic="undo"></button><button class="ib dk" id="bRedo" data-tip="Redo (Ctrl+Shift+Z)" aria-label="Redo" data-ic="redo"></button><span class="sp dk"></span><span id="docT" class="dk"></span><span class="sp dk"></span><button class="ib dk" id="tRef" data-tip="Reference image" aria-label="Reference image" data-ic="image"></button><button class="ib dk" id="tLay" data-tip="Layers (L)" aria-label="Layers" aria-expanded="false" aria-controls="panel" data-ic="layers"></button><button class="ib dk" id="tHelp" data-tip="Help &amp; shortcuts (?)" aria-label="Help and keyboard shortcuts" aria-haspopup="dialog" data-ic="help"></button><button class="ib dk" id="dSet" data-tip="Settings" aria-label="Settings" data-ic="sliders"></button></div>
 <!-- top-right: tools -->
 <div id="barR" class="fl"><button class="ib" id="dBrush" data-tip="Brush (B)" aria-label="Brush" data-ic="brush"></button><button class="ib" id="dPencil" data-tip="Pencil (G)" aria-label="Pencil" data-ic="pencil"></button><button class="ib" id="dKnife" data-tip="Palette knife (K)" aria-label="Palette knife" data-ic="knife"></button><button class="ib" id="dPick" data-tip="Eyedropper (I or Alt+click)" aria-label="Eyedropper" data-ic="pipette"></button>
@@ -603,6 +603,7 @@ body.rp.vexp #c{object-fit:contain}
  <section class="hSec" id="hsLayers"><h3><span data-ic="layers"></span>Layers</h3><ul>
   <li>Open the <b>Layers</b> tab with the layers button (stacked squares) at the top, or press <kbd>L</kbd>. It sits beside Settings in the same panel, so you can switch between the two tabs. You paint on the highlighted layer.</li>
   <li><b>+</b> adds a layer; the eye hides or shows one.</li>
+  <li><b>Thumbnails:</b> each layer shows a small preview of just that layer, on a checkerboard where it is see-through. It updates after each stroke, undo, clear or reorder, and while wet paint dries (only while the Layers tab is open). Tap a thumbnail or name to paint on that layer.</li>
   <li><b>Rename:</b> the pencil button, a double-click or double-tap on the name<span class="dk">, or F2</span>.</li>
   <li>The arrows move a layer up or down; <b>Merge down</b> joins it with the layer below.</li>
   <li><b>Layer opacity</b> and <b>Blend</b> in the Layers tab apply to the whole current layer. 18 blend modes, grouped like Photoshop: Normal · Darken, Multiply, Colour burn, Linear burn · Lighten, Screen, Colour dodge, Linear dodge (add) · Overlay, Soft light, Hard light · Difference, Exclusion · Hue, Saturation, Colour, Luminosity. New paintings blend like Photoshop (on display colours); paintings saved before v0.51 keep their old look for normal, multiply, screen and overlay. Blend only changes colour: the paint's relief and gloss stay as they are.</li>
@@ -1102,6 +1103,11 @@ const vs=sh(gl.VERTEX_SHADER,VS);
 function prog(src){const p=gl.createProgram();gl.attachShader(p,vs);{let fs=HEAD+src;if(NOLIN)fs=fs.replace('\n','\n#define NOLIN 1\n');if(MEDIUMP)fs=fs.replace('precision highp float;','precision mediump float;');gl.attachShader(p,sh(gl.FRAGMENT_SHADER,fs));}gl.bindAttribLocation(p,0,'p');gl.linkProgram(p);
  if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(p));const u={};const n=gl.getProgramParameter(p,gl.ACTIVE_UNIFORMS);
  for(let i=0;i<n;i++){const nm=gl.getActiveUniform(p,i).name.replace('[0]','');u[nm]=gl.getUniformLocation(p,nm);}return{p,u};}
+/* v0.52 layer thumbnails: box-filter a layer (premultiplied colour + height/gloss) down to thumbnail size; o1.x also gets the paper relief like hdown */
+FS.thumbDown=`uniform sampler2D uC,uA,uP;uniform float uPR,uTN;uniform vec2 uFP;layout(location=0) out vec4 o0;layout(location=1) out vec4 o1;
+void main(){int n=int(uTN+.5);vec4 C=vec4(0),A=vec4(0);float hp=0.;for(int j=0;j<12;j++){if(j>=n)break;for(int i=0;i<12;i++){if(i>=n)break;
+ vec2 u=vUv+uFP*((vec2(float(i),float(j))+.5)/float(n)-.5);C+=texture(uC,u);A+=texture(uA,u);hp+=texture(uP,u).r;}}
+ float k=float(n*n);o0=C/k;A/=k;o1=vec4(A.x+hp/k*uPR,A.yzw);}`;
 const P={};for(const k in FS)P[k]=prog(FS[k]);
 const vb=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,vb);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
 const TEXB=new Map();let gpuBytes=0,gpuPeak=0;
@@ -1975,7 +1981,46 @@ const ic=n=>'<svg class="i" viewBox="0 0 24 24" aria-hidden="true">'+ICONS[n]+'<
 function paintIcons(root){root.querySelectorAll('[data-ic]').forEach(el=>{el.innerHTML=ic(el.dataset.ic);});}
 paintIcons(document);
 // eye icons in the layer list (uiLayers renders an emoji; swap it for an SVG after each render)
-const _uiL=uiLayers;uiLayers=function(){_uiL();$('layers').querySelectorAll('.eye').forEach(e=>{e.innerHTML=ic(e.classList.contains('off')?'eyeoff':'eye');});};uiLayers();
+const _uiL=uiLayers;uiLayers=function(){_uiL();$('layers').querySelectorAll('.eye').forEach(e=>{e.innerHTML=ic(e.classList.contains('off')?'eyeoff':'eye');});};
+/* v0.52 layer thumbnails: each Layers-tab row shows a small live preview of that layer alone, lit like the canvas (flat when the view is flat),
+   on a checkerboard for transparency, in the canvas aspect ratio. GPU only: thumbDown box filter -> the screen lighting pass (P.final) at 96x72 max
+   -> one small RGBA8 atlas -> async readPixels into a PBO + fence (no GPU stall). Batches are >= 250 ms apart, never during a stroke, and only while
+   the Layers tab is open; wet paint refreshes about once a second while it dries. Display only: nothing goes into files or recordings. */
+const LTH={cv:new Map(),dirty:new Set(),all:true,last:0,pend:null,mid:null,sm:null,one:null,atl:null,pbo:null,pboN:0,wetT:0,wasOpen:false,wasWet:false,tw:0,th:0,stats:{batches:0,thumbs:0,ms:0,maxMs:0,minGap:1e9,lastT:0}};
+function lthSize(){const bw=96,bh=72;if(W/H>bw/bh)return[bw,Math.max(4,Math.round(bw*H/W))];return[Math.max(4,Math.round(bh*W/H)),bh];}
+function lthOpen(){return !SANDBOX&&!document.hidden&&$('panel').classList.contains('open')&&pTab==='lay';}
+function lthMark(id){if(id==null)LTH.all=true;else LTH.dirty.add(id);}
+function lthCanvas(l){let c=LTH.cv.get(l.id);if(!c){c=document.createElement('canvas');c.className='lth';c.setAttribute('aria-hidden','true');c.width=LTH.tw||4;c.height=LTH.th||4;c.getContext('2d',{willReadFrequently:true});LTH.cv.set(l.id,c);LTH.dirty.add(l.id);}return c;}
+function lthRows(){const el=$('layers');if(!el)return;const ids=new Set(layers.map(l=>l.id));for(const id of [...LTH.cv.keys()])if(!ids.has(id))LTH.cv.delete(id);
+ el.querySelectorAll('.ly[data-i]').forEach(d=>{const l=layers[+d.dataset.i];if(!l)return;d.classList.toggle('hid',!l.vis);const b=document.createElement('span');b.className='lthb';b.appendChild(lthCanvas(l));const e=d.querySelector('.eye');if(e)e.after(b);else d.prepend(b);});}
+function lthTarget(k,w,h,n,f,t){const o=LTH[k];if(o&&o.w===w&&o.h===h)return o;if(o)delTarget(o);return LTH[k]=target(n,w,h,f,t);}
+function lthRun(){const t0=performance.now();const[tw,th]=lthSize();if(tw!==LTH.tw||th!==LTH.th){LTH.tw=tw;LTH.th=th;LTH.all=true;for(const c of LTH.cv.values()){c.width=tw;c.height=th;}}
+ const ids=LTH.all?layers.map(l=>l.id):[...LTH.dirty];LTH.all=false;LTH.dirty.clear();const jobs=[];
+ for(const id of ids){const i=layers.findIndex(l=>l.id===id);if(i<0)continue;const l=layers[i],c=LTH.cv.get(id);if(!c)continue;
+  if(i!==ai&&!l.tex){c.getContext('2d').clearRect(0,0,c.width,c.height);continue;}jobs.push({id,i});}
+ if(!jobs.length)return;
+ const H16=gl.RGBA16F,HF=gl.HALF_FLOAT,sm=lthTarget('sm',tw,th,2,H16,HF),one=lthTarget('one',tw,th,1,gl.RGBA8,gl.UNSIGNED_BYTE),atl=lthTarget('atl',tw,th*jobs.length,1,gl.RGBA8,gl.UNSIGNED_BYTE);
+ const L=litU(),hk=Math.max(2,W/tw),rb=Math.pow(Math.min(hk,8),.3);
+ jobs.forEach((j,k)=>{let src,fp;if(j.i===ai){src=lthTarget('mid',tw*4,th*4,2,H16,HF);liveLayer(src);fp=4;}else{src=layers[j.i].tex;fp=W/tw;}
+  run(P.thumbDown,sm,{uC:src.t[0],uA:src.t[1],uP:PAPER.t[0]},{uFP:[1/tw,1/th],uTN:Math.max(2,Math.min(12,Math.ceil(fp/2))),uPR:L.uPR/rb});
+  run(P.final,one,{uAC:sm.t[0],uAA:sm.t[1],uP:PAPER.t[0],uHM:sm.t[1]},Object.assign({},L,{uHK:hk,uRB:rb,uFast:1,uScreen:0,uMode:LT.flat?1:0,uView:[0,0,1,0],uBg:[0,0,0]}));
+  blitT(one,0,0,atl,0,k*th,tw,th,1);});
+ const bytes=tw*th*jobs.length*4;if(!LTH.pbo)LTH.pbo=gl.createBuffer();gl.bindBuffer(gl.PIXEL_PACK_BUFFER,LTH.pbo);if(LTH.pboN<bytes){gl.bufferData(gl.PIXEL_PACK_BUFFER,bytes,gl.STREAM_READ);LTH.pboN=bytes;}
+ gl.bindFramebuffer(gl.FRAMEBUFFER,atl.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0);gl.readPixels(0,0,tw,th*jobs.length,gl.RGBA,gl.UNSIGNED_BYTE,0);gl.bindBuffer(gl.PIXEL_PACK_BUFFER,null);
+ const sync=gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE,0);gl.flush();LTH.pend={sync,jobs,tw,th,bytes,frames:0};
+ const ms=performance.now()-t0;if(LTH.stats.lastT)LTH.stats.minGap=Math.min(LTH.stats.minGap,t0-LTH.stats.lastT);LTH.stats.lastT=t0;LTH.stats.batches++;LTH.stats.thumbs+=jobs.length;LTH.stats.ms+=ms;LTH.stats.maxMs=Math.max(LTH.stats.maxMs,ms);}
+function lthPoll(force){const p=LTH.pend;if(!p)return;p.frames++;const s=gl.getSyncParameter(p.sync,gl.SYNC_STATUS);if(s!==gl.SIGNALED&&!force&&p.frames<8)return;
+ LTH.pend=null;gl.deleteSync(p.sync);const px=new Uint8Array(p.bytes);gl.bindBuffer(gl.PIXEL_PACK_BUFFER,LTH.pbo);gl.getBufferSubData(gl.PIXEL_PACK_BUFFER,0,px,0,p.bytes);gl.bindBuffer(gl.PIXEL_PACK_BUFFER,null);
+ if(p.tw!==LTH.tw||p.th!==LTH.th){LTH.all=true;return;}const rowB=p.tw*4;
+ p.jobs.forEach((j,k)=>{const c=LTH.cv.get(j.id);if(!c)return;const im=new ImageData(p.tw,p.th);for(let y=0;y<p.th;y++){const sy=k*p.th+(p.th-1-y);im.data.set(px.subarray(sy*rowB,(sy+1)*rowB),y*rowB);}c.getContext('2d').putImageData(im,0,0);c.dataset.v=(+(c.dataset.v||0)+1)+'';});}
+function lthTick(){if(LTH.pend)lthPoll(false);const open=lthOpen();if(open&&!LTH.wasOpen)LTH.all=true;LTH.wasOpen=open;if(!open)return;const now=performance.now();
+ const wet=awake.size>0;if(drawing==null&&wet&&now-LTH.wetT>1000){LTH.wetT=now;lthMark(layers[ai]&&layers[ai].id);}if(LTH.wasWet&&!wet)lthMark(layers[ai]&&layers[ai].id);LTH.wasWet=wet;
+ if((LTH.all||LTH.dirty.size)&&!LTH.pend&&drawing==null&&now-LTH.last>=250){LTH.last=now;try{lthRun();}catch(e){console.warn('layer thumbnails',e);}}}
+{const _u=uiLayers;uiLayers=function(){_u();lthRows();lthMark();};}
+{const _e=endStroke;endStroke=function(){const r=_e.apply(this,arguments);if(layers[ai])lthMark(layers[ai].id);return r;};}
+{const _c=clearLayer;clearLayer=function(){const r=_c.apply(this,arguments);lthMark();return r;};}
+if(!SANDBOX)requestAnimationFrame(function lthLoop(){requestAnimationFrame(lthLoop);lthTick();});
+uiLayers();
 // settings panel: open by default on wide desktop
 const panel=$('panel');
 // v0.45: one side panel / phone drawer with two tabs, Settings and Layers (Layers no longer sits inside Settings)
@@ -2239,7 +2284,7 @@ function ringCur(){const c=$('ring').querySelector('.rc');if(c)c.style.backgroun
 function closeRing(){$('ring').hidden=true;}
 addEventListener('pointerdown',e=>{if(!$('ring').hidden&&!$('ring').contains(e.target))closeRing();},true);
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('ring').hidden)closeRing();});
-window.paintAPI={flip:()=>Object.assign({},FLIP),setFlip,sheetRect:()=>{const d=cv.width/Math.max(1,cv.getBoundingClientRect().width),P=[[0,0],[W,0],[0,H],[W,H]].map(q=>v2s(q[0],q[1])).map(q=>[FLIP.h?cv.width-q[0]:q[0],FLIP.v?cv.height-q[1]:q[1]]);const xs=P.map(q=>q[0]/d),ys=P.map(q=>(cv.height-q[1])/d);return{left:Math.min(...xs),right:Math.max(...xs),top:Math.min(...ys),bottom:Math.max(...ys)};},resetPeak:()=>{gpuPeak=gpuBytes;},pause:v=>paused=v,setMedium,setMed,medium:()=>st.med,setSize,selectPig,setHex:h=>{st.ks=hexKS(h);},clear:()=>{recEv('C','raw');clearAll();},undo:(...a)=>undo(...a),redo:()=>redo(),setLight,setRelief,lightState:()=>({az:st.light,relief:st.relief,el:LT.el,str:LT.str,gloss:LT.gloss,paper:LT.paper,wet:LT.wet,flat:LT.flat,hk:hmFor()}),setLT:o=>setLT(o),
+window.paintAPI={lthInfo:()=>({tw:LTH.tw,th:LTH.th,pending:!!LTH.pend,dirty:LTH.all||LTH.dirty.size>0,stats:Object.assign({},LTH.stats),open:lthOpen()}),lthPixels(i){const l=layers[i];const c=l&&LTH.cv.get(l.id);if(!c)return null;return{w:c.width,h:c.height,v:+(c.dataset.v||0),d:Array.from(c.getContext('2d').getImageData(0,0,c.width,c.height).data)};},lthFlush(){lthPoll(true);LTH.last=0;lthTick();lthPoll(true);LTH.stats.minGap=1e9;LTH.stats.lastT=0;return LTH.stats.batches;}/* tests only: forced batch, not counted in minGap */,flip:()=>Object.assign({},FLIP),setFlip,sheetRect:()=>{const d=cv.width/Math.max(1,cv.getBoundingClientRect().width),P=[[0,0],[W,0],[0,H],[W,H]].map(q=>v2s(q[0],q[1])).map(q=>[FLIP.h?cv.width-q[0]:q[0],FLIP.v?cv.height-q[1]:q[1]]);const xs=P.map(q=>q[0]/d),ys=P.map(q=>(cv.height-q[1])/d);return{left:Math.min(...xs),right:Math.max(...xs),top:Math.min(...ys),bottom:Math.max(...ys)};},resetPeak:()=>{gpuPeak=gpuBytes;},pause:v=>paused=v,setMedium,setMed,medium:()=>st.med,setSize,selectPig,setHex:h=>{st.ks=hexKS(h);},clear:()=>{recEv('C','raw');clearAll();},undo:(...a)=>undo(...a),redo:()=>redo(),setLight,setRelief,lightState:()=>({az:st.light,relief:st.relief,el:LT.el,str:LT.str,gloss:LT.gloss,paper:LT.paper,wet:LT.wet,flat:LT.flat,hk:hmFor()}),setLT:o=>setLT(o),
  step:n=>{for(let i=0;i<n;i++)step();render();},dryAll:()=>{recEv('D',0);st.dryAll=1;step();render();},
  blendModes:()=>Object.keys(MODES),blendSpace:()=>BSP,setBlendSpace:v=>{BSP=v?1:0;belowDirty=true;compFull=true;needRender=true;},/* tests only */editCommit:(op,args)=>editCommit(op,args),
  readLayerPixel(i,x,y){const l=layers[i];if(!l||!l.tex)return null;const o=[];for(const k of [0,1]){const b=new Float32Array(4);gl.bindFramebuffer(gl.FRAMEBUFFER,l.tex.fb);gl.readBuffer(gl.COLOR_ATTACHMENT0+k);gl.readPixels(x,y,1,1,gl.RGBA,gl.FLOAT,b);o.push([...b]);}gl.readBuffer(gl.COLOR_ATTACHMENT0);return o;},

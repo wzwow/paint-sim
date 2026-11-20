@@ -17,7 +17,7 @@ Paint in the browser with watercolour, gouache, acrylic, oil, ink and pencil. Br
 - **Clear water / clear medium** (the water-drop, or W): re-wet and lift dried watercolour or ink; thin and blend wet oil or acrylic, with no colour added
 - **Brush opacity:** the Opacity slider sets how see-through each stroke is, like letting the paint down with medium or water. 100% paints as normal; lower values lay a thinner glaze of colour so the paper or dried paint underneath shows through, in every medium and the pencil. Size, wetness and texture stay the same, a single stroke never builds up past its opacity, and a glaze still looks like a glaze once it dries. It doesn't apply to the palette knife or clear water
 - **Pen pressure and tilt**, including the Samsung S Pen — press harder, tilt to shade
-- **Layers** in their own tab, with layer opacity, rename, merge and a clear-layer button, and **18 blend modes** grouped like Photoshop: Normal; Darken, Multiply, Colour burn, Linear burn; Lighten, Screen, Colour dodge, Linear dodge (add); Overlay, Soft light, Hard light; Difference, Exclusion; Hue, Saturation, Colour, Luminosity. New paintings blend on display colours like Photoshop; paintings saved before v0.51 keep their old look. Blend modes change colour only — the paint's relief and gloss stay as they are
+- **Layers** in their own tab, each with a small live **thumbnail** of just that layer (lit like the canvas, on a checkerboard where it is see-through), with layer opacity, rename, merge and a clear-layer button, and **18 blend modes** grouped like Photoshop: Normal; Darken, Multiply, Colour burn, Linear burn; Lighten, Screen, Colour dodge, Linear dodge (add); Overlay, Soft light, Hard light; Difference, Exclusion; Hue, Saturation, Colour, Luminosity. New paintings blend on display colours like Photoshop; paintings saved before v0.51 keep their old look. Blend modes change colour only — the paint's relief and gloss stay as they are
 - **Canvas surfaces:** cold-press, hot-press and rough paper, linen or cotton canvas, and a smooth panel
 - **Lighting and relief**, so thick oil catches the light; plus a greyscale value check and a flat view that hides lighting
 - **Colour tools:** pigments, a wheel or square picker, HSB/RGB numbers, warmer/cooler/lighter/darker (mixed as paint), pins, recent colours, and an eyedropper
@@ -36,7 +36,7 @@ Paint in the browser with watercolour, gouache, acrylic, oil, ink and pencil. Br
 
 <img src="docs/screenshots/blend-modes.jpg" alt="The same painted base with a top layer of grey, white, magenta, cyan and black strokes in each of the 18 blend modes">
 
-<img src="docs/screenshots/layers.jpg" alt="The Layers tab, separate from Settings, on the desktop">
+<img src="docs/screenshots/layers.jpg" alt="The Layers tab with a live thumbnail for each layer, on the desktop">
 
 <img src="docs/screenshots/replay.jpg" alt="Replay: the painting is painted again stroke by stroke, with play, scrub, speed and Video controls">
 
