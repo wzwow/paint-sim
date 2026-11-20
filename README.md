@@ -15,8 +15,9 @@ Paint in the browser with watercolour, gouache, acrylic, oil, ink and pencil. Br
 - **Media:** watercolour, gouache, acrylic, oil, ink, and graphite or coloured pencil
 - **Bristle brushes** with presets (washes, dry brush, filbert, fan blender, liners and more), plus a **palette knife** that can lay or scrape thick paint
 - **Clear water / clear medium** (the water-drop, or W): re-wet and lift dried watercolour or ink; thin and blend wet oil or acrylic, with no colour added
+- **Brush opacity:** the Opacity slider sets how see-through each stroke is, like letting the paint down with medium or water. 100% paints as normal; lower values lay a thinner glaze of colour so the paper or dried paint underneath shows through, in every medium and the pencil. Size, wetness and texture stay the same, a single stroke never builds up past its opacity, and a glaze still looks like a glaze once it dries. It doesn't apply to the palette knife or clear water
 - **Pen pressure and tilt**, including the Samsung S Pen — press harder, tilt to shade
-- **Layers** in their own tab, with opacity, blend modes, rename, merge and a clear-layer button
+- **Layers** in their own tab, with layer opacity, blend modes, rename, merge and a clear-layer button
 - **Canvas surfaces:** cold-press, hot-press and rough paper, linen or cotton canvas, and a smooth panel
 - **Lighting and relief**, so thick oil catches the light; plus a greyscale value check and a flat view that hides lighting
 - **Colour tools:** pigments, a wheel or square picker, HSB/RGB numbers, warmer/cooler/lighter/darker (mixed as paint), pins, recent colours, and an eyedropper
@@ -37,9 +38,11 @@ Paint in the browser with watercolour, gouache, acrylic, oil, ink and pencil. Br
 
 <img src="docs/screenshots/replay.jpg" alt="Replay: the painting is painted again stroke by stroke, with play, scrub, speed and Video controls">
 
+<img src="docs/screenshots/opacity.jpg" alt="Brush opacity: strokes at 100%, 60% and 30% in watercolour, ink, gouache, acrylic, oil and pencil over a dark band of dried paint">
+
 ## How to use
 
-On a computer, use a mouse or a pressure-sensitive pen. Pick a medium and a brush preset, choose a colour, and paint. Size, Flow and Opacity sit under the tools on the left; colours are on the right; canvas controls (fit, zoom, rotate, flip, lighting, clear layer) run along the bottom.
+On a computer, use a mouse or a pressure-sensitive pen. Pick a medium and a brush preset, choose a colour, and paint. Size, Flow and brush Opacity sit under the tools on the left (Opacity is also in Settings › Paint; a layer's opacity is in the Layers tab); colours are on the right; canvas controls (fit, zoom, rotate, flip, lighting, clear layer) run along the bottom.
 
 On a phone or tablet the layout is the same, so nothing is hidden in a different place. A keyboard is optional. The S Pen side button can open a quick colour ring (this has not been widely tested on a real device yet).
 
